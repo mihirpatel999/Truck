@@ -890,9 +890,12 @@
 
 
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> ad265cd4ede7dc88ea8cd372f2d6904482224a29
 // Description: This is the backend server for the Truck Tracking application.
 const express = require("express");
 const cors = require("cors");
