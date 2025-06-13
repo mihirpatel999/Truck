@@ -94,7 +94,7 @@ function Navbar() {
               </button>
               {dispatcherOpen && (
                 <div className="pl-4 space-y-1 mt-1">
-                  <Link to="/truck-transaction" className="block hover:text-yellow-400">Truck Transaction</Link>
+                  <Link to="/truck" className="block hover:text-yellow-400">Truck Transaction</Link>
                 </div>
               )}
             </div>
