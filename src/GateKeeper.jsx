@@ -1,9 +1,11 @@
 
-// // export default GateKeeper;
+// // GateKeeper.jsx
 // import React, { useEffect, useState } from 'react';
 // import axios from 'axios';
 // import { ToastContainer, toast } from 'react-toastify';
 // import 'react-toastify/dist/ReactToastify.css';
+
+// const API_URL = import.meta.env.VITE_API_URL;
 
 // function GateKeeper() {
 //   const [formData, setFormData] = useState({
@@ -19,14 +21,14 @@
 //   const [checkedInTrucks, setCheckedInTrucks] = useState([]);
 
 //   useEffect(() => {
-//     axios.get('http://localhost:3001/api/plants')
+//     axios.get(`${API_URL}/api/plants`)
 //       .then(res => setPlantList(res.data))
 //       .catch(err => console.error('Error fetching plants:', err));
 //   }, []);
 
 //   useEffect(() => {
 //     if (selectedPlant) {
-//       axios.get(`http://localhost:3001/api/trucks?plantName=${selectedPlant}`)
+//       axios.get(`${API_URL}/api/trucks?plantName=${selectedPlant}`)
 //         .then(res => setTruckNumbers(res.data))
 //         .catch(err => console.error('Error fetching trucks:', err));
 //     }
@@ -34,7 +36,7 @@
 
 //   useEffect(() => {
 //     if (selectedPlant) {
-//       axios.get(`http://localhost:3001/api/checked-in-trucks?plantName=${selectedPlant}`)
+//       axios.get(`${API_URL}/api/checked-in-trucks?plantName=${selectedPlant}`)
 //         .then(res => setCheckedInTrucks(res.data))
 //         .catch(err => console.error('Error fetching checked-in trucks:', err));
 //     }
@@ -54,30 +56,29 @@
 //     }));
 //   };
 
-// const handleTruckSelect = async (truckNo) => {
-//   setFormData(prev => ({ ...prev, truckNo }));
+//   const handleTruckSelect = async (truckNo) => {
+//     setFormData(prev => ({ ...prev, truckNo }));
 
-//   try {
-//     const res = await axios.get('http://localhost:3001/api/fetch-remarks', {
-//       params: {
-//         plantName: selectedPlant,
-//         truckNo,
-//       }
-//     });
+//     try {
+//       const res = await axios.get(`${API_URL}/api/fetch-remarks`, {
+//         params: {
+//           plantName: selectedPlant,
+//           truckNo,
+//         }
+//       });
 
-//     setFormData(prev => ({
-//       ...prev,
-//       remarks: res.data.remarks || 'No remarks available.'
-//     }));
-//   } catch (err) {
-//     console.error('Error fetching remarks:', err);
-//     setFormData(prev => ({
-//       ...prev,
-//       remarks: 'No remarks available or error fetching remarks.'
-//     }));
-//   }
-// };
-
+//       setFormData(prev => ({
+//         ...prev,
+//         remarks: res.data.remarks || 'No remarks available.'
+//       }));
+//     } catch (err) {
+//       console.error('Error fetching remarks:', err);
+//       setFormData(prev => ({
+//         ...prev,
+//         remarks: 'No remarks available or error fetching remarks.'
+//       }));
+//     }
+//   };
 
 //   const handleCheckedInClick = (truckNo) => {
 //     setFormData(prev => ({ ...prev, truckNo }));
@@ -91,7 +92,7 @@
 //     }
 
 //     try {
-//       const res = await axios.post('http://localhost:3001/api/update-truck-status', {
+//       const res = await axios.post(`${API_URL}/api/update-truck-status`, {
 //         truckNo,
 //         plantName: selectedPlant,
 //         type
@@ -248,7 +249,7 @@
 
 // export default GateKeeper;
 
-// GateKeeper.jsx
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -290,6 +291,9 @@ function GateKeeper() {
         .catch(err => console.error('Error fetching checked-in trucks:', err));
     }
   }, [selectedPlant]);
+
+  const getTruckNo = (truck) => truck.TruckNo || truck.truckno || truck.truck_no || '';
+  const getPlantName = (plant) => plant.PlantName || plant.plantname || plant.plant_name || '';
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -347,9 +351,9 @@ function GateKeeper() {
         type
       });
 
-      setTruckNumbers(prev => prev.filter(t => t.TruckNo !== truckNo));
+      setTruckNumbers(prev => prev.filter(t => getTruckNo(t) !== truckNo));
 
-      if (type === 'Check In' && !checkedInTrucks.includes(truckNo)) {
+      if (type === 'Check In' && !checkedInTrucks.some(t => getTruckNo(t) === truckNo)) {
         setCheckedInTrucks(prev => [...prev, { TruckNo: truckNo }]);
       }
 
@@ -378,7 +382,7 @@ function GateKeeper() {
           >
             <option value="">Select Plant</option>
             {plantList.map((plant, i) => (
-              <option key={i} value={plant.PlantName}>{plant.PlantName}</option>
+              <option key={i} value={getPlantName(plant)}>{getPlantName(plant)}</option>
             ))}
           </select>
 
@@ -388,10 +392,10 @@ function GateKeeper() {
               {truckNumbers.map((truck, index) => (
                 <li
                   key={index}
-                  onClick={() => handleTruckSelect(truck.TruckNo)}
+                  onClick={() => handleTruckSelect(getTruckNo(truck))}
                   className="hover:text-blue-600"
                 >
-                  {truck.TruckNo}
+                  {getTruckNo(truck)}
                 </li>
               ))}
               {truckNumbers.length === 0 && (
@@ -477,9 +481,9 @@ function GateKeeper() {
                 <li
                   key={idx}
                   className="hover:text-green-600 cursor-pointer"
-                  onClick={() => handleCheckedInClick(truck.TruckNo)}
+                  onClick={() => handleCheckedInClick(getTruckNo(truck))}
                 >
-                  {truck.TruckNo}
+                  {getTruckNo(truck)}
                 </li>
               ))}
               {checkedInTrucks.length === 0 && (
