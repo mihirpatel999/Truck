@@ -447,7 +447,7 @@ export default function PlantMaster() {
   const handleEditClick = async () => {
     if (!selectedPlant) return;
     try {
-      const res = await axios.get(`${API_URL}/api/plantmaster/${encodeURIComponent(selectedPlant)}`);
+      const res = await axios.get(`${API_URL}/api/plantmaster/${encodeURIComponent(selectedPlant.trim())}`);
       if (res.data && (res.data.PlantID || res.data.PlantId)) {
         setFormData({
           plantId: res.data.PlantID || res.data.PlantId,
