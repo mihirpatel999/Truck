@@ -1616,7 +1616,7 @@ app.get('/api/fetch-remarks', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-x
+
 // 🚀 Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
