@@ -2075,9 +2075,6 @@
 
 
 
-////////////////
-
-
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -2113,72 +2110,44 @@ export default function PlantMaster() {
   };
 
   const handlePlantSelect = (e) => {
-    const id = parseInt(e.target.value, 10);
-    setSelectedPlantId(id);
-    setShowEditButton(!isNaN(id));
-  };
+    const value = e.target.value;
+    const id = parseInt(value, 10);
 
-//   const handleEditClick = async () => {
-//     console.log('Edit button clicked, ID:', selectedPlantId); // 👈 ye add karo
-//   if (!selectedPlantId) return;
-//   try {
-//     const res = await axios.get(`${API_URL}/api/plantmaster/${selectedPlantId}`);
-//     const data = res.data;
-
-//     // 🔍 Log the returned data to debug
-//     console.log('Fetched plant data:', res.data);
-
-//     if (data && data.plantId) {
-//       setFormData({
-//         plantId: data.plantId,
-//         plantName: data.plantName,
-//         plantAddress: data.plantAddress,
-//         contactPerson: data.contactPerson,
-//         mobileNo: data.mobileNo,
-//         remarks: data.remarks
-//       });
-//       setEditMode(true);
-//     } else {
-//       alert('❌ Invalid plant selected or no data found');
-//     }
-//   } catch (err) {
-//     console.error('Error fetching plant:', err);
-//     alert('❌ Error fetching plant data');
-//   }
-// };
-
-const handleEditClick = async () => {
-  if (!selectedPlantId) return;
-
-  try {
-    const res = await axios.get(`${API_URL}/api/plantmaster/${encodeURIComponent(selectedPlantId)}`);
-    console.log('Fetched plant data:', res.data); // ✅ Debugging
-
-    const data = res.data;
-
-    // Check if data has expected keys
-    if (data && data.plantId) {
-      setFormData({
-        plantId: data.plantId,
-        plantName: data.plantName,
-        plantAddress: data.plantAddress,
-        contactPerson: data.contactPerson,
-        mobileNo: data.mobileNo,
-        remarks: data.remarks
-      });
-      setEditMode(true);
-    } else {
-      console.error('No valid plant data returned');
-      alert('❌ Invalid plant selected or no data found');
+    if (isNaN(id)) {
+      setSelectedPlantId('');
+      setShowEditButton(false);
+      return;
     }
 
-  } catch (err) {
-    console.error('❌ Error fetching plant:', err);
-    alert('❌ Error fetching plant data');
-  }
-};
+    setSelectedPlantId(id);
+    setShowEditButton(true);
+  };
 
+  const handleEditClick = async () => {
+    if (!selectedPlantId) return;
 
+    try {
+      const res = await axios.get(`${API_URL}/api/plantmaster/${selectedPlantId}`);
+      const data = res.data;
+
+      if (data && data.plantId) {
+        setFormData({
+          plantId: data.plantId,
+          plantName: data.plantName,
+          plantAddress: data.plantAddress,
+          contactPerson: data.contactPerson,
+          mobileNo: data.mobileNo,
+          remarks: data.remarks
+        });
+        setEditMode(true);
+      } else {
+        alert('❌ Invalid plant selected or no data found');
+      }
+    } catch (err) {
+      console.error('Error fetching plant:', err);
+      alert('❌ Error fetching plant data');
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -2208,6 +2177,7 @@ const handleEditClick = async () => {
         await axios.post(`${API_URL}/api/plant-master`, formData);
         alert('✅ Plant saved successfully!');
       }
+
       fetchPlants();
       handleBack();
     } catch (err) {
@@ -2220,6 +2190,7 @@ const handleEditClick = async () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-blue-100 p-4">
       <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-xl">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Plant Master</h2>
+
         {!editMode ? (
           <div className="space-y-4">
             <div>
@@ -2231,25 +2202,27 @@ const handleEditClick = async () => {
               >
                 <option value="">-- Select --</option>
                 {plantList.map((plant) => (
-                  <option key={plant.plantId} value={plant.plantId}>
-                    {plant.plantName}
+                  <option key={plant.plantid || plant.plantId} value={plant.plantid || plant.plantId}>
+                    {plant.plantname || plant.plantName}
                   </option>
                 ))}
               </select>
             </div>
+
             {showEditButton && (
               <button
                 onClick={handleEditClick}
                 className="w-full bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
               >
-                Edit Selected Plant
+                ✏️ Edit Selected Plant
               </button>
             )}
+
             <button
               onClick={() => setEditMode(true)}
               className="mt-2 w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
             >
-              + Add New Plant
+              ➕ Add New Plant
             </button>
           </div>
         ) : (
@@ -2266,6 +2239,7 @@ const handleEditClick = async () => {
                 required
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Plant Address</label>
               <textarea
@@ -2277,6 +2251,7 @@ const handleEditClick = async () => {
                 className="mt-1 block w-full rounded-lg border border-gray-300 shadow-sm p-2"
               ></textarea>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Contact Person</label>
               <input
@@ -2288,6 +2263,7 @@ const handleEditClick = async () => {
                 className="mt-1 block w-full rounded-lg border border-gray-300 shadow-sm p-2"
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Mobile No</label>
               <input
@@ -2299,6 +2275,7 @@ const handleEditClick = async () => {
                 className="mt-1 block w-full rounded-lg border border-gray-300 shadow-sm p-2"
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Remarks</label>
               <textarea
@@ -2310,11 +2287,19 @@ const handleEditClick = async () => {
                 className="mt-1 block w-full rounded-lg border border-gray-300 shadow-sm p-2"
               ></textarea>
             </div>
+
             <div className="flex justify-between mt-6">
-              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+              >
                 {formData.plantId ? 'Update' : 'Save'}
               </button>
-              <button type="button" onClick={handleBack} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+              <button
+                type="button"
+                onClick={handleBack}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+              >
                 Back
               </button>
             </div>
@@ -2324,3 +2309,6 @@ const handleEditClick = async () => {
     </div>
   );
 }
+
+
+
