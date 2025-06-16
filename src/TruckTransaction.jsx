@@ -655,35 +655,64 @@ const addRow = () => {
 //   }
 // }; // ✅ ← THIS BRACKET WAS MISSING
 
+// 
+
 const handleSubmit = async () => {
-  if (!formData.truckNo || !formData.transactionDate) {
-    return setMessage("Truck No and Date are required.");
+  // Step 1: Start with all rows already added
+  let finalTableData = [...tableData];
+
+  // Step 2: Check if the current row being typed (newRow) has any real data
+  const isNewRowFilled =
+    newRow.plantName || newRow.loadingSlipNo || newRow.qty || newRow.priority || newRow.remarks;
+
+  // Step 3: If so, add it to the final data
+  if (isNewRowFilled) {
+    finalTableData.push(newRow);
   }
 
-  try {
-    const finalTableData = tableData.map((row) => ({
-      ...row,
-      qty: Number(row.qty) || 0,
-      freight: row.freight || 'To Pay',
-    }));
+  // Step 4: Form validation (optional but recommended)
+  if (!formData.truckNo || !formData.transactionDate) {
+    return setMessage("❌ Truck No and Transaction Date are required.");
+  }
 
+  // Step 5: Submit to backend
+  try {
     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
       formData,
-      tableData: finalTableData
+      tableData: finalTableData,
     });
 
     if (response.data.success) {
-      setMessage("Data submitted successfully!");
+      setMessage("✅ Transaction saved successfully!");
+      
+      // Clear form and tables
+      setFormData({
+        truckNo: '',
+        transactionDate: '',
+        cityName: '',
+        transporter: '',
+        amountPerTon: '',
+        truckWeight: '',
+        deliverPoint: '',
+        remarks: ''
+      });
+      setTableData([]);
+      setNewRow({
+        plantName: '',
+        loadingSlipNo: '',
+        qty: '',
+        priority: '',
+        remarks: '',
+        freight: 'To Pay'
+      });
     } else {
-      setMessage("Submission failed. Please try again.");
+      setMessage("❌ Error saving transaction.");
     }
-
   } catch (error) {
-    console.error("Error submitting form:", error);
-    setMessage("Something went wrong during submission.");
+    console.error("Submit error:", error);
+    setMessage("❌ Server error while submitting data.");
   }
 };
-
 
 
   // Helper to get plant name robustly (for future-proofing)
