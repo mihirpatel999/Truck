@@ -631,30 +631,58 @@ const addRow = () => {
   // };
 
 
+// const handleSubmit = async () => {
+//   if (!formData.truckNo || !formData.transactionDate) {
+//     return setMessage("❌ Truck No and Date are required.");
+//   }
+
+//   try {
+//     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+//       formData,
+//       tableData: finalTableData,
+//     });
+
+//     if (response.data.success) {
+//       setMessage("✅ Transaction saved successfully");
+//       // clearForm();
+//     } else {
+//       setMessage("❌ Failed to save transaction");
+//     }
+
+//   } catch (error) {
+//     console.error("Error submitting form:", error);
+//     setMessage("❌ Something went wrong. Try again.");
+//   }
+// }; // ✅ ← THIS BRACKET WAS MISSING
+
 const handleSubmit = async () => {
   if (!formData.truckNo || !formData.transactionDate) {
-    return setMessage("❌ Truck No and Date are required.");
+    return setMessage("Truck No and Date are required.");
   }
 
   try {
+    const finalTableData = tableData.map((row) => ({
+      ...row,
+      qty: Number(row.qty) || 0,
+      freight: row.freight || 'To Pay',
+    }));
+
     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
       formData,
-      tableData: finalTableData,
+      tableData: finalTableData
     });
 
     if (response.data.success) {
-      setMessage("✅ Transaction saved successfully");
-      // clearForm();
+      setMessage("Data submitted successfully!");
     } else {
-      setMessage("❌ Failed to save transaction");
+      setMessage("Submission failed. Please try again.");
     }
 
   } catch (error) {
     console.error("Error submitting form:", error);
-    setMessage("❌ Something went wrong. Try again.");
+    setMessage("Something went wrong during submission.");
   }
-}; // ✅ ← THIS BRACKET WAS MISSING
-
+};
 
 
 
