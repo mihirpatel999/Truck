@@ -2124,6 +2124,9 @@ export default function PlantMaster() {
     const res = await axios.get(`${API_URL}/api/plantmaster/${selectedPlantId}`);
     const data = res.data;
 
+    // 🔍 Log the returned data to debug
+    console.log('Fetched plant data:', res.data);
+
     if (data && data.plantId) {
       setFormData({
         plantId: data.plantId,
@@ -2142,6 +2145,7 @@ export default function PlantMaster() {
     alert('❌ Error fetching plant data');
   }
 };
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
