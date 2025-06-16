@@ -201,6 +201,86 @@ app.get('/api/plantmaster/:id', async (req, res) => {
 // });
 
 
+// // 🚚 Truck Transaction API
+// app.post("/api/truck-transaction", async (req, res) => {
+//   const { formData, tableData } = req.body;
+//   const client = await pool.connect();
+
+//   try {
+//     await client.query('BEGIN');
+
+//     // Insert into TruckTransactionMaster
+//     const insertMain = await client.query(
+//       `INSERT INTO TruckTransactionMaster
+//         (TruckNo, TransactionDate, CityName, Transporter, AmountPerTon, TruckWeight, DeliverPoint, Remarks, CreatedAt)
+//         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+//         RETURNING TransactionID`,
+//       [
+//         formData.truckNo,
+//         formData.transactionDate,
+//         formData.cityName,
+//         formData.transporter,
+//         formData.amountPerTon,
+//         formData.truckWeight,
+//         formData.deliverPoint,
+//         formData.remarks
+//       ]
+//     );
+
+//     const transactionId = insertMain.rows[0].transactionid;
+
+//     // Insert into TruckTransactionDetails
+//     for (const row of tableData) {
+//       console.log("🚛 Inserting row:", row);
+
+//       const plantResult = await client.query(
+//         `SELECT PlantId FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
+//         [row.plantName]
+//       );
+
+//       let plantId = plantResult.rows[0]?.plantid;
+
+//       if (!plantId) {
+//         console.error("❌ Plant not found in DB for row:", row);
+        
+//         // 🔄 Optional: Auto-insert plant if not found
+//         // const insertPlant = await client.query(
+//         //   `INSERT INTO PlantMaster (PlantName, CreatedAt) VALUES ($1, NOW()) RETURNING PlantId`,
+//         //   [row.plantName]
+//         // );
+//         // plantId = insertPlant.rows[0].plantid;
+
+//         throw new Error(`❌ Plant not found: ${row.plantName}`);
+//       }
+
+//       await client.query(
+//         `INSERT INTO TruckTransactionDetails
+//           (TransactionID, PlantId, LoadingSlipNo, Qty, Priority, Remarks, Freight)
+//           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+//         [
+//           transactionId,
+//           plantId,
+//           row.loadingSlipNo,
+//           row.qty,
+//           row.priority,
+//           row.remarks || "",
+//           row.freight
+//         ]
+//       );
+//     }
+
+//     await client.query('COMMIT');
+//     res.json({ success: true });
+
+//   } catch (error) {
+//     await client.query('ROLLBACK');
+//     console.error("❌ Transaction failed:", error);
+//     res.status(500).json({ success: false, error: error.message });
+//   } finally {
+//     client.release();
+//   }
+// });
+
 // 🚚 Truck Transaction API
 app.post("/api/truck-transaction", async (req, res) => {
   const { formData, tableData } = req.body;
@@ -209,7 +289,12 @@ app.post("/api/truck-transaction", async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Insert into TruckTransactionMaster
+    // ✅ Step 1: Validation
+    if (!formData.truckNo || !formData.transactionDate) {
+      throw new Error("Truck No and Transaction Date are required.");
+    }
+
+    // ✅ Step 2: Insert into TruckTransactionMaster
     const insertMain = await client.query(
       `INSERT INTO TruckTransactionMaster
         (TruckNo, TransactionDate, CityName, Transporter, AmountPerTon, TruckWeight, DeliverPoint, Remarks, CreatedAt)
@@ -218,20 +303,28 @@ app.post("/api/truck-transaction", async (req, res) => {
       [
         formData.truckNo,
         formData.transactionDate,
-        formData.cityName,
-        formData.transporter,
-        formData.amountPerTon,
-        formData.truckWeight,
-        formData.deliverPoint,
-        formData.remarks
+        formData.cityName || "",
+        formData.transporter || "",
+        formData.amountPerTon || 0,
+        formData.truckWeight || 0,
+        formData.deliverPoint || "",
+        formData.remarks || ""
       ]
     );
 
-    const transactionId = insertMain.rows[0].transactionid;
+    const transactionId = insertMain.rows[0]?.transactionid;
 
-    // Insert into TruckTransactionDetails
+    if (!transactionId) {
+      throw new Error("Transaction ID not generated.");
+    }
+
+    // ✅ Step 3: Insert into TruckTransactionDetails
     for (const row of tableData) {
       console.log("🚛 Inserting row:", row);
+
+      if (!row.plantName || !row.loadingSlipNo || !row.qty) {
+        throw new Error(`Invalid row data: ${JSON.stringify(row)}`);
+      }
 
       const plantResult = await client.query(
         `SELECT PlantId FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
@@ -242,15 +335,7 @@ app.post("/api/truck-transaction", async (req, res) => {
 
       if (!plantId) {
         console.error("❌ Plant not found in DB for row:", row);
-        
-        // 🔄 Optional: Auto-insert plant if not found
-        // const insertPlant = await client.query(
-        //   `INSERT INTO PlantMaster (PlantName, CreatedAt) VALUES ($1, NOW()) RETURNING PlantId`,
-        //   [row.plantName]
-        // );
-        // plantId = insertPlant.rows[0].plantid;
-
-        throw new Error(`❌ Plant not found: ${row.plantName}`);
+        throw new Error(`Plant not found: ${row.plantName}`);
       }
 
       await client.query(
@@ -262,25 +347,25 @@ app.post("/api/truck-transaction", async (req, res) => {
           plantId,
           row.loadingSlipNo,
           row.qty,
-          row.priority,
+          row.priority || "",
           row.remarks || "",
-          row.freight
+          row.freight || "To Pay"
         ]
       );
     }
 
+    // ✅ Step 4: Done
     await client.query('COMMIT');
     res.json({ success: true });
 
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error("❌ Transaction failed:", error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error("❌ Transaction failed:", error.stack || error.message || error);
+    res.status(500).json({ success: false, error: error.message || "Unknown error occurred" });
   } finally {
     client.release();
   }
 });
-
 
 
 
