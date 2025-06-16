@@ -1270,18 +1270,19 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// PostgreSQL configuration
-const dbConfig = {
+// ✅ PostgreSQL connection
+const pool = new Pool({
   user: process.env.DB_USER,
-  host: process.env.DB_SERVER,
+  host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: parseInt(process.env.DB_PORT),
-};
+  ssl: {
+    rejectUnauthorized: false  // ✅ Important for Render PostgreSQL
+  }
+});
 
-const pool = new Pool(dbConfig);
-
-// Middleware
+// ✅ Middlewares
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -1615,7 +1616,7 @@ app.get('/api/fetch-remarks', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
+x
 // 🚀 Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
