@@ -530,66 +530,133 @@ function TruckTransaction() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleNewRowChange = (e) => {
-    setNewRow({ ...newRow, [e.target.name]: e.target.value });
-  };
+  // const handleNewRowChange = (e) => {
+  //   setNewRow({ ...newRow, [e.target.name]: e.target.value });
+  // };
 
-  const addRow = () => {
-    if (newRow.plantName && newRow.loadingSlipNo && newRow.qty) {
-      setTableData([...tableData, newRow]);
-      setNewRow({
-        plantName: '',
-        loadingSlipNo: '',
-        qty: '',
-        priority: '',
-        remarks: '',
-        freight: 'To Pay'
-      });
+  // const addRow = () => {
+  //   if (newRow.plantName && newRow.loadingSlipNo && newRow.qty) {
+  //     setTableData([...tableData, newRow]);
+  //     setNewRow({
+  //       plantName: '',
+  //       loadingSlipNo: '',
+  //       qty: '',
+  //       priority: '',
+  //       remarks: '',
+  //       freight: 'To Pay'
+  //     });
+  //   }
+  // };
+
+const handleNewRowChange = (e) => {
+  const { name, value } = e.target;
+  setNewRow((prev) => ({
+    ...prev,
+    [name]: value.trim(), // Trim whitespace
+  }));
+};
+
+const addRow = () => {
+  const { plantName, loadingSlipNo, qty } = newRow;
+
+  // Check required fields
+  if (!plantName || !loadingSlipNo || !qty) {
+    alert("❌ Please fill in Plant Name, Loading Slip No, and Quantity.");
+    return;
+  }
+
+  // Optional: Check if qty is a valid number
+  if (isNaN(qty) || Number(qty) <= 0) {
+    alert("❌ Quantity must be a positive number.");
+    return;
+  }
+
+  // Add new row
+  setTableData((prevData) => [...prevData, newRow]);
+
+  // Reset input fields
+  setNewRow({
+    plantName: '',
+    loadingSlipNo: '',
+    qty: '',
+    priority: '',
+    remarks: '',
+    freight: 'To Pay',
+  });
+};
+
+
+
+  // const handleSubmit = async () => {
+  //   let finalTableData = [...tableData];
+
+  //   if (newRow.plantName && newRow.loadingSlipNo && newRow.qty) {
+  //     finalTableData.push(newRow);
+  //   }
+
+  //   try {
+  //     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+  //       formData,
+  //       tableData: finalTableData
+  //     });
+
+  //     if (response.data.success) {
+  //       setMessage('✅ Transaction saved successfully!');
+  //       setFormData({
+  //         truckNo: '',
+  //         transactionDate: '',
+  //         cityName: '',
+  //         transporter: '',
+  //         amountPerTon: '',
+  //         truckWeight: '',
+  //         deliverPoint: '',
+  //         remarks: ''
+  //       });
+  //       setTableData([]);
+  //       setNewRow({
+  //         plantName: '',
+  //         loadingSlipNo: '',
+  //         qty: '',
+  //         priority: '',
+  //         remarks: '',
+  //         freight: 'To Pay'
+  //       });
+  //     } else {
+  //       setMessage('❌ Error saving transaction.');
+  //     }
+  //   } catch (error) {
+  //     console.error('Submit error:', error);
+  //     setMessage('❌ Server error while submitting data.');
+  //   }
+  // };
+
+
+const handleSubmit = async () => {
+  if (!formData.truckNo || !formData.transactionDate) {
+    return setMessage("❌ Truck No and Date are required.");
+  }
+
+  try {
+    const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+      formData,
+      tableData: finalTableData,
+    });
+
+    if (response.data.success) {
+      setMessage("✅ Transaction saved successfully");
+      // clearForm();
+    } else {
+      setMessage("❌ Failed to save transaction");
     }
-  };
 
-  const handleSubmit = async () => {
-    let finalTableData = [...tableData];
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    setMessage("❌ Something went wrong. Try again.");
+  }
+}; // ✅ ← THIS BRACKET WAS MISSING
 
-    if (newRow.plantName && newRow.loadingSlipNo && newRow.qty) {
-      finalTableData.push(newRow);
-    }
 
-    try {
-      const response = await axios.post(`${API_URL}/api/truck-transaction`, {
-        formData,
-        tableData: finalTableData
-      });
 
-      if (response.data.success) {
-        setMessage('✅ Transaction saved successfully!');
-        setFormData({
-          truckNo: '',
-          transactionDate: '',
-          cityName: '',
-          transporter: '',
-          amountPerTon: '',
-          truckWeight: '',
-          deliverPoint: '',
-          remarks: ''
-        });
-        setTableData([]);
-        setNewRow({
-          plantName: '',
-          loadingSlipNo: '',
-          qty: '',
-          priority: '',
-          remarks: '',
-          freight: 'To Pay'
-        });
-      } else {
-        setMessage('❌ Error saving transaction.');
-      }
-    } catch (error) {
-      console.error('Submit error:', error);
-      setMessage('❌ Server error while submitting data.');
-    }
-  };
 
   // Helper to get plant name robustly (for future-proofing)
   const getPlantName = (plant) => plant.PlantName || plant.plantname || plant.plant_name || plant || '';
