@@ -1309,6 +1309,98 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+// // 🌱 Plant Master API
+// app.post("/api/plantmaster", async (req, res) => {
+//   const { plantName, plantAddress, contactPerson, mobileNo, remarks } = req.body;
+//   if (!plantName) {
+//     return res.status(400).json({ message: "PlantName is required" });
+//   }
+//   try {
+//     await pool.query(
+//       `INSERT INTO PlantMaster (PlantName, PlantAddress, ContactPerson, MobileNo, Remarks)
+//        VALUES ($1, $2, $3, $4, $5)`,
+//       [plantName, plantAddress || "", contactPerson || "", mobileNo || "", remarks || ""]
+//     );
+//     res.status(200).json({ message: "Plant details submitted successfully." });
+//   } catch (error) {
+//     console.error("Insert error:", error);
+//     res.status(500).json({ message: "Error inserting plant details" });
+//   }
+// });
+
+// // 🔹 GET all plants (for dropdown)
+// app.get('/api/plants', async (req, res) => {
+//   try {
+//     const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
+//     res.json(result.rows);
+//   } catch (err) {
+//     console.error('Error fetching plants:', err);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+// // 🔹 GET plant by name (for search) - CASE INSENSITIVE
+// // app.get('/api/plantmaster/:plantName', async (req, res) => {
+// //   const plantName = req.params.plantName?.trim();
+// //   try {
+// //     const result = await pool.query(
+// //       `SELECT * FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
+// //       [plantName]
+// //     );
+// //     if (result.rows.length > 0) {
+// //       res.json(result.rows[0]);
+// //     } else {
+// //       res.status(404).json({ error: 'Plant not found' });
+// //     }
+// //   } catch (err) {
+// //     console.error('Error fetching plant by name:', err);
+// //     res.status(500).send('Server error');
+// //   }
+// // });
+
+
+
+// // 🔹 GET plant by ID (for edit)
+// app.get('/api/plantmaster/:id', async (req, res) => {
+//   const plantId = req.params.id;
+//   try {
+//     const result = await pool.query(
+//       'SELECT * FROM PlantMaster WHERE PlantID = $1',
+//       [plantId]
+//     );
+//     if (result.rows.length > 0) {
+//       res.json(result.rows[0]);
+//     } else {
+//       res.status(404).json({ error: 'Plant not found' });
+//     }
+//   } catch (err) {
+//     console.error('Error fetching plant by ID:', err);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+
+
+
+// // 🔹 PUT to update existing plant
+// app.put('/api/plantmaster/update/:id', async (req, res) => {
+//   const plantId = req.params.id;
+//   const { plantName, plantAddress, contactPerson, mobileNo, remarks } = req.body;
+//   try {
+//     await pool.query(
+//       `UPDATE PlantMaster
+//        SET PlantName = $1, PlantAddress = $2, ContactPerson = $3, MobileNo = $4, Remarks = $5
+//        WHERE PlantID = $6`,
+//       [plantName, plantAddress, contactPerson, mobileNo, remarks, plantId]
+//     );
+//     res.sendStatus(200);
+//   } catch (err) {
+//     console.error('Error updating plant:', err);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+
 // 🌱 Plant Master API
 app.post("/api/plantmaster", async (req, res) => {
   const { plantName, plantAddress, contactPerson, mobileNo, remarks } = req.body;
@@ -1339,27 +1431,6 @@ app.get('/api/plants', async (req, res) => {
   }
 });
 
-// 🔹 GET plant by name (for search) - CASE INSENSITIVE
-// app.get('/api/plantmaster/:plantName', async (req, res) => {
-//   const plantName = req.params.plantName?.trim();
-//   try {
-//     const result = await pool.query(
-//       `SELECT * FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
-//       [plantName]
-//     );
-//     if (result.rows.length > 0) {
-//       res.json(result.rows[0]);
-//     } else {
-//       res.status(404).json({ error: 'Plant not found' });
-//     }
-//   } catch (err) {
-//     console.error('Error fetching plant by name:', err);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-
-
 // 🔹 GET plant by ID (for edit)
 app.get('/api/plantmaster/:id', async (req, res) => {
   const plantId = req.params.id;
@@ -1379,9 +1450,6 @@ app.get('/api/plantmaster/:id', async (req, res) => {
   }
 });
 
-
-
-
 // 🔹 PUT to update existing plant
 app.put('/api/plantmaster/update/:id', async (req, res) => {
   const plantId = req.params.id;
@@ -1399,6 +1467,7 @@ app.put('/api/plantmaster/update/:id', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
 
 // 🚚 Truck Transaction API
 app.post("/api/truck-transaction", async (req, res) => {
