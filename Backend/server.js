@@ -1340,12 +1340,33 @@ app.get('/api/plants', async (req, res) => {
 });
 
 // 🔹 GET plant by name (for search) - CASE INSENSITIVE
-app.get('/api/plantmaster/:plantName', async (req, res) => {
-  const plantName = req.params.plantName?.trim();
+// app.get('/api/plantmaster/:plantName', async (req, res) => {
+//   const plantName = req.params.plantName?.trim();
+//   try {
+//     const result = await pool.query(
+//       `SELECT * FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
+//       [plantName]
+//     );
+//     if (result.rows.length > 0) {
+//       res.json(result.rows[0]);
+//     } else {
+//       res.status(404).json({ error: 'Plant not found' });
+//     }
+//   } catch (err) {
+//     console.error('Error fetching plant by name:', err);
+//     res.status(500).send('Server error');
+//   }
+// });
+
+
+
+// 🔹 GET plant by ID (for edit)
+app.get('/api/plantmaster/:id', async (req, res) => {
+  const plantId = req.params.id;
   try {
     const result = await pool.query(
-      `SELECT * FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
-      [plantName]
+      'SELECT * FROM PlantMaster WHERE PlantID = $1',
+      [plantId]
     );
     if (result.rows.length > 0) {
       res.json(result.rows[0]);
@@ -1353,10 +1374,13 @@ app.get('/api/plantmaster/:plantName', async (req, res) => {
       res.status(404).json({ error: 'Plant not found' });
     }
   } catch (err) {
-    console.error('Error fetching plant by name:', err);
+    console.error('Error fetching plant by ID:', err);
     res.status(500).send('Server error');
   }
 });
+
+
+
 
 // 🔹 PUT to update existing plant
 app.put('/api/plantmaster/update/:id', async (req, res) => {
