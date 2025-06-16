@@ -1416,22 +1416,33 @@ app.put('/api/plant-master/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to update plant' });
   }
 });
-
-// ✅ Get single plant by ID (for edit)
+// ✅ Fixed: Get single plant by ID with camelCase field names
 app.get('/api/plantmaster/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pool.query('SELECT * FROM PlantMaster WHERE PlantID = $1', [id]);
+    const result = await pool.query(
+      `SELECT 
+         PlantID AS "plantId", 
+         PlantName AS "plantName", 
+         PlantAddress AS "plantAddress", 
+         ContactPerson AS "contactPerson", 
+         MobileNo AS "mobileNo", 
+         Remarks AS "remarks" 
+       FROM PlantMaster 
+       WHERE PlantID = $1`,
+      [id]
+    );
+
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Plant not found' });
     }
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error fetching plant:', error);
     res.status(500).json({ error: 'Failed to fetch plant' });
   }
 });
-
 
 
 // 🚚 Truck Transaction API
