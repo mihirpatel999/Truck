@@ -1302,65 +1302,133 @@ app.post("/api/login", async (req, res) => {
 
 
 
-// Get all plant names
+// // Get all plant names
+// app.get('/api/plants', async (req, res) => {
+//   try {
+//     const result = await pool.query('SELECT PlantName FROM PlantMaster');
+//     const names = result.rows.map(row => row.plantname);
+//     res.json(names);
+//   } catch (error) {
+//     console.error('Error fetching plant names:', error);
+//     res.status(500).json({ error: 'Failed to fetch plant names' });
+//   }
+// });
+
+// // Get all plant master records
+// app.get('/api/plant-master', async (req, res) => {
+//   try {
+//     const result = await pool.query('SELECT * FROM PlantMaster');
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error('Error fetching plant master data:', error);
+//     res.status(500).json({ error: 'Failed to fetch plant master data' });
+//   }
+// });
+
+// // Add a new plant
+// app.post('/api/plant-master', async (req, res) => {
+//   const { PlantName, PlantAddress, ContactPerson, MobileNo, Remarks } = req.body;
+//   try {
+//     await pool.query(
+//       `INSERT INTO PlantMaster (PlantName, PlantAddress, ContactPerson, MobileNo, Remarks)
+//        VALUES ($1, $2, $3, $4, $5)`,
+//       [PlantName, PlantAddress, ContactPerson, MobileNo, Remarks]
+//     );
+//     res.status(201).json({ message: 'Plant added successfully' });
+//   } catch (error) {
+//     console.error('Error inserting plant:', error);
+//     res.status(500).json({ error: 'Failed to add plant' });
+//   }
+// });
+
+// // ✅ Update existing plant (EDIT)
+// app.put('/api/plant-master/:id', async (req, res) => {
+//   const { id } = req.params;
+//   const { PlantName, PlantAddress, ContactPerson, MobileNo, Remarks } = req.body;
+
+//   try {
+//     await pool.query(
+//       `UPDATE PlantMaster
+//        SET PlantName = $1,
+//            PlantAddress = $2,
+//            ContactPerson = $3,
+//            MobileNo = $4,
+//            Remarks = $5
+//        WHERE id = $6`,
+//       [PlantName, PlantAddress, ContactPerson, MobileNo, Remarks, id]
+//     );
+//     res.json({ message: 'Plant updated successfully' });
+//   } catch (error) {
+//     console.error('Error updating plant:', error);
+//     res.status(500).json({ error: 'Failed to update plant' });
+//   }
+// });
+
+
 app.get('/api/plants', async (req, res) => {
   try {
-    const result = await pool.query('SELECT PlantName FROM PlantMaster');
-    const names = result.rows.map(row => row.plantname);
-    res.json(names);
+    const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
+    res.json(result.rows); // return all records with id + name
   } catch (error) {
     console.error('Error fetching plant names:', error);
     res.status(500).json({ error: 'Failed to fetch plant names' });
   }
 });
 
-// Get all plant master records
+// ✅ Get all plant master records
 app.get('/api/plant-master', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM PlantMaster');
     res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching plant master data:', error);
-    res.status(500).json({ error: 'Failed to fetch plant master data' });
+    console.error('Error fetching plants:', error);
+    res.status(500).json({ error: 'Failed to fetch plants' });
   }
 });
 
-// Add a new plant
+// ✅ Create new plant master record
 app.post('/api/plant-master', async (req, res) => {
-  const { PlantName, PlantAddress, ContactPerson, MobileNo, Remarks } = req.body;
+  const { plantName, plantAddress, contactPerson, mobileNo, remarks } = req.body;
   try {
-    await pool.query(
-      `INSERT INTO PlantMaster (PlantName, PlantAddress, ContactPerson, MobileNo, Remarks)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [PlantName, PlantAddress, ContactPerson, MobileNo, Remarks]
+    const result = await pool.query(
+      'INSERT INTO PlantMaster (PlantName, PlantAddress, ContactPerson, MobileNo, Remarks) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [plantName, plantAddress, contactPerson, mobileNo, remarks]
     );
-    res.status(201).json({ message: 'Plant added successfully' });
+    res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('Error inserting plant:', error);
-    res.status(500).json({ error: 'Failed to add plant' });
+    console.error('Error creating plant:', error);
+    res.status(500).json({ error: 'Failed to create plant' });
   }
 });
 
-// ✅ Update existing plant (EDIT)
+// ✅ Update plant by ID
 app.put('/api/plant-master/:id', async (req, res) => {
   const { id } = req.params;
-  const { PlantName, PlantAddress, ContactPerson, MobileNo, Remarks } = req.body;
-
+  const { plantName, plantAddress, contactPerson, mobileNo, remarks } = req.body;
   try {
-    await pool.query(
-      `UPDATE PlantMaster
-       SET PlantName = $1,
-           PlantAddress = $2,
-           ContactPerson = $3,
-           MobileNo = $4,
-           Remarks = $5
-       WHERE id = $6`,
-      [PlantName, PlantAddress, ContactPerson, MobileNo, Remarks, id]
+    const result = await pool.query(
+      'UPDATE PlantMaster SET PlantName=$1, PlantAddress=$2, ContactPerson=$3, MobileNo=$4, Remarks=$5 WHERE PlantID=$6 RETURNING *',
+      [plantName, plantAddress, contactPerson, mobileNo, remarks, id]
     );
-    res.json({ message: 'Plant updated successfully' });
+    res.json(result.rows[0]);
   } catch (error) {
     console.error('Error updating plant:', error);
     res.status(500).json({ error: 'Failed to update plant' });
+  }
+});
+
+// ✅ Get single plant by ID (for edit)
+app.get('/api/plantmaster/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('SELECT * FROM PlantMaster WHERE PlantID = $1', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Plant not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching plant:', error);
+    res.status(500).json({ error: 'Failed to fetch plant' });
   }
 });
 
