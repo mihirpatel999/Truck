@@ -2119,6 +2119,7 @@ export default function PlantMaster() {
   };
 
   const handleEditClick = async () => {
+    console.log('Edit button clicked, ID:', selectedPlantId); // 👈 ye add karo
   if (!selectedPlantId) return;
   try {
     const res = await axios.get(`${API_URL}/api/plantmaster/${selectedPlantId}`);
