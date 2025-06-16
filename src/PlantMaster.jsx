@@ -2119,28 +2119,29 @@ export default function PlantMaster() {
   };
 
   const handleEditClick = async () => {
-    if (!selectedPlantId) return;
-    try {
-      const res = await axios.get(`${API_URL}/api/plantmaster/${selectedPlantId}`);
-      const data = res.data;
-      if (data && data.plantId) {
-        setFormData({
-          plantId: data.plantId,
-          plantName: data.plantName,
-          plantAddress: data.plantAddress,
-          contactPerson: data.contactPerson,
-          mobileNo: data.mobileNo,
-          remarks: data.remarks
-        });
-        setEditMode(true);
-      } else {
-        alert('❌ Invalid plant selected or no data found');
-      }
-    } catch (err) {
-      console.error('Error fetching plant:', err);
-      alert('❌ Error fetching plant data');
+  if (!selectedPlantId) return;
+  try {
+    const res = await axios.get(`${API_URL}/api/plantmaster/${selectedPlantId}`);
+    const data = res.data;
+
+    if (data && data.plantId) {
+      setFormData({
+        plantId: data.plantId,
+        plantName: data.plantName,
+        plantAddress: data.plantAddress,
+        contactPerson: data.contactPerson,
+        mobileNo: data.mobileNo,
+        remarks: data.remarks
+      });
+      setEditMode(true);
+    } else {
+      alert('❌ Invalid plant selected or no data found');
     }
-  };
+  } catch (err) {
+    console.error('Error fetching plant:', err);
+    alert('❌ Error fetching plant data');
+  }
+};
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
