@@ -2118,16 +2118,45 @@ export default function PlantMaster() {
     setShowEditButton(!isNaN(id));
   };
 
-  const handleEditClick = async () => {
-    console.log('Edit button clicked, ID:', selectedPlantId); // 👈 ye add karo
+//   const handleEditClick = async () => {
+//     console.log('Edit button clicked, ID:', selectedPlantId); // 👈 ye add karo
+//   if (!selectedPlantId) return;
+//   try {
+//     const res = await axios.get(`${API_URL}/api/plantmaster/${selectedPlantId}`);
+//     const data = res.data;
+
+//     // 🔍 Log the returned data to debug
+//     console.log('Fetched plant data:', res.data);
+
+//     if (data && data.plantId) {
+//       setFormData({
+//         plantId: data.plantId,
+//         plantName: data.plantName,
+//         plantAddress: data.plantAddress,
+//         contactPerson: data.contactPerson,
+//         mobileNo: data.mobileNo,
+//         remarks: data.remarks
+//       });
+//       setEditMode(true);
+//     } else {
+//       alert('❌ Invalid plant selected or no data found');
+//     }
+//   } catch (err) {
+//     console.error('Error fetching plant:', err);
+//     alert('❌ Error fetching plant data');
+//   }
+// };
+
+const handleEditClick = async () => {
   if (!selectedPlantId) return;
+
   try {
-    const res = await axios.get(`${API_URL}/api/plantmaster/${selectedPlantId}`);
+    const res = await axios.get(`${API_URL}/api/plantmaster/${encodeURIComponent(selectedPlantId)}`);
+    console.log('Fetched plant data:', res.data); // ✅ Debugging
+
     const data = res.data;
 
-    // 🔍 Log the returned data to debug
-    console.log('Fetched plant data:', res.data);
-
+    // Check if data has expected keys
     if (data && data.plantId) {
       setFormData({
         plantId: data.plantId,
@@ -2139,13 +2168,16 @@ export default function PlantMaster() {
       });
       setEditMode(true);
     } else {
+      console.error('No valid plant data returned');
       alert('❌ Invalid plant selected or no data found');
     }
+
   } catch (err) {
-    console.error('Error fetching plant:', err);
+    console.error('❌ Error fetching plant:', err);
     alert('❌ Error fetching plant data');
   }
 };
+
 
 
   const handleChange = (e) => {
