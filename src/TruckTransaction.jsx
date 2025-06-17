@@ -68,418 +68,149 @@ const handleNewRowChange = (e) => {
   }));
 };
 
-const addRow = () => {
-  const { plantName, loadingSlipNo, qty } = newRow;
+// const addRow = () => {
+//   const { plantName, loadingSlipNo, qty } = newRow;
 
-  // Check required fields
-  if (!plantName || !loadingSlipNo || !qty) {
-    alert("❌ Please fill in Plant Name, Loading Slip No, and Quantity.");
+//   // Check required fields
+//   if (!plantName || !loadingSlipNo || !qty) {
+//     alert("❌ Please fill in Plant Name, Loading Slip No, and Quantity.");
+//     return;
+//   }
+
+//   // Optional: Check if qty is a valid number
+//   if (isNaN(qty) || Number(qty) <= 0) {
+//     alert("❌ Quantity must be a positive number.");
+//     return;
+//   }
+
+//   // Add new row
+//   setTableData((prevData) => [...prevData, newRow]);
+
+//   // Reset input fields
+//   setNewRow({
+//     plantName: '',
+//     loadingSlipNo: '',
+//     qty: '',
+//     priority: '',
+//     remarks: '',
+//     freight: 'To Pay',
+//   });
+// };
+
+
+
+  const addRow = () => {
+  const { plantName, loadingSlipNo, qty, freight } = newRow;
+
+  if (!plantName || !loadingSlipNo || !qty || !freight) {
+    alert("❌ Please fill in all required fields (Plant Name, Loading Slip No, Qty, Freight).");
     return;
   }
 
-  // Optional: Check if qty is a valid number
   if (isNaN(qty) || Number(qty) <= 0) {
     alert("❌ Quantity must be a positive number.");
     return;
   }
 
-  // Add new row
   setTableData((prevData) => [...prevData, newRow]);
 
-  // Reset input fields
   setNewRow({
     plantName: '',
     loadingSlipNo: '',
     qty: '',
     priority: '',
     remarks: '',
-    freight: 'To Pay',
+    freight: 'To Pay', // ✅ Default value must be set
   });
 };
 
 
 
-  // const handleSubmit = async () => {
-  //   let finalTableData = [...tableData];
 
-  //   if (newRow.plantName && newRow.loadingSlipNo && newRow.qty) {
-  //     finalTableData.push(newRow);
-  //   }
-
-  //   try {
-  //     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
-  //       formData,
-  //       tableData: finalTableData
-  //     });
-
-  //     if (response.data.success) {
-  //       setMessage('✅ Transaction saved successfully!');
-  //       setFormData({
-  //         truckNo: '',
-  //         transactionDate: '',
-  //         cityName: '',
-  //         transporter: '',
-  //         amountPerTon: '',
-  //         truckWeight: '',
-  //         deliverPoint: '',
-  //         remarks: ''
-  //       });
-  //       setTableData([]);
-  //       setNewRow({
-  //         plantName: '',
-  //         loadingSlipNo: '',
-  //         qty: '',
-  //         priority: '',
-  //         remarks: '',
-  //         freight: 'To Pay'
-  //       });
-  //     } else {
-  //       setMessage('❌ Error saving transaction.');
-  //     }
-  //   } catch (error) {
-  //     console.error('Submit error:', error);
-  //     setMessage('❌ Server error while submitting data.');
-  //   }
-  // };
-
+ 
 
 // const handleSubmit = async () => {
-//   if (!formData.truckNo || !formData.transactionDate) {
-//     return setMessage("❌ Truck No and Date are required.");
-//   }
+// let finalTableData = tableData.filter(row => row.plantName && row.loadingSlipNo && row.qty);
+
+// if (newRow.plantName && newRow.loadingSlipNo && newRow.qty) {
+//   finalTableData.push(newRow);
+// }
+
+//   // ✅ Rename fields if needed
+//   finalTableData = finalTableData.map(row => ({
+//     plantName: row.plantName,
+//     slipNo: row.loadingSlipNo,
+//     qty: row.qty,
+//     priority: row.priority,
+//     remarks: row.remarks,
+//     freight: row.freight
+//   }));
 
 //   try {
-//     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+//     const response = await axios.post('https://truck-lh56.onrender.com/api/truck-transaction', {
 //       formData,
-//       tableData: finalTableData,
+//       tableData: finalTableData
 //     });
 
 //     if (response.data.success) {
-//       setMessage("✅ Transaction saved successfully");
-//       // clearForm();
-//     } else {
-//       setMessage("❌ Failed to save transaction");
-//     }
-
-//   } catch (error) {
-//     console.error("Error submitting form:", error);
-//     setMessage("❌ Something went wrong. Try again.");
-//   }
-// }; // ✅ ← THIS BRACKET WAS MISSING
-
-// 
-
-// const handleSubmit = async () => {
-//   // Step 1: Start with all rows already added
-//   let finalTableData = [...tableData];
-
-//   // Step 2: Check if the current row being typed (newRow) has any real data
-//   const isNewRowFilled =
-//     newRow.plantName || newRow.loadingSlipNo || newRow.qty || newRow.priority || newRow.remarks;
-
-//   // Step 3: If so, add it to the final data
-//   if (isNewRowFilled) {
-//     finalTableData.push(newRow);
-//   }
-
-//   // Step 4: Form validation (optional but recommended)
-//   if (!formData.truckNo || !formData.transactionDate) {
-//     return setMessage("❌ Truck No and Transaction Date are required.");
-//   }
-
-//   // Step 5: Submit to backend
-//   try {
-//     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
-//       formData,
-//       tableData: finalTableData,
-//     });
-
-//     if (response.data.success) {
-//       setMessage("✅ Transaction saved successfully!");
-      
-//       // Clear form and tables
-//       setFormData({
-//         truckNo: '',
-//         transactionDate: '',
-//         cityName: '',
-//         transporter: '',
-//         amountPerTon: '',
-//         truckWeight: '',
-//         deliverPoint: '',
-//         remarks: ''
-//       });
-//       setTableData([]);
-//       setNewRow({
-//         plantName: '',
-//         loadingSlipNo: '',
-//         qty: '',
-//         priority: '',
-//         remarks: '',
-//         freight: 'To Pay'
-//       });
-//     } else {
-//       setMessage("❌ Error saving transaction.");
-//     }
-//   } catch (error) {
-//     console.error("Submit error:", error);
-//     setMessage("❌ Server error while submitting data.");
-//   }
-// };
-
-//   const handleSubmit = async () => {
-//   // Step 1: Start with all added rows
-//   let finalTableData = [...tableData];
-
-//   // Step 2: Check if the new row is not empty AND not already added
-//   const isNewRowFilled = newRow.plantName && newRow.loadingSlipNo && newRow.qty;
-
-//   // Optional: Check for duplicates (avoid duplicate slip numbers)
-//   const isDuplicate = tableData.some(row =>
-//     row.plantName === newRow.plantName &&
-//     row.loadingSlipNo === newRow.loadingSlipNo
-//   );
-
-//   if (isNewRowFilled && !isDuplicate) {
-//     finalTableData.push(newRow);
-//   }
-
-//   // Step 3: Validate form
-//   if (!formData.truckNo || !formData.transactionDate) {
-//     return setMessage("❌ Truck No and Transaction Date are required.");
-//   }
-
-//   // Step 4: Post data
-//   try {
-//     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
-//       formData,
-//       tableData: finalTableData,
-//     });
-
-//     if (response.data.success) {
-//       setMessage("✅ Transaction saved successfully!");
-//       setFormData({
-//         truckNo: '',
-//         transactionDate: '',
-//         cityName: '',
-//         transporter: '',
-//         amountPerTon: '',
-//         truckWeight: '',
-//         deliverPoint: '',
-//         remarks: ''
-//       });
-//       setTableData([]);
-//       setNewRow({
-//         plantName: '',
-//         loadingSlipNo: '',
-//         qty: '',
-//         priority: '',
-//         remarks: '',
-//         freight: 'To Pay'
-//       });
-//     } else {
-//       setMessage("❌ Error saving transaction.");
-//     }
-//   } catch (error) {
-//     console.error("Submit error:", error);
-//     setMessage("❌ Server error while submitting data.");
-//   }
-// };
-
-// const handleSubmit = async () => {
-//   const finalTableData = [...tableData];
-//   const isNewRowFilled = newRow.plantName && newRow.loadingSlipNo && newRow.qty;
-
-//   // Optional duplicate prevention
-//   const isDuplicate = tableData.some(row =>
-//     row.plantName === newRow.plantName &&
-//     row.loadingSlipNo === newRow.loadingSlipNo
-//   );
-
-//   if (isNewRowFilled && !isDuplicate) {
-//     finalTableData.push(newRow);
-//   }
-
-//   if (!formData.truckNo || !formData.transactionDate) {
-//     return setMessage("❌ Truck No and Transaction Date are required.");
-//   }
-
-//   try {
-//     console.log("Submitting:", { formData, finalTableData }); // for debug
-
-//     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
-//       formData,
-//       tableData: finalTableData,
-//     });
-
-//     if (response.data.success) {
-//       setMessage("✅ Transaction saved successfully!");
-//       setFormData({
-//         truckNo: '',
-//         transactionDate: '',
-//         cityName: '',
-//         transporter: '',
-//         amountPerTon: '',
-//         truckWeight: '',
-//         deliverPoint: '',
-//         remarks: ''
-//       });
-//       setTableData([]);
-//       setNewRow({
-//         plantName: '',
-//         loadingSlipNo: '',
-//         qty: '',
-//         priority: '',
-//         remarks: '',
-//         freight: 'To Pay'
-//       });
-//     } else {
-//       setMessage("❌ Error saving transaction.");
-//     }
-//   } catch (error) {
-//     console.error("Submit error:", error);
-//     setMessage("❌ Server error while submitting data.");
-//   }
-// };
-
-// 
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-//   const handleSubmit = async () => {
-//   const isNewRowFilled = newRow.plantName && newRow.loadingSlipNo && newRow.qty;
-
-//   // 👇 Final array banate waqt agar newRow valid hai to usko bhi jodte hain
-//   const finalTableData = [...tableData];
-//   if (isNewRowFilled) {
-//     finalTableData.push(newRow);
-//   }
-
-//   if (!formData.truckNo || !formData.transactionDate) {
-//     return setMessage("❌ Truck No and Transaction Date are required.");
-//   }
-
-//   try {
-//     console.log("Submitting:", { formData, tableData: finalTableData });
-
-//     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
-//       formData,
-//       tableData: finalTableData,
-//     });
-
-//     if (response.data.success) {
-//       setMessage("✅ Transaction saved successfully!");
-//       setFormData({
-//         truckNo: '',
-//         transactionDate: '',
-//         cityName: '',
-//         transporter: '',
-//         amountPerTon: '',
-//         truckWeight: '',
-//         deliverPoint: '',
-//         remarks: ''
-//       });
-//       setTableData([]);
-//       setNewRow({
-//         plantName: '',
-//         loadingSlipNo: '',
-//         qty: '',
-//         priority: '',
-//         remarks: '',
-//         freight: 'To Pay'
-//       });
-//     } else {
-//       setMessage("❌ Error saving transaction.");
-//     }
-//   } catch (error) {
-//     console.error("Submit error:", error);
-//     setMessage("❌ Server error while submitting data.");
-//   }
-// };
-
-
-
-  ///////////////////////////////////////////////////////////////////////////////////
-
-
-
-//   const handleSubmit = async () => {
-//   const finalTableData = [...tableData];
-//   const isNewRowFilled = newRow.plantName && newRow.loadingSlipNo && newRow.qty;
-
-//   // Filter valid rows only
-//   const validTableData = finalTableData.filter(row =>
-//     row.plantName && row.loadingSlipNo && row.qty
-//   );
-
-//   if (isNewRowFilled) {
-//     validTableData.push(newRow);
-//   }
-
-//   if (!formData.truckNo || !formData.transactionDate) {
-//     return setMessage("❌ Truck No and Transaction Date are required.");
-//   }
-
-//   try {
-//     console.log("Submitting:", { formData, validTableData });
-
-//     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
-//       formData,
-//       tableData: validTableData,
-//     });
-
-//     if (response.data.success) {
-//       setMessage("✅ Transaction saved successfully!");
-//       // reset form
+//       setMessage('✅ Transaction saved successfully!');
 //       setFormData({ truckNo: '', transactionDate: '', cityName: '', transporter: '', amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: '' });
 //       setTableData([]);
 //       setNewRow({ plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
 //     } else {
-//       setMessage("❌ Error saving transaction.");
+//       setMessage('❌ Error saving transaction.');
 //     }
 //   } catch (error) {
-//     console.error("Submit error:", error);
-//     setMessage("❌ Server error while submitting data.");
+//     console.error('Submit error:', error);
+//     setMessage('❌ Server error while submitting data.');
 //   }
 // };
 
+  
 const handleSubmit = async () => {
-let finalTableData = tableData.filter(row => row.plantName && row.loadingSlipNo && row.qty);
+  const validRows = tableData.filter(
+    (row) => row.plantName && row.loadingSlipNo && row.qty && row.freight
+  );
 
-if (newRow.plantName && newRow.loadingSlipNo && newRow.qty) {
-  finalTableData.push(newRow);
-}
+  if (newRow.plantName && newRow.loadingSlipNo && newRow.qty && newRow.freight) {
+    validRows.push(newRow); // Add unsaved last row
+  }
 
-  // ✅ Rename fields if needed
-  finalTableData = finalTableData.map(row => ({
-    plantName: row.plantName,
-    slipNo: row.loadingSlipNo,
-    qty: row.qty,
-    priority: row.priority,
-    remarks: row.remarks,
-    freight: row.freight
-  }));
+  if (validRows.length === 0) {
+    alert("❌ No valid rows to submit");
+    return;
+  }
+
+  // ✅ DEBUG LOG YAHAN LAGAO
+  console.log("🚀 Final data sent to backend:", {
+    formData,
+    tableData: validRows
+  });
 
   try {
-    const response = await axios.post('https://truck-lh56.onrender.com/api/truck-transaction', {
+    const res = await axios.post("http://localhost:3001/api/truck-transaction", {
       formData,
-      tableData: finalTableData
+      tableData: validRows,
     });
 
-    if (response.data.success) {
-      setMessage('✅ Transaction saved successfully!');
-      setFormData({ truckNo: '', transactionDate: '', cityName: '', transporter: '', amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: '' });
-      setTableData([]);
-      setNewRow({ plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
+    if (res.data.success) {
+      alert("✅ Transaction submitted successfully!");
+      // Reset if needed
     } else {
-      setMessage('❌ Error saving transaction.');
+      alert("❌ Submission failed.");
     }
-  } catch (error) {
-    console.error('Submit error:', error);
-    setMessage('❌ Server error while submitting data.');
+  } catch (err) {
+    console.error("Submit error:", err);
+    alert("❌ Failed to submit data.");
   }
 };
 
 
+
+
+
+
+  
 
   // Helper to get plant name robustly (for future-proofing)
   const getPlantName = (plant) => plant.PlantName || plant.plantname || plant.plant_name || plant || '';
