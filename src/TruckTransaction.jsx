@@ -341,37 +341,58 @@ const addRow = () => {
 //   }
 // };
 
+// 
+
+///////////////////////////////////////////////////////////////////////////////////////
+
   const handleSubmit = async () => {
+  const isNewRowFilled = newRow.plantName && newRow.loadingSlipNo && newRow.qty;
+
+  // 👇 Final array banate waqt agar newRow valid hai to usko bhi jodte hain
+  const finalTableData = [...tableData];
+  if (isNewRowFilled) {
+    finalTableData.push(newRow);
+  }
+
+  if (!formData.truckNo || !formData.transactionDate) {
+    return setMessage("❌ Truck No and Transaction Date are required.");
+  }
+
   try {
-    if (!formData.truckNo || !formData.transactionDate) {
-      alert("Please enter Truck No and Transaction Date");
-      return;
-    }
+    console.log("Submitting:", { formData, tableData: finalTableData });
 
-    // Table data format theek karo (agar zarurat ho to yaha aur check kar lena)
-    const finalTableData = tableData.map((row) => ({
-      plantName: row.plantName,
-      inTime: row.inTime,
-      outTime: row.outTime,
-      quantity: row.quantity,
-    }));
-
-    const res = await axios.post(`${API_URL}/api/truck-transaction`, {
-      formData: formData,
-      tableData: finalTableData
+    const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+      formData,
+      tableData: finalTableData,
     });
 
-    if (res.status === 200) {
-      alert("Data submitted successfully!");
+    if (response.data.success) {
+      setMessage("✅ Transaction saved successfully!");
       setFormData({
-        truckNo: "",
-        transactionDate: "",
+        truckNo: '',
+        transactionDate: '',
+        cityName: '',
+        transporter: '',
+        amountPerTon: '',
+        truckWeight: '',
+        deliverPoint: '',
+        remarks: ''
       });
       setTableData([]);
+      setNewRow({
+        plantName: '',
+        loadingSlipNo: '',
+        qty: '',
+        priority: '',
+        remarks: '',
+        freight: 'To Pay'
+      });
+    } else {
+      setMessage("❌ Error saving transaction.");
     }
   } catch (error) {
     console.error("Submit error:", error);
-    alert("Failed to submit data.");
+    setMessage("❌ Server error while submitting data.");
   }
 };
 
