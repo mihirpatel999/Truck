@@ -1,564 +1,279 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL;
 
+function TruckTransaction() {
+  const [formData, setFormData] = useState({
+    truckNo: '',
+    transactionDate: '',
+    cityName: '',
+    transporter: '',
+    amountPerTon: '',
+    truckWeight: '',
+    deliverPoint: '',
+    remarks: ''
+  });
 
+  const [plantList, setPlantList] = useState([]);
+  const [tableData, setTableData] = useState([]);
+  const [newRow, setNewRow] = useState({
+    plantName: '',
+    loadingSlipNo: '',
+    qty: '',
+    priority: '',
+    remarks: '',
+    freight: 'To Pay'
+  });
 
-///////////////////////////////////////////////////////////////////////////////////
+  const [message, setMessage] = useState('');
 
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const { Pool } = require('pg');
-require('dotenv').config();
-
-const app = express();
-const PORT = process.env.PORT || 3001;
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 70c2cc0 (Updated handleSubmit function in TruckTransaction.jsx)
-app.use(cors());
-app.use(bodyParser.json());
-
-
-// 🔐 Login API
-app.post("/api/login", async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    const result = await pool.query(
-      "SELECT * FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2",
-      [username, password]
-    );
-    if (result.rows.length > 0) {
-      res.json({ success: true, message: "Login successful" });
-    } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-    }
-  } catch (err) {
-    console.error("SQL error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
-
-
-
-// // Get all plant names
-// app.get('/api/plants', async (req, res) => {
-//   try {
-//     const result = await pool.query('SELECT PlantName FROM PlantMaster');
-//     const names = result.rows.map(row => row.plantname);
-//     res.json(names);
-//   } catch (error) {
-//     console.error('Error fetching plant names:', error);
-//     res.status(500).json({ error: 'Failed to fetch plant names' });
-//   }
-// });
-
-
-
-app.get('/api/plants', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
-    res.json(result.rows); // return all records with id + name
-  } catch (error) {
-    console.error('Error fetching plant names:', error);
-    res.status(500).json({ error: 'Failed to fetch plant names' });
-  }
-});
-
-// ✅ Get all plant master records
-app.get('/api/plant-master', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM PlantMaster');
-    res.json(result.rows);
-  } catch (error) {
-    console.error('Error fetching plants:', error);
-    res.status(500).json({ error: 'Failed to fetch plants' });
-  }
-});
-
-// ✅ Create new plant master record
-app.post('/api/plant-master', async (req, res) => {
-  const { plantName, plantAddress, contactPerson, mobileNo, remarks } = req.body;
-  try {
-    const result = await pool.query(
-      'INSERT INTO PlantMaster (PlantName, PlantAddress, ContactPerson, MobileNo, Remarks) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [plantName, plantAddress, contactPerson, mobileNo, remarks]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (error) {
-    console.error('Error creating plant:', error);
-    res.status(500).json({ error: 'Failed to create plant' });
-  }
-});
-
-// ✅ Update plant by ID
-app.put('/api/plant-master/:id', async (req, res) => {
-  const { id } = req.params;
-  const { plantName, plantAddress, contactPerson, mobileNo, remarks } = req.body;
-  try {
-    const result = await pool.query(
-      'UPDATE PlantMaster SET PlantName=$1, PlantAddress=$2, ContactPerson=$3, MobileNo=$4, Remarks=$5 WHERE PlantID=$6 RETURNING *',
-      [plantName, plantAddress, contactPerson, mobileNo, remarks, id]
-    );
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error('Error updating plant:', error);
-    res.status(500).json({ error: 'Failed to update plant' });
-  }
-});
-// ✅ Fixed: Get single plant by ID with camelCase field names
-app.get('/api/plantmaster/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const result = await pool.query(
-      `SELECT 
-         PlantID AS "plantId", 
-         PlantName AS "plantName", 
-         PlantAddress AS "plantAddress", 
-         ContactPerson AS "contactPerson", 
-         MobileNo AS "mobileNo", 
-         Remarks AS "remarks" 
-       FROM PlantMaster 
-       WHERE PlantID = $1`,
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Plant not found' });
-    }
-
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error('Error fetching plant:', error);
-    res.status(500).json({ error: 'Failed to fetch plant' });
-  }
-});
-
-
-// // 🚚 Truck Transaction API
-// app.post("/api/truck-transaction", async (req, res) => {
-//   const { formData, tableData } = req.body;
-//   const client = await pool.connect();
-//   try {
-//     await client.query('BEGIN');
-//     // Insert into TruckTransactionMaster
-//     const insertMain = await client.query(
-//       `INSERT INTO TruckTransactionMaster
-//         (TruckNo, TransactionDate, CityName, Transporter, AmountPerTon, TruckWeight, DeliverPoint, Remarks, CreatedAt)
-//         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-//         RETURNING TransactionID`,
-//       [
-//         formData.truckNo,
-//         formData.transactionDate,
-//         formData.cityName,
-//         formData.transporter,
-//         formData.amountPerTon,
-//         formData.truckWeight,
-//         formData.deliverPoint,
-//         formData.remarks
-//       ]
-//     );
-//     const transactionId = insertMain.rows[0].transactionid;
-
-//     // Insert into TruckTransactionDetails
-//     for (const row of tableData) {
-//       const plantResult = await client.query(
-//         `SELECT PlantId FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
-//         [row.plantName]
-//       );
-//       const plantId = plantResult.rows[0]?.plantid;
-//       if (!plantId) {
-//         throw new Error(`Plant not found: ${row.plantName}`);
-//       }
-//       await client.query(
-//         `INSERT INTO TruckTransactionDetails
-//           (TransactionID, PlantId, LoadingSlipNo, Qty, Priority, Remarks, Freight)
-//           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-//         [
-//           transactionId,
-//           plantId,
-//           row.loadingSlipNo,
-//           row.qty,
-//           row.priority,
-//           row.remarks || "",
-//           row.freight
-//         ]
-//       );
-//     }
-//     await client.query('COMMIT');
-//     res.json({ success: true });
-//   } catch (error) {
-//     await client.query('ROLLBACK');
-//     console.error("Transaction failed:", error);
-//     res.status(500).json({ success: false, error: error.message });
-//   } finally {
-//     client.release();
-//   }
-// });
-
-
-// // 🚚 Truck Transaction API
-// app.post("/api/truck-transaction", async (req, res) => {
-//   const { formData, tableData } = req.body;
-//   const client = await pool.connect();
-
-//   try {
-//     await client.query('BEGIN');
-
-//     // Insert into TruckTransactionMaster
-//     const insertMain = await client.query(
-//       `INSERT INTO TruckTransactionMaster
-//         (TruckNo, TransactionDate, CityName, Transporter, AmountPerTon, TruckWeight, DeliverPoint, Remarks, CreatedAt)
-//         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-//         RETURNING TransactionID`,
-//       [
-//         formData.truckNo,
-//         formData.transactionDate,
-//         formData.cityName,
-//         formData.transporter,
-//         formData.amountPerTon,
-//         formData.truckWeight,
-//         formData.deliverPoint,
-//         formData.remarks
-//       ]
-//     );
-
-//     const transactionId = insertMain.rows[0].transactionid;
-
-//     // Insert into TruckTransactionDetails
-//     for (const row of tableData) {
-//       console.log("🚛 Inserting row:", row);
-
-//       const plantResult = await client.query(
-//         `SELECT PlantId FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
-//         [row.plantName]
-//       );
-
-//       let plantId = plantResult.rows[0]?.plantid;
-
-//       if (!plantId) {
-//         console.error("❌ Plant not found in DB for row:", row);
-        
-//         // 🔄 Optional: Auto-insert plant if not found
-//         // const insertPlant = await client.query(
-//         //   `INSERT INTO PlantMaster (PlantName, CreatedAt) VALUES ($1, NOW()) RETURNING PlantId`,
-//         //   [row.plantName]
-//         // );
-//         // plantId = insertPlant.rows[0].plantid;
-
-//         throw new Error(`❌ Plant not found: ${row.plantName}`);
-//       }
-
-//       await client.query(
-//         `INSERT INTO TruckTransactionDetails
-//           (TransactionID, PlantId, LoadingSlipNo, Qty, Priority, Remarks, Freight)
-//           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-//         [
-//           transactionId,
-//           plantId,
-//           row.loadingSlipNo,
-//           row.qty,
-//           row.priority,
-//           row.remarks || "",
-//           row.freight
-//         ]
-//       );
-//     }
-
-//     await client.query('COMMIT');
-//     res.json({ success: true });
-
-//   } catch (error) {
-//     await client.query('ROLLBACK');
-//     console.error("❌ Transaction failed:", error);
-//     res.status(500).json({ success: false, error: error.message });
-//   } finally {
-//     client.release();
-//   }
-// });
-
-// 🚚 Truck Transaction API
-app.post("/api/truck-transaction", async (req, res) => {
-  const { formData, tableData } = req.body;
-  const client = await pool.connect();
-
-  try {
-    await client.query('BEGIN');
-
-    // ✅ Step 1: Validation
-    if (!formData.truckNo || !formData.transactionDate) {
-      throw new Error("Truck No and Transaction Date are required.");
-    }
-
-    // ✅ Step 2: Insert into TruckTransactionMaster
-    const insertMain = await client.query(
-      `INSERT INTO TruckTransactionMaster
-        (TruckNo, TransactionDate, CityName, Transporter, AmountPerTon, TruckWeight, DeliverPoint, Remarks, CreatedAt)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-        RETURNING TransactionID`,
-      [
-        formData.truckNo,
-        formData.transactionDate,
-        formData.cityName || "",
-        formData.transporter || "",
-        formData.amountPerTon || 0,
-        formData.truckWeight || 0,
-        formData.deliverPoint || "",
-        formData.remarks || ""
-      ]
-    );
-
-    const transactionId = insertMain.rows[0]?.transactionid;
-
-    if (!transactionId) {
-      throw new Error("Transaction ID not generated.");
-    }
-
-    // ✅ Step 3: Insert into TruckTransactionDetails
-    for (const row of tableData) {
-      console.log("🚛 Inserting row:", row);
-
-      if (!row.plantName || !row.loadingSlipNo || !row.qty) {
-        throw new Error(`Invalid row data: ${JSON.stringify(row)}`);
-      }
-
-      const plantResult = await client.query(
-        `SELECT PlantId FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
-        [row.plantName]
-      );
-
-      let plantId = plantResult.rows[0]?.plantid;
-
-      if (!plantId) {
-        console.error("❌ Plant not found in DB for row:", row);
-        throw new Error(`Plant not found: ${row.plantName}`);
-      }
-
-      await client.query(
-        `INSERT INTO TruckTransactionDetails
-          (TransactionID, PlantId, LoadingSlipNo, Qty, Priority, Remarks, Freight)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [
-          transactionId,
-          plantId,
-          row.loadingSlipNo,
-          row.qty,
-          row.priority || "",
-          row.remarks || "",
-          row.freight || "To Pay"
-        ]
-      );
-    }
-
-    // ✅ Step 4: Done
-    await client.query('COMMIT');
-    res.json({ success: true });
-
-  } catch (error) {
-    await client.query('ROLLBACK');
-    console.error("❌ Transaction failed:", error.stack || error.message || error);
-    res.status(500).json({ success: false, error: error.message || "Unknown error occurred" });
-  } finally {
-    client.release();
-  }
-});
-
-
-
-
-// 🚚 Fetch Truck Numbers API (CASE INSENSITIVE)
-app.get("/api/trucks", async (req, res) => {
-  const { plantName } = req.query;
-  try {
-    const result = await pool.query(
-      `SELECT DISTINCT m.TruckNo
-       FROM PlantMaster p
-       JOIN TruckTransactionDetails d ON p.PlantID = d.PlantId
-       JOIN TruckTransactionMaster m ON d.TransactionId = m.TransactionID
-       WHERE LOWER(TRIM(p.PlantName)) = LOWER(TRIM($1))
-         AND d.CheckInStatus = 0
-         AND m.Completed = 0`,
-      [plantName]
-    );
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching truck numbers:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// 🚚 Update Truck Status API (CASE INSENSITIVE)
-app.post("/api/update-truck-status", async (req, res) => {
-  const { truckNo, plantName, type } = req.body;
-  const client = await pool.connect();
-  try {
-    // 1. Get TransactionID
-    const transactionResult = await client.query(
-      `SELECT TransactionID
-       FROM TruckTransactionMaster
-       WHERE TruckNo = $1 AND Completed = 0
-       ORDER BY TransactionID DESC
-       LIMIT 1`,
-      [truckNo]
-    );
-    if (transactionResult.rows.length === 0) {
-      return res.status(404).json({ message: "❌ Truck not found or already completed" });
-    }
-    const transactionId = transactionResult.rows[0].transactionid;
-
-    // 2. Get PlantId (CASE INSENSITIVE)
-    const plantResult = await client.query(
-      `SELECT PlantId FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
-      [plantName]
-    );
-    if (plantResult.rows.length === 0) {
-      return res.status(404).json({ message: "❌ Plant not found" });
-    }
-    const plantId = plantResult.rows[0].plantid;
-
-    // 3. Get current status
-    const statusResult = await client.query(
-      `SELECT CheckInStatus, CheckOutStatus
-       FROM TruckTransactionDetails
-       WHERE PlantId = $1 AND TransactionID = $2`,
-      [plantId, transactionId]
-    );
-    if (statusResult.rows.length === 0) {
-      return res.status(404).json({ message: "❌ Truck detail not found for this plant" });
-    }
-    const status = statusResult.rows[0];
-
-    // 4. Update check-in or check-out
-    if (type === "Check In" && status.checkinstatus === 0) {
-      await client.query(
-        `UPDATE TruckTransactionDetails
-         SET CheckInStatus = 1
-         WHERE PlantId = $1 AND TransactionID = $2`,
-        [plantId, transactionId]
-      );
-    }
-    if (type === "Check Out") {
-      if (status.checkinstatus === 0) {
-        return res.status(400).json({ message: "❌ Please Check In first before Check Out" });
-      }
-      if (status.checkoutstatus === 0) {
-        await client.query(
-          `UPDATE TruckTransactionDetails
-           SET CheckOutStatus = 1
-           WHERE PlantId = $1 AND TransactionID = $2`,
-          [plantId, transactionId]
-        );
-      }
-    }
-
-    // 5. Recheck updated status
-    // 6. Check if all plants for this transaction are checked-in and checked-out
-    const allStatusResult = await client.query(
-      `SELECT COUNT(*) AS totalplants,
-              SUM(CASE WHEN CheckInStatus = 1 THEN 1 ELSE 0 END) AS checkedin,
-              SUM(CASE WHEN CheckOutStatus = 1 THEN 1 ELSE 0 END) AS checkedout
-         FROM TruckTransactionDetails
-         WHERE TransactionID = $1`,
-      [transactionId]
-    );
-    const statusCheck = allStatusResult.rows[0];
-    if (
-      Number(statusCheck.totalplants) === Number(statusCheck.checkedin) &&
-      Number(statusCheck.totalplants) === Number(statusCheck.checkedout)
-    ) {
-      // All plants completed
-      await client.query(
-        `UPDATE TruckTransactionMaster
-         SET Completed = 1
-         WHERE TransactionID = $1`,
-        [transactionId]
-      );
-      return res.json({
-        message: "✅ All plants processed. Truck process completed.",
+  useEffect(() => {
+    axios.get(`${API_URL}/api/plants`)
+      .then(res => setPlantList(res.data))
+      .catch(err => {
+        setPlantList([]);
+        console.error('Error fetching plants:', err);
       });
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value.trim() });
+  };
+
+  const handleNewRowChange = (e) => {
+    const { name, value } = e.target;
+    setNewRow((prev) => ({
+      ...prev,
+      [name]: value.trim(),
+    }));
+  };
+
+  const addRow = () => {
+    const { plantName, loadingSlipNo, qty } = newRow;
+
+    if (!plantName || !loadingSlipNo || !qty) {
+      alert("❌ Please fill in Plant Name, Loading Slip No, and Quantity.");
+      return;
     }
-    // 7. Return success for one action
-    return res.json({ message: `✅ ${type} successful` });
-  } catch (error) {
-    console.error("Status update error:", error);
-    res.status(500).json({ error: "Server error" });
-  } finally {
-    client.release();
-  }
-});
 
-// 🚚 Fetch Checked-in Trucks API (CASE INSENSITIVE)
-app.get("/api/checked-in-trucks", async (req, res) => {
-  const { plantName } = req.query;
-  try {
-    const result = await pool.query(
-      `SELECT DISTINCT m.TruckNo
-       FROM PlantMaster p
-       JOIN TruckTransactionDetails d ON p.PlantID = d.PlantID
-       JOIN TruckTransactionMaster m ON d.TransactionID = m.TransactionID
-       WHERE LOWER(TRIM(p.PlantName)) = LOWER(TRIM($1))
-         AND d.CheckInStatus = 1
-         AND d.CheckOutStatus = 0`,
-      [plantName]
-    );
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching truck numbers:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// 🚚 Fetch Remarks API (CASE INSENSITIVE)
-app.get('/api/fetch-remarks', async (req, res) => {
-  const { plantName, truckNo } = req.query;
-  try {
-    // Step 1: Get PlantID
-    const plantResult = await pool.query(
-      'SELECT PlantID FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1',
-      [plantName]
-    );
-    if (plantResult.rows.length === 0) {
-      return res.status(404).json({ message: 'Plant not found' });
+    if (isNaN(qty) || Number(qty) <= 0) {
+      alert("❌ Quantity must be a positive number.");
+      return;
     }
-    const plantId = plantResult.rows[0].plantid;
 
-    // Step 2: Get TransactionID
-    const txnResult = await pool.query(
-      'SELECT TransactionID FROM TruckTransactionMaster WHERE TruckNo = $1 LIMIT 1',
-      [truckNo]
+    const isDuplicate = tableData.some(row =>
+      row.plantName === plantName && row.loadingSlipNo === loadingSlipNo
     );
-    if (txnResult.rows.length === 0) {
-      return res.status(404).json({ message: 'Transaction not found' });
-    }
-    const transactionId = txnResult.rows[0].transactionid;
 
-    // Step 3: Fetch Remarks
-    const remarksResult = await pool.query(
-      `SELECT Remarks 
-       FROM TruckTransactionDetails 
-       WHERE PlantID = $1 AND TransactionID = $2 LIMIT 1`,
-      [plantId, transactionId]
-    );
-    if (remarksResult.rows.length === 0) {
-      return res.status(404).json({ message: 'Remarks not found' });
+    if (isDuplicate) {
+      alert("❌ Duplicate loading slip for this plant.");
+      return;
     }
-    const remarks = remarksResult.rows[0].remarks;
-    res.json({ remarks });
-  } catch (error) {
-    console.error('Error fetching remarks:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
 
-// 🚀 Start the server
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running at http://localhost:${PORT}`);
-});
+    setTableData((prevData) => [...prevData, newRow]);
+
+    setNewRow({
+      plantName: '',
+      loadingSlipNo: '',
+      qty: '',
+      priority: '',
+      remarks: '',
+      freight: 'To Pay',
+    });
+  };
+
+  const handleDeleteRow = (index) => {
+    setTableData(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async () => {
+    let finalTableData = [...tableData];
+
+    const isNewRowFilled =
+      newRow.plantName || newRow.loadingSlipNo || newRow.qty || newRow.priority || newRow.remarks;
+
+    if (isNewRowFilled) {
+      finalTableData.push(newRow);
+    }
+
+    if (!formData.truckNo || !formData.transactionDate) {
+      return setMessage("❌ Truck No and Transaction Date are required.");
+    }
+
+    try {
+      const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+        formData,
+        tableData: finalTableData,
+      });
+
+      if (response.data.success) {
+        setMessage("✅ Transaction saved successfully!");
+        setFormData({
+          truckNo: '',
+          transactionDate: '',
+          cityName: '',
+          transporter: '',
+          amountPerTon: '',
+          truckWeight: '',
+          deliverPoint: '',
+          remarks: ''
+        });
+        setTableData([]);
+        setNewRow({
+          plantName: '',
+          loadingSlipNo: '',
+          qty: '',
+          priority: '',
+          remarks: '',
+          freight: 'To Pay'
+        });
+      }
+    } catch (error) {
+      console.error("Submit error:", error);
+      alert(error.response?.data?.message || "Failed to submit data.");
+    }
+  };
+
+  const getPlantName = (plant) => plant.PlantName || plant.plantname || plant.plant_name || plant || '';
+
+  return (
+    <div className="p-4 md:p-10 bg-gray-100 min-h-screen">
+      <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-2xl font-bold text-center mb-6">Truck Transaction</h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label className="block font-medium">Truck No</label>
+            <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+          <div>
+            <label className="block font-medium">Transaction Date</label>
+            <input type="date" name="transactionDate" value={formData.transactionDate} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+          <div>
+            <label className="block font-medium">City Name</label>
+            <input name="cityName" value={formData.cityName} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+          <div>
+            <label className="block font-medium">Transporter</label>
+            <input name="transporter" value={formData.transporter} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+        </div>
+
+        <h3 className="text-lg font-semibold mt-6 mb-2">Loading Details</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full border text-sm text-left">
+            <thead className="bg-yellow-200">
+              <tr>
+                <th className="border px-2 py-1">Plant</th>
+                <th className="border px-2 py-1">Slip No</th>
+                <th className="border px-2 py-1">Qty</th>
+                <th className="border px-2 py-1">Priority</th>
+                <th className="border px-2 py-1">Remarks</th>
+                <th className="border px-2 py-1">Freight</th>
+                <th className="border px-2 py-1">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.map((row, i) => (
+                <tr key={i}>
+                  <td className="border px-2 py-1">{row.plantName}</td>
+                  <td className="border px-2 py-1">{row.loadingSlipNo}</td>
+                  <td className="border px-2 py-1">{row.qty}</td>
+                  <td className="border px-2 py-1">{row.priority}</td>
+                  <td className="border px-2 py-1">{row.remarks}</td>
+                  <td className="border px-2 py-1">{row.freight}</td>
+                  <td className="border px-2 py-1 text-center">
+                    <button onClick={() => handleDeleteRow(i)} className="text-red-600 hover:underline">Delete</button>
+                  </td>
+                </tr>
+              ))}
+              <tr>
+                <td className="border px-2 py-1">
+                  <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange} className="w-full border rounded px-1">
+                    <option value="">Select</option>
+                    {plantList.length === 0 ? (
+                      <option value="" disabled>No plants found</option>
+                    ) : (
+                      [...new Set(plantList.map(getPlantName))]
+                        .filter(name => !!name)
+                        .map((name, i) => (
+                          <option key={i} value={name}>{name}</option>
+                        ))
+                    )}
+                  </select>
+                </td>
+                <td className="border px-2 py-1">
+                  <input name="loadingSlipNo" value={newRow.loadingSlipNo} onChange={handleNewRowChange} className="w-full border rounded px-1" />
+                </td>
+                <td className="border px-2 py-1">
+                  <input type="number" name="qty" value={newRow.qty} onChange={handleNewRowChange} className="w-full border rounded px-1" />
+                </td>
+                <td className="border px-2 py-1">
+                  <input name="priority" value={newRow.priority} onChange={handleNewRowChange} className="w-full border rounded px-1" />
+                </td>
+                <td className="border px-2 py-1">
+                  <input name="remarks" value={newRow.remarks} onChange={handleNewRowChange} className="w-full border rounded px-1" />
+                </td>
+                <td className="border px-2 py-1">
+                  <select name="freight" value={newRow.freight} onChange={handleNewRowChange} className="w-full border rounded px-1">
+                    <option value="To Pay">To Pay</option>
+                    <option value="Paid">Paid</option>
+                  </select>
+                </td>
+                <td className="border px-2 py-1 text-center text-gray-400">---</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={addRow}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Add Row
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div>
+            <label className="block font-medium">Amount Per Ton</label>
+            <input type="number" name="amountPerTon" value={formData.amountPerTon} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+          <div>
+            <label className="block font-medium">Deliver Point</label>
+            <input name="deliverPoint" value={formData.deliverPoint} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+          <div>
+            <label className="block font-medium">Truck Weight (In Ton)</label>
+            <input type="number" name="truckWeight" value={formData.truckWeight} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <label className="block font-medium">Remarks</label>
+          <textarea name="remarks" value={formData.remarks} onChange={handleChange} className="w-full border rounded px-2 py-1" rows="4"></textarea>
+        </div>
+
+        <div className="text-center mt-6">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
+          >
+            Submit
+          </button>
+        </div>
+
+        {message && (
+          <p className="mt-4 text-center text-lg text-blue-600">{message}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default TruckTransaction;
