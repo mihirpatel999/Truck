@@ -443,11 +443,11 @@ const addRow = () => {
 // };
 
 const handleSubmit = async () => {
-  let finalTableData = [...tableData];
+let finalTableData = tableData.filter(row => row.plantName && row.loadingSlipNo && row.qty);
 
-  if (newRow.plantName && newRow.loadingSlipNo && newRow.qty) {
-    finalTableData.push(newRow);
-  }
+if (newRow.plantName && newRow.loadingSlipNo && newRow.qty) {
+  finalTableData.push(newRow);
+}
 
   // ✅ Rename fields if needed
   finalTableData = finalTableData.map(row => ({
