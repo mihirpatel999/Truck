@@ -19,6 +19,11 @@ const pool = new Pool({
     rejectUnauthorized: false,
   },
 });
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 70c2cc0 (Updated handleSubmit function in TruckTransaction.jsx)
 app.use(cors());
 app.use(bodyParser.json());
 
