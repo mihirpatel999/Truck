@@ -402,46 +402,82 @@ const addRow = () => {
 
 
 
-  const handleSubmit = async () => {
-  const finalTableData = [...tableData];
-  const isNewRowFilled = newRow.plantName && newRow.loadingSlipNo && newRow.qty;
+//   const handleSubmit = async () => {
+//   const finalTableData = [...tableData];
+//   const isNewRowFilled = newRow.plantName && newRow.loadingSlipNo && newRow.qty;
 
-  // Filter valid rows only
-  const validTableData = finalTableData.filter(row =>
-    row.plantName && row.loadingSlipNo && row.qty
-  );
+//   // Filter valid rows only
+//   const validTableData = finalTableData.filter(row =>
+//     row.plantName && row.loadingSlipNo && row.qty
+//   );
 
-  if (isNewRowFilled) {
-    validTableData.push(newRow);
+//   if (isNewRowFilled) {
+//     validTableData.push(newRow);
+//   }
+
+//   if (!formData.truckNo || !formData.transactionDate) {
+//     return setMessage("❌ Truck No and Transaction Date are required.");
+//   }
+
+//   try {
+//     console.log("Submitting:", { formData, validTableData });
+
+//     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+//       formData,
+//       tableData: validTableData,
+//     });
+
+//     if (response.data.success) {
+//       setMessage("✅ Transaction saved successfully!");
+//       // reset form
+//       setFormData({ truckNo: '', transactionDate: '', cityName: '', transporter: '', amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: '' });
+//       setTableData([]);
+//       setNewRow({ plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
+//     } else {
+//       setMessage("❌ Error saving transaction.");
+//     }
+//   } catch (error) {
+//     console.error("Submit error:", error);
+//     setMessage("❌ Server error while submitting data.");
+//   }
+// };
+
+const handleSubmit = async () => {
+  let finalTableData = [...tableData];
+
+  if (newRow.plantName && newRow.loadingSlipNo && newRow.qty) {
+    finalTableData.push(newRow);
   }
 
-  if (!formData.truckNo || !formData.transactionDate) {
-    return setMessage("❌ Truck No and Transaction Date are required.");
-  }
+  // ✅ Rename fields if needed
+  finalTableData = finalTableData.map(row => ({
+    plantName: row.plantName,
+    slipNo: row.loadingSlipNo,
+    qty: row.qty,
+    priority: row.priority,
+    remarks: row.remarks,
+    freight: row.freight
+  }));
 
   try {
-    console.log("Submitting:", { formData, validTableData });
-
-    const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+    const response = await axios.post('https://truck-lh56.onrender.com/api/truck-transaction', {
       formData,
-      tableData: validTableData,
+      tableData: finalTableData
     });
 
     if (response.data.success) {
-      setMessage("✅ Transaction saved successfully!");
-      // reset form
+      setMessage('✅ Transaction saved successfully!');
       setFormData({ truckNo: '', transactionDate: '', cityName: '', transporter: '', amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: '' });
       setTableData([]);
       setNewRow({ plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
     } else {
-      setMessage("❌ Error saving transaction.");
+      setMessage('❌ Error saving transaction.');
     }
   } catch (error) {
-    console.error("Submit error:", error);
-    setMessage("❌ Server error while submitting data.");
+    console.error('Submit error:', error);
+    setMessage('❌ Server error while submitting data.');
   }
 };
-
 
 
 
