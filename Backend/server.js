@@ -19,12 +19,7 @@ const pool = new Pool({
     rejectUnauthorized: false,
   },
 });
-app.use(cors({
-  origin: 'https://truck-5dyafzsf2-mihirs-projects-485ab71a.vercel.app',
-  methods: ['GET', 'POST'],
-  credentials: true
-}));
-
+app.use(cors());
 app.use(bodyParser.json());
 
 
