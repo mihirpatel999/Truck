@@ -359,6 +359,35 @@ await client.query(
 
 
 // 🚚 Truck Report API (for report page) — place this **after** your other APIs
+// app.get('/api/truck-report', async (req, res) => {
+//   const { truckNo } = req.query;
+//   try {
+//     const result = await pool.query(
+//       `SELECT 
+//         ttm.TruckNo, 
+//         p.PlantName, 
+//         TO_CHAR(ttd.CheckInTime, 'YYYY-MM-DD HH24:MI') as CheckInTime,
+//         TO_CHAR(ttd.CheckOutTime, 'YYYY-MM-DD HH24:MI') as CheckOutTime,
+//         ttd.LoadingSlip, 
+//         ttd.Quantity, 
+//         ttd.Freight, 
+//         ttd.Priority, 
+//         ttd.Remarks
+//       FROM TruckTransactionDetails ttd
+//       JOIN PlantMaster p ON ttd.PlantID = p.PlantID
+//       JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
+//       WHERE ttm.TruckNo = $1
+//       ORDER BY ttd.CheckInTime DESC`,
+//       [truckNo]
+//     );
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error('Error fetching truck report:', error);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+// 🚚 Truck Report API (for report page) — place this **after** your other APIs
 app.get('/api/truck-report', async (req, res) => {
   const { truckNo } = req.query;
   try {
@@ -368,7 +397,7 @@ app.get('/api/truck-report', async (req, res) => {
         p.PlantName, 
         TO_CHAR(ttd.CheckInTime, 'YYYY-MM-DD HH24:MI') as CheckInTime,
         TO_CHAR(ttd.CheckOutTime, 'YYYY-MM-DD HH24:MI') as CheckOutTime,
-        ttd.LoadingSlip, 
+        ttd.LoadingSlipNo, 
         ttd.Quantity, 
         ttd.Freight, 
         ttd.Priority, 
