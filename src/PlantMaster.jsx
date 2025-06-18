@@ -2316,6 +2316,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Pencil, Trash2 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -2383,15 +2384,16 @@ export default function PlantMaster() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this plant?')) return;
-    try {
-      await axios.delete(`${API_URL}/api/plant-master/${id}`);
-      alert('🗑️ Plant deleted successfully');
-      fetchPlants();
-    } catch (err) {
-      console.error('Error deleting plant:', err);
-      alert('❌ Failed to delete plant');
+  const handleDelete = async (plantId) => {
+    if (confirm('Are you sure you want to delete this plant?')) {
+      try {
+        await axios.delete(`${API_URL}/api/plant-master/${plantId}`);
+        alert('✅ Plant deleted successfully!');
+        fetchPlants();
+      } catch (err) {
+        console.error('Error deleting plant:', err);
+        alert('❌ Failed to delete plant');
+      }
     }
   };
 
@@ -2433,16 +2435,16 @@ export default function PlantMaster() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-3xl font-bold text-center text-blue-700 mb-8">Plant Master Admin</h2>
+      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-xl p-6">
+        <h2 className="text-3xl font-bold mb-6 text-center text-blue-700">Plant Master Admin</h2>
 
-        <div className="mb-8">
-          <label className="block mb-1 font-medium">Select Plant to Edit</label>
-          <div className="flex gap-4 items-center">
+        {!editMode && (
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select Plant to Edit</label>
             <select
               value={selectedPlantId}
               onChange={handlePlantSelect}
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
+              className="block w-full p-2 border rounded-lg border-gray-300 shadow-sm"
             >
               <option value="">-- Select --</option>
               {plantList.map((plant) => (
@@ -2451,118 +2453,137 @@ export default function PlantMaster() {
                 </option>
               ))}
             </select>
+
             {showEditButton && (
               <button
                 onClick={handleEditClick}
-                className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
+                className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 w-full"
               >
-                ✏️ Edit
+                ✏️ Edit Selected Plant
               </button>
             )}
-          </div>
-        </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mb-10">
-          {plantList.map((plant) => (
-            <div key={plant.plantid || plant.plantId} className="border rounded-xl p-4 shadow-md bg-gray-50">
-              <h3 className="text-lg font-semibold text-blue-800">{plant.plantname || plant.plantName}</h3>
-              <p className="text-sm text-gray-600">📍 {plant.plantaddress || plant.plantAddress}</p>
-              <p className="text-sm text-gray-600">👤 {plant.contactperson || plant.contactPerson}</p>
-              <p className="text-sm text-gray-600">📞 {plant.mobileno || plant.mobileNo}</p>
-              <div className="flex gap-2 mt-3">
-                <button
-                  onClick={() => {
-                    setSelectedPlantId(plant.plantid || plant.plantId);
-                    handleEditClick();
-                  }}
-                  className="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(plant.plantid || plant.plantId)}
-                  className="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-                >
-                  Delete
-                </button>
+            <button
+              onClick={() => setEditMode(true)}
+              className="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 w-full"
+            >
+              ➕ Add New Plant
+            </button>
+          </div>
+        )}
+
+        {!editMode && (
+          <div className="overflow-auto">
+            <table className="min-w-full border text-center">
+              <thead className="bg-blue-700 text-white">
+                <tr>
+                  <th className="px-4 py-2">ID</th>
+                  <th className="px-4 py-2">Name</th>
+                  <th className="px-4 py-2">Address</th>
+                  <th className="px-4 py-2">Contact</th>
+                  <th className="px-4 py-2">Mobile</th>
+                  <th className="px-4 py-2">Remarks</th>
+                  <th className="px-4 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {plantList.map((plant) => (
+                  <tr key={plant.plantid || plant.plantId} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-2">{plant.plantid || plant.plantId}</td>
+                    <td className="px-4 py-2">{plant.plantname || plant.plantName}</td>
+                    <td className="px-4 py-2">{plant.plantaddress || plant.plantAddress}</td>
+                    <td className="px-4 py-2">{plant.contactperson || plant.contactPerson}</td>
+                    <td className="px-4 py-2">{plant.mobileno || plant.mobileNo}</td>
+                    <td className="px-4 py-2">{plant.remarks}</td>
+                    <td className="px-4 py-2 space-x-2">
+                      <button
+                        onClick={() => {
+                          setSelectedPlantId(plant.plantid || plant.plantId);
+                          handleEditClick();
+                        }}
+                        className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(plant.plantid || plant.plantId)}
+                        className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {editMode && (
+          <form className="space-y-4 mt-6" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium">Plant Name</label>
+                <input
+                  type="text"
+                  name="plantName"
+                  value={formData.plantName}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Contact Person</label>
+                <input
+                  type="text"
+                  name="contactPerson"
+                  value={formData.contactPerson}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium">Address</label>
+                <textarea
+                  name="plantAddress"
+                  value={formData.plantAddress}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                ></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Mobile No</label>
+                <input
+                  type="tel"
+                  name="mobileNo"
+                  value={formData.mobileNo}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Remarks</label>
+                <input
+                  type="text"
+                  name="remarks"
+                  value={formData.remarks}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
               </div>
             </div>
-          ))}
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block mb-1 font-medium">Plant Name</label>
-              <input
-                type="text"
-                name="plantName"
-                value={formData.plantName}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-                required
-              />
+            <div className="flex justify-between">
+              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                {formData.plantId ? 'Update' : 'Save'}
+              </button>
+              <button type="button" onClick={handleBack} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                Back
+              </button>
             </div>
-            <div>
-              <label className="block mb-1 font-medium">Contact Person</label>
-              <input
-                type="text"
-                name="contactPerson"
-                value={formData.contactPerson}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
-            <div>
-              <label className="block mb-1 font-medium">Mobile No</label>
-              <input
-                type="tel"
-                name="mobileNo"
-                value={formData.mobileNo}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
-            <div>
-              <label className="block mb-1 font-medium">Remarks</label>
-              <input
-                type="text"
-                name="remarks"
-                value={formData.remarks}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block mb-1 font-medium">Plant Address</label>
-              <textarea
-                name="plantAddress"
-                value={formData.plantAddress}
-                onChange={handleChange}
-                rows="2"
-                className="w-full border border-gray-300 rounded px-3 py-2"
-              ></textarea>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-4">
-            <button
-              type="button"
-              onClick={handleBack}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-            >
-              {formData.plantId ? 'Update' : 'Save'}
-            </button>
-          </div>
-        </form>
+          </form>
+        )}
       </div>
     </div>
   );
 }
-
