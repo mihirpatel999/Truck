@@ -142,13 +142,13 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white text-center py-8 mt-auto">
+      {/* <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white text-center py-8 mt-auto">
         <div className="max-w-6xl mx-auto px-4">
           <p className="text-base">
             © {new Date().getFullYear()} Lemon Software Solution — Building Smart ERP for Smart Businesses.
           </p>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }
