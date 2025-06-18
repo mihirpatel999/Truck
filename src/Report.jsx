@@ -111,6 +111,14 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+
+function formatDateTime(dateTime) {
+  if (!dateTime) return "—";
+  const d = new Date(dateTime);
+  return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+}
+
+
 export default function Report() {
   const [truckNo, setTruckNo] = useState('');
   const [reportData, setReportData] = useState([]);
@@ -197,34 +205,30 @@ export default function Report() {
               <thead className="bg-indigo-100 text-indigo-700">
                 <tr>
   <th className="px-4 py-3 text-left">Truck No</th>
-    <th className="px-4 py-3 text-left">Plant Name</th>
-    <th className="px-4 py-3 text-left">Check-In Date</th>
-    
-    <th className="px-4 py-3 text-left">Check-Out Date</th>
+   <th className="px-4 py-3 text-left">Truck No</th>
+<th className="px-4 py-3 text-left">Plant Name</th>
+<th className="px-4 py-3 text-left">Check-In</th>
+<th className="px-4 py-3 text-left">Check-Out</th>
+<th className="px-4 py-3 text-left">Loading Slip</th>
+<th className="px-4 py-3 text-left">Qty</th>
+<th className="px-4 py-3 text-left">Freight</th>
+<th className="px-4 py-3 text-left">Priority</th>
+<th className="px-4 py-3 text-left">Remarks</th>
 
-    <th className="px-4 py-3 text-left">Loading Slip</th>
-    <th className="px-4 py-3 text-left">Qty</th>
-    <th className="px-4 py-3 text-left">Freight</th>
-    <th className="px-4 py-3 text-left">Priority</th>
-    <th className="px-4 py-3 text-left">Remarks</th>
                 </tr>
               </thead>
               <tbody>
                 {reportData.map((item, i) => (
                   <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                    <td className="px-4 py-3">{item.truckNo || '—'}</td>
-                    <td className="px-4 py-3">{item.plantName || '—'}</td>
-                    <td className="px-4 py-3">
-                      {item.checkInTime ? new Date(item.checkInTime).toLocaleString() : '—'}
-                    </td>
-                    <td className="px-4 py-3">
-                      {item.checkOutTime ? new Date(item.checkOutTime).toLocaleString() : '—'}
-                    </td>
-                    <td className="px-4 py-3">{item.loadingSlipNo || '—'}</td>
-                    <td className="px-4 py-3">{item.qty ?? '—'}</td>
-                    <td className="px-4 py-3">{item.freight ?? '—'}</td>
-                    <td className="px-4 py-3">{item.priority ?? '—'}</td>
-                    <td className="px-4 py-3">{item.remarks || '—'}</td>
+<td className="px-4 py-2">{item.truckno}</td>
+    <td className="px-4 py-2">{item.plantname}</td>
+    <td className="px-4 py-2">{formatDateTime(item.checkintime)}</td>
+    <td className="px-4 py-2">{formatDateTime(item.checkouttime)}</td>
+    <td className="px-4 py-2">{item.loadingslip}</td>
+    <td className="px-4 py-2">{item.quantity}</td>
+    <td className="px-4 py-2">{item.freight}</td>
+    <td className="px-4 py-2">{item.priority}</td>
+    <td className="px-4 py-2">{item.remarks}</td>
                   </tr>
                 ))}
               </tbody>
