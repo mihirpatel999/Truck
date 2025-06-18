@@ -277,16 +277,45 @@ await client.query(
     }
 
 
-    // 🚚 Truck Report API (for report page)
+//     // 🚚 Truck Report API (for report page)
+// app.get('/api/truck-report', async (req, res) => {
+//   const { truckNo } = req.query;
+//   try {
+//     const result = await pool.query(
+//       `SELECT ttd.TransactionID, p.PlantName, ttd.CheckInTime, ttd.CheckOutTime, ttd.Remarks
+//        FROM TruckTransactionDetails ttd
+//        JOIN PlantMaster p ON ttd.PlantID = p.PlantID
+//        JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
+//        WHERE ttm.TruckNo = $1
+//        ORDER BY ttd.CheckInTime DESC`,
+//       [truckNo]
+//     );
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error('Error fetching truck report:', error);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+// 🚚 Truck Report API (for report page) — place this **after** your other APIs
 app.get('/api/truck-report', async (req, res) => {
   const { truckNo } = req.query;
   try {
     const result = await pool.query(
-      `SELECT ttd.TransactionID, p.PlantName, ttd.CheckInTime, ttd.CheckOutTime, ttd.Remarks
+      `SELECT 
+         ttm.TruckNo AS "truckNo",
+         p.PlantName AS "plantName",
+         ttd.CheckInTime AS "checkInTime",
+         ttd.CheckOutTime AS "checkOutTime",
+         ttd.LoadingSlipNo AS "loadingSlipNo",
+         ttd.Qty AS "qty",
+         ttd.Freight AS "freight",
+         ttd.Priority AS "priority",
+         ttd.Remarks AS "remarks"
        FROM TruckTransactionDetails ttd
        JOIN PlantMaster p ON ttd.PlantID = p.PlantID
        JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
-       WHERE ttm.TruckNo = $1
+       WHERE LOWER(ttm.TruckNo) = LOWER($1)
        ORDER BY ttd.CheckInTime DESC`,
       [truckNo]
     );
@@ -296,6 +325,7 @@ app.get('/api/truck-report', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
     // 5. Recheck updated status
