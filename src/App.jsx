@@ -55,6 +55,7 @@ import PlantMaster from './PlantMaster';
 import Report from './Report';
 import Footer from './Footer'; // ✅ import Footer
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Loder from './Loder';
 
 function Layout() {
   const location = useLocation();
@@ -72,6 +73,7 @@ function Layout() {
         <Route path="/truck" element={<TruckTransaction />} />
         <Route path="/plantmaster" element={<PlantMaster />} />
         <Route path="/reports" element={<Report />} />
+        <Route path="/loader" element={<Loder />} />
       </Routes>
       
       {/* ✅ Show Footer only if not on login */}
