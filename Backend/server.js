@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -252,26 +251,52 @@ app.post("/api/update-truck-status", async (req, res) => {
 
     // 4. Update check-in or check-out
     if (type === "Check In" && status.checkinstatus === 0) {
-      await client.query(
-        `UPDATE TruckTransactionDetails
-         SET CheckInStatus = 1
-         WHERE PlantId = $1 AND TransactionID = $2`,
-        [plantId, transactionId]
-      );
+await client.query(
+  `UPDATE TruckTransactionDetails
+   SET CheckInStatus = 1,
+       CheckInTime = CURRENT_TIMESTAMP
+   WHERE PlantId = $1 AND TransactionID = $2`,
+  [plantId, transactionId]
+);
+
     }
     if (type === "Check Out") {
       if (status.checkinstatus === 0) {
         return res.status(400).json({ message: "❌ Please Check In first before Check Out" });
       }
       if (status.checkoutstatus === 0) {
-        await client.query(
-          `UPDATE TruckTransactionDetails
-           SET CheckOutStatus = 1
-           WHERE PlantId = $1 AND TransactionID = $2`,
-          [plantId, transactionId]
-        );
+     await client.query(
+  `UPDATE TruckTransactionDetails
+   SET CheckOutStatus = 1,
+       CheckOutTime = CURRENT_TIMESTAMP
+   WHERE PlantId = $1 AND TransactionID = $2`,
+  [plantId, transactionId]
+);
+
       }
     }
+
+
+    // 🚚 Truck Report API (for report page)
+app.get('/api/truck-report', async (req, res) => {
+  const { truckNo } = req.query;
+  try {
+    const result = await pool.query(
+      `SELECT ttd.TransactionID, p.PlantName, ttd.CheckInTime, ttd.CheckOutTime, ttd.Remarks
+       FROM TruckTransactionDetails ttd
+       JOIN PlantMaster p ON ttd.PlantID = p.PlantID
+       JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
+       WHERE ttm.TruckNo = $1
+       ORDER BY ttd.CheckInTime DESC`,
+      [truckNo]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching truck report:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
     // 5. Recheck updated status
     // 6. Check if all plants for this transaction are checked-in and checked-out
