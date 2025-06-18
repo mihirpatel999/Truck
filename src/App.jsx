@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import GateKeeper from './GateKeeper';
 import TruckTransaction from './TruckTransaction';
 import PlantMaster from './PlantMaster';
+import Report from './Report'; 
 
 
 
@@ -25,6 +26,7 @@ function Layout() {
         <Route path="/gate" element={<GateKeeper />} />
          <Route path="/truck" element={<TruckTransaction />} />
          <Route path="/plantmaster" element={<PlantMaster />} />
+          <Route path="/reports" element={<Report />} />
       </Routes>
     </>
   );
