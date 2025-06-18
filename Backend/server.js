@@ -67,6 +67,31 @@ app.get('/api/plant-master', async (req, res) => {
   }
 });
 
+
+// ✅ Delete plant by ID
+app.delete('/api/plant-master/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      'DELETE FROM PlantMaster WHERE PlantID = $1 RETURNING *',
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Plant not found' });
+    }
+
+    res.json({ message: 'Plant deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting plant:', error);
+    res.status(500).json({ error: 'Failed to delete plant' });
+  }
+});
+
+
+
+
 // ✅ Create new plant master record
 app.post('/api/plant-master', async (req, res) => {
   const { plantName, plantAddress, contactPerson, mobileNo, remarks } = req.body;
