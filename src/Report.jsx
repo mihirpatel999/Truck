@@ -199,9 +199,9 @@ export default function Report() {
   <th className="px-4 py-3 text-left">Truck No</th>
     <th className="px-4 py-3 text-left">Plant Name</th>
     <th className="px-4 py-3 text-left">Check-In Date</th>
-    <th className="px-4 py-3 text-left">Check-In Time</th>
+    
     <th className="px-4 py-3 text-left">Check-Out Date</th>
-    <th className="px-4 py-3 text-left">Check-Out Time</th>
+
     <th className="px-4 py-3 text-left">Loading Slip</th>
     <th className="px-4 py-3 text-left">Qty</th>
     <th className="px-4 py-3 text-left">Freight</th>
