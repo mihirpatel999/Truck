@@ -222,8 +222,9 @@ export default function Report() {
                   <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
 <td className="px-4 py-2">{item.truckno}</td>
     <td className="px-4 py-2">{item.plantname}</td>
-    <td className="px-4 py-2">{formatDateTime(item.checkintime)}</td>
-    <td className="px-4 py-2">{formatDateTime(item.checkouttime)}</td>
+    <td>{formatDateTime(item.checkintime)}</td>
+<td>{formatDateTime(item.checkouttime)}</td>
+
     <td className="px-4 py-2">{item.loadingslip}</td>
     <td className="px-4 py-2">{item.quantity}</td>
     <td className="px-4 py-2">{item.freight}</td>
