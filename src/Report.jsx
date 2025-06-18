@@ -196,15 +196,17 @@ export default function Report() {
             <table className="min-w-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
               <thead className="bg-indigo-100 text-indigo-700">
                 <tr>
-                  <th className="px-4 py-3 text-left">Truck No</th>
-                  <th className="px-4 py-3 text-left">Plant Name</th>
-                  <th className="px-4 py-3 text-left">Check-In Time</th>
-                  <th className="px-4 py-3 text-left">Check-Out Time</th>
-                  <th className="px-4 py-3 text-left">Loading Slip</th>
-                  <th className="px-4 py-3 text-left">Qty</th>
-                  <th className="px-4 py-3 text-left">Freight</th>
-                  <th className="px-4 py-3 text-left">Priority</th>
-                  <th className="px-4 py-3 text-left">Remarks</th>
+  <th className="px-4 py-3 text-left">Truck No</th>
+    <th className="px-4 py-3 text-left">Plant Name</th>
+    <th className="px-4 py-3 text-left">Check-In Date</th>
+    <th className="px-4 py-3 text-left">Check-In Time</th>
+    <th className="px-4 py-3 text-left">Check-Out Date</th>
+    <th className="px-4 py-3 text-left">Check-Out Time</th>
+    <th className="px-4 py-3 text-left">Loading Slip</th>
+    <th className="px-4 py-3 text-left">Qty</th>
+    <th className="px-4 py-3 text-left">Freight</th>
+    <th className="px-4 py-3 text-left">Priority</th>
+    <th className="px-4 py-3 text-left">Remarks</th>
                 </tr>
               </thead>
               <tbody>
