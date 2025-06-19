@@ -1151,7 +1151,8 @@ function GateKeeper() {
         <div className="col-span-1 space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
             <img
-              src="https://pngimg.com/uploads/truck/truck_PNG16234.png"
+              // src="https://pngimg.com/uploads/truck/truck_PNG16234.png"
+                src="/new-truck.png"
               alt="Truck"
               className="absolute bottom-0 left-0 w-full h-40 object-contain"
             />
