@@ -542,6 +542,36 @@ app.get('/api/fetch-remarks', async (req, res) => {
   }
 });
 
+
+// ✅ Truck quantity per plant chart API
+app.get('/api/truck-plant-quantities', async (req, res) => {
+  const { truckNo } = req.query;
+
+  try {
+    const result = await pool.query(`
+      SELECT 
+        p.PlantName,
+        SUM(ttd.Qty) AS quantity
+      FROM TruckTransactionDetails ttd
+      JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
+      JOIN PlantMaster p ON ttd.PlantID = p.PlantID
+      WHERE LOWER(ttm.TruckNo) = LOWER($1)
+        AND ttm.Completed = 0
+      GROUP BY p.PlantName
+      ORDER BY p.PlantName
+    `, [truckNo]);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching truck quantities:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+
+
+
 // 🚀 Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
