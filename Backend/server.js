@@ -23,15 +23,51 @@ app.use(bodyParser.json());
 
 
 // 🔐 Login API
-app.post("/api/login", async (req, res) => {
+// app.post("/api/login", async (req, res) => {
+//   const { username, password } = req.body;
+//   try {
+//     const result = await pool.query(
+//       "SELECT * FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2",
+//       [username, password]
+//     );
+//     if (result.rows.length > 0) {
+//       res.json({ success: true, message: "Login successful" });
+//     } else {
+//       res.status(401).json({ success: false, message: "Invalid credentials" });
+//     }
+//   } catch (err) {
+//     console.error("SQL error:", err);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// });
+app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
+
+  console.log("Login attempt:", username, password);
+
+  if (!username || !password) {
+    return res.status(400).json({ success: false, message: "Username and password are required" });
+  }
+
   try {
-    const result = await pool.query(
-      "SELECT * FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2",
-      [username, password]
-    );
-    if (result.rows.length > 0) {
-      res.json({ success: true, message: "Login successful" });
+    const pool = await getPool();
+    const result = await pool
+      .request()
+      .input('username', sql.NVarChar, username)
+      .input('password', sql.NVarChar, password)
+      .query(
+        'SELECT Username, Role, AllowedPlants FROM Users WHERE Username = @username AND Password = @password'
+      );
+
+    if (result.recordset.length > 0) {
+      const user = result.recordset[0];
+      res.json({
+        success: true,
+        message: "Login successful",
+        role: user.Role,
+        username: user.Username,
+        allowedPlants: user.AllowedPlants
+      });
     } else {
       res.status(401).json({ success: false, message: "Invalid credentials" });
     }
@@ -40,7 +76,6 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-
 
 
 
