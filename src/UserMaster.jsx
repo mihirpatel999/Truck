@@ -547,6 +547,153 @@
 
 
 
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+
+// const API_URL = import.meta.env.VITE_API_URL;
+
+// export default function UserMaster() {
+//   const [formData, setFormData] = useState({
+//     username: '',
+//     password: '',
+//     contactNumber: '',
+//     moduleRights: [],
+//     allowedPlant: ''
+//   });
+
+//   const [plantList, setPlantList] = useState([]);
+
+//   useEffect(() => {
+//     fetchPlants();
+//   }, []);
+
+//   const fetchPlants = async () => {
+//     try {
+//       const res = await axios.get(`${API_URL}/api/plants`);
+//       setPlantList(res.data);
+//     } catch (err) {
+//       console.error('❌ Error fetching plants:', err);
+//     }
+//   };
+
+//   const handleChange = (e) => {
+//     const { name, value, type, checked } = e.target;
+
+//     if (type === 'checkbox') {
+//       setFormData((prev) => ({
+//         ...prev,
+//         moduleRights: checked
+//           ? [...prev.moduleRights, value]
+//           : prev.moduleRights.filter((right) => right !== value),
+//       }));
+//     } else {
+//       setFormData((prev) => ({ ...prev, [name]: value }));
+//     }
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const res = await axios.post(`${API_URL}/api/usermaster`, formData);
+//       alert('✅ User created successfully!');
+//       setFormData({
+//         username: '',
+//         password: '',
+//         contactNumber: '',
+//         moduleRights: [],
+//         allowedPlant: ''
+//       });
+//     } catch (err) {
+//       console.error('❌ Error creating user:', err);
+//       alert('Failed to create user.');
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-white">
+//       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+//         <h2 className="text-2xl font-bold text-center mb-6 text-blue-700">👤 User Master</h2>
+//         <form onSubmit={handleSubmit} className="space-y-4">
+//           <div>
+//             <label className="block mb-1 font-medium">Username</label>
+//             <input
+//               type="text"
+//               name="username"
+//               value={formData.username}
+//               onChange={handleChange}
+//               required
+//               className="w-full border p-2 rounded bg-blue-50"
+//             />
+//           </div>
+//           <div>
+//             <label className="block mb-1 font-medium">Password</label>
+//             <input
+//               type="password"
+//               name="password"
+//               value={formData.password}
+//               onChange={handleChange}
+//               required
+//               className="w-full border p-2 rounded bg-blue-50"
+//             />
+//           </div>
+//           <div>
+//             <label className="block mb-1 font-medium">Contact Number</label>
+//             <input
+//               type="text"
+//               name="contactNumber"
+//               value={formData.contactNumber}
+//               onChange={handleChange}
+//               className="w-full border p-2 rounded"
+//             />
+//           </div>
+//           <div>
+//             <label className="block mb-1 font-medium">Module Rights</label>
+//             <div className="flex flex-wrap gap-2">
+//               {['Admin', 'GateKeeper', 'Report', 'Dispatch', 'Loader'].map((right) => (
+//                 <label key={right} className="flex items-center gap-1">
+//                   <input
+//                     type="checkbox"
+//                     value={right}
+//                     checked={formData.moduleRights.includes(right)}
+//                     onChange={handleChange}
+//                   />
+//                   {right}
+//                 </label>
+//               ))}
+//             </div>
+//           </div>
+//           <div>
+//             <label className="block mb-1 font-medium">Allowed Plants</label>
+//             <select
+//               name="allowedPlant"
+//               value={formData.allowedPlant}
+//               onChange={handleChange}
+//               className="w-full border p-2 rounded"
+//             >
+//               <option value="">-- Select Plant --</option>
+//               {plantList.map((plant) => (
+//                 <option key={plant.plantid || plant.plantId} value={plant.plantid || plant.plantId}>
+//                   {plant.plantname || plant.plantName}
+//                 </option>
+//               ))}
+//             </select>
+//           </div>
+//           <button
+//             type="submit"
+//             className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+//           >
+//             Create User
+//           </button>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// }
+
+/////////////////////////////////////
+
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -558,7 +705,7 @@ export default function UserMaster() {
     password: '',
     contactNumber: '',
     moduleRights: [],
-    allowedPlant: ''
+    allowedPlants: [], // now an array
   });
 
   const [plantList, setPlantList] = useState([]);
@@ -579,12 +726,19 @@ export default function UserMaster() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (type === 'checkbox') {
+    if (type === 'checkbox' && name === 'moduleRights') {
       setFormData((prev) => ({
         ...prev,
         moduleRights: checked
           ? [...prev.moduleRights, value]
           : prev.moduleRights.filter((right) => right !== value),
+      }));
+    } else if (type === 'checkbox' && name === 'allowedPlants') {
+      setFormData((prev) => ({
+        ...prev,
+        allowedPlants: checked
+          ? [...prev.allowedPlants, value]
+          : prev.allowedPlants.filter((plant) => plant !== value),
       }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -594,14 +748,14 @@ export default function UserMaster() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${API_URL}/api/usermaster`, formData);
+      await axios.post(`${API_URL}/api/usermaster`, formData);
       alert('✅ User created successfully!');
       setFormData({
         username: '',
         password: '',
         contactNumber: '',
         moduleRights: [],
-        allowedPlant: ''
+        allowedPlants: [],
       });
     } catch (err) {
       console.error('❌ Error creating user:', err);
@@ -610,77 +764,94 @@ export default function UserMaster() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-white">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6 text-blue-700">👤 User Master</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-white px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-xl">
+        <h2 className="text-3xl font-bold text-center mb-6 text-blue-700 flex items-center gap-2">
+          <span className="text-4xl">👤</span> User Master
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Username */}
           <div>
-            <label className="block mb-1 font-medium">Username</label>
+            <label className="block mb-1 font-semibold">Username</label>
             <input
               type="text"
               name="username"
               value={formData.username}
               onChange={handleChange}
               required
-              className="w-full border p-2 rounded bg-blue-50"
+              className="w-full border border-blue-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"
             />
           </div>
+
+          {/* Password */}
           <div>
-            <label className="block mb-1 font-medium">Password</label>
+            <label className="block mb-1 font-semibold">Password</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full border p-2 rounded bg-blue-50"
+              className="w-full border border-blue-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"
             />
           </div>
+
+          {/* Contact */}
           <div>
-            <label className="block mb-1 font-medium">Contact Number</label>
+            <label className="block mb-1 font-semibold">Contact Number</label>
             <input
               type="text"
               name="contactNumber"
               value={formData.contactNumber}
               onChange={handleChange}
-              className="w-full border p-2 rounded"
+              className="w-full border border-blue-300 rounded px-3 py-2 focus:outline-none focus:ring"
             />
           </div>
+
+          {/* Module Rights */}
           <div>
-            <label className="block mb-1 font-medium">Module Rights</label>
-            <div className="flex flex-wrap gap-2">
+            <label className="block mb-1 font-semibold">Module Rights</label>
+            <div className="flex flex-wrap gap-3">
               {['Admin', 'GateKeeper', 'Report', 'Dispatch', 'Loader'].map((right) => (
-                <label key={right} className="flex items-center gap-1">
+                <label key={right} className="flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
+                    name="moduleRights"
                     value={right}
                     checked={formData.moduleRights.includes(right)}
                     onChange={handleChange}
+                    className="accent-blue-600"
                   />
                   {right}
                 </label>
               ))}
             </div>
           </div>
+
+          {/* Allowed Plants */}
           <div>
-            <label className="block mb-1 font-medium">Allowed Plants</label>
-            <select
-              name="allowedPlant"
-              value={formData.allowedPlant}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-            >
-              <option value="">-- Select Plant --</option>
+            <label className="block mb-1 font-semibold">Allowed Plants</label>
+            <div className="grid grid-cols-2 gap-3 max-h-40 overflow-y-auto border p-3 rounded bg-blue-50">
               {plantList.map((plant) => (
-                <option key={plant.plantid || plant.plantId} value={plant.plantid || plant.plantId}>
+                <label key={plant.plantid || plant.plantId} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="allowedPlants"
+                    value={plant.plantid || plant.plantId}
+                    checked={formData.allowedPlants.includes(plant.plantid || plant.plantId)}
+                    onChange={handleChange}
+                    className="accent-green-600"
+                  />
                   {plant.plantname || plant.plantName}
-                </option>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
+
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-200"
           >
             Create User
           </button>
@@ -689,3 +860,4 @@ export default function UserMaster() {
     </div>
   );
 }
+
