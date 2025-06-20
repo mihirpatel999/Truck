@@ -42,47 +42,48 @@ app.use(bodyParser.json());
 // });
 
 
+// ✅ Login API with role & assigned plants
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({
-      success: false,
-      message: "Username and password required",
-    });
+    return res.status(400).json({ success: false, message: "Username and password required" });
   }
 
   try {
     const result = await pool.query(
-      "SELECT username, role FROM users WHERE LOWER(username) = LOWER($1) AND password = $2",
+      "SELECT userid, username, role FROM users WHERE LOWER(username) = LOWER($1) AND password = $2",
       [username, password]
     );
 
-    if (result.rows.length > 0) {
-      const user = result.rows[0];
-
-      console.log("✅ DB Result:", result.rows);
-      console.log("✅ Username:", user.username);
-      console.log("✅ Role:", user.role);
-
-      return res.json({
-        success: true,
-        message: "Login successful",
-        username: user.username,
-        role: user.role, // ✅ Send role back to frontend
-      });
-    } else {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+    if (result.rows.length === 0) {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
-  } catch (err) {
-    console.error("❌ SQL error:", err.message);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
+
+    const user = result.rows[0];
+    let assignedPlants = [];
+
+    if (user.role === 'staff') {
+      const plantResult = await pool.query(
+        `SELECT p.PlantID, p.PlantName
+         FROM UserPlants up
+         JOIN PlantMaster p ON up.PlantID = p.PlantID
+         WHERE up.UserID = $1`,
+        [user.userid]
+      );
+      assignedPlants = plantResult.rows;
+    }
+
+    res.json({
+      success: true,
+      message: "Login successful",
+      username: user.username,
+      role: user.role,
+      assignedPlants
     });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
@@ -612,7 +613,95 @@ app.get('/api/truck-plant-quantities', async (req, res) => {
   }
 });
 
+///////////////////////////////////////////////////////////////////////////
+// 👥 GET all users (admin only)
+app.get("/api/users", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT u.userid, u.username, u.role,
+              ARRAY(
+                SELECT p."PlantName"
+                FROM UserPlants up
+                JOIN PlantMaster p ON p.PlantID = up.PlantID
+                WHERE up.UserID = u.UserID
+              ) AS plants
+       FROM Users u
+       ORDER BY u.userid`
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
+// 👥 POST create user
+app.post("/api/users", async (req, res) => {
+  const { username, password, role } = req.body;
+  if (!username || !password || !role) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO Users (Username, Password, Role)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [username, password, role]
+    );
+    res.status(201).json({ message: "User created", user: result.rows[0] });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// 🔗 Assign plants to staff
+app.post("/api/user-plants", async (req, res) => {
+  const { userId, plantIds } = req.body;
+  if (!userId || !Array.isArray(plantIds)) {
+    return res.status(400).json({ error: "Invalid data" });
+  }
+
+  try {
+    await pool.query("BEGIN");
+    await pool.query("DELETE FROM UserPlants WHERE UserID = $1", [userId]);
+
+    for (const plantId of plantIds) {
+      await pool.query(
+        `INSERT INTO UserPlants (UserID, PlantID)
+         VALUES ($1, $2)`,
+        [userId, plantId]
+      );
+    }
+
+    await pool.query("COMMIT");
+    res.json({ message: "Plants assigned successfully" });
+  } catch (error) {
+    await pool.query("ROLLBACK");
+    console.error("Error assigning plants:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// 🌱 Get user’s plant access
+app.get("/api/user-plants/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const result = await pool.query(
+      `SELECT p.PlantID, p.PlantName
+       FROM UserPlants up
+       JOIN PlantMaster p ON up.PlantID = p.PlantID
+       WHERE up.UserID = $1`,
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching user's plants:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 
 

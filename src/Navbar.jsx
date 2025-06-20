@@ -464,31 +464,39 @@ function Navbar() {
             </button>
           </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8 items-center font-medium text-white">
-            {/* Admin Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setAdminOpen(!adminOpen);
-                  setDispatcherOpen(false);
-                }}
-                className="hover:text-yellow-400 flex items-center focus:outline-none transition duration-300 hover:scale-105"
-              >
-                Admin <span className="ml-1 text-sm">▼</span>
-              </button>
-              {adminOpen && (
-                <div className="absolute left-0 mt-2 w-56 bg-gray-800 rounded-xl shadow-2xl z-50 py-2 border border-gray-700">
-                  <Link 
-                    to="/plantmaster" 
-                    onClick={closeAllMenus}
-                    className="block px-6 py-3 text-white no-underline hover:bg-yellow-400 hover:text-gray-900 transition-all duration-300 flex items-center"
-                  >
-                    🏭 Plant Master
-                  </Link>
-                </div>
-              )}
-            </div>
+        
+       {/* Desktop Menu */}
+<div className="hidden md:flex space-x-8 items-center font-medium text-white">
+  {/* Admin Dropdown */}
+  <div className="relative">
+    <button
+      onClick={() => {
+        setAdminOpen(!adminOpen);
+        setDispatcherOpen(false);
+      }}
+      className="hover:text-yellow-400 flex items-center focus:outline-none transition duration-300 hover:scale-105"
+    >
+      Admin <span className="ml-1 text-sm">▼</span>
+    </button>
+    {adminOpen && (
+      <div className="absolute left-0 mt-2 w-56 bg-gray-800 rounded-xl shadow-2xl z-50 py-2 border border-gray-700">
+        <Link 
+          to="/plantmaster" 
+          onClick={closeAllMenus}
+          className="block px-6 py-3 text-white no-underline hover:bg-yellow-400 hover:text-gray-900 transition-all duration-300 flex items-center"
+        >
+          🏭 Plant Master
+        </Link>
+        <Link 
+          to="/usermaster" 
+          onClick={closeAllMenus}
+          className="block px-6 py-3 text-white no-underline hover:bg-yellow-400 hover:text-gray-900 transition-all duration-300 flex items-center"
+        >
+          👤 User Master
+        </Link>
+      </div>
+    )}
+  </div>
 
             {/* Dispatcher Dropdown */}
             <div className="relative">
@@ -539,32 +547,39 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-2 space-y-2 bg-gray-800 p-6 rounded-xl shadow-2xl text-white font-medium border border-gray-700">
-            {/* Admin Mobile */}
-            <div>
-              <button
-                onClick={() => {
-                  setAdminOpen(!adminOpen);
-                  setDispatcherOpen(false);
-                }}
-                className="w-full text-left hover:text-yellow-400 transition duration-300 flex items-center"
-              >
-                👨‍💼 Admin <span className="ml-1 text-sm">▼</span>
-              </button>
-              {adminOpen && (
-                <div className="pl-8 space-y-2 mt-2 border-l-2 border-gray-700">
-                  <Link 
-                    to="/plantmaster" 
-                    onClick={closeAllMenus}
-                    className="block no-underline text-white hover:text-yellow-400 transition duration-300 flex items-center"
-                  >
-                    🏭 Plant Master
-                  </Link>
-                </div>
-              )}
-            </div>
+       {/* Mobile Menu */}
+{mobileMenuOpen && (
+  <div className="md:hidden mt-2 space-y-2 bg-gray-800 p-6 rounded-xl shadow-2xl text-white font-medium border border-gray-700">
+    {/* Admin Mobile */}
+    <div>
+      <button
+        onClick={() => {
+          setAdminOpen(!adminOpen);
+          setDispatcherOpen(false);
+        }}
+        className="w-full text-left hover:text-yellow-400 transition duration-300 flex items-center"
+      >
+        👨‍💼 Admin <span className="ml-1 text-sm">▼</span>
+      </button>
+      {adminOpen && (
+        <div className="pl-8 space-y-2 mt-2 border-l-2 border-gray-700">
+          <Link 
+            to="/plantmaster" 
+            onClick={closeAllMenus}
+            className="block no-underline text-white hover:text-yellow-400 transition duration-300 flex items-center"
+          >
+            🏭 Plant Master
+          </Link>
+          <Link 
+            to="/usermaster" 
+            onClick={closeAllMenus}
+            className="block no-underline text-white hover:text-yellow-400 transition duration-300 flex items-center"
+          >
+            👤 User Master
+          </Link>
+        </div>
+      )}
+    </div>
 
             {/* Dispatcher Mobile */}
             <div>
