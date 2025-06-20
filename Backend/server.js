@@ -140,20 +140,36 @@ app.post('/api/login', async (req, res) => {
 });
 
 
-// // Get all plant names
+ 
 
+// Get all plant names
 
 app.get('/api/plants', async (req, res) => {
   try {
     const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
-    res.json(result.rows); // return all records with id + name
-  } catch (error) {
-    console.error('Error fetching plant names:', error);
-    res.status(500).json({ error: 'Failed to fetch plant names' });
+    res.json(result.rows); // PostgreSQL uses `.rows`
+  } catch (err) {
+    console.error('Error fetching plants:', err);
+    res.status(500).send('Server error');
   }
 });
 
-// ✅ Get all plant master records
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// // // Get all plant names                                                                                          
+// // app.get('/api/plants', async (req, res) => {                                                                       
+
+// app.get('/api/plants', async (req, res) => {
+//   try {
+//     const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
+//     res.json(result.rows); // return all records with id + name
+//   } catch (error) {
+//     console.error('Error fetching plant names:', error);
+//     res.status(500).json({ error: 'Failed to fetch plant names' });
+//   }
+// });
+
+// // ✅ Get all plant master records
 app.get('/api/plant-master', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM PlantMaster');
@@ -163,7 +179,7 @@ app.get('/api/plant-master', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch plants' });
   }
 });
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // ✅ Delete plant by ID
 app.delete('/api/plant-master/:id', async (req, res) => {
