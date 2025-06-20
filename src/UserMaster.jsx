@@ -547,16 +547,10 @@
 
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const MODULE_RIGHTS = [
-  { label: 'Admin', value: 'admin' },
-  { label: 'GateKeeper', value: 'gatekeeper' },
-  { label: 'Report', value: 'report' },
-  { label: 'Dispatch', value: 'dispatch' },
-  { label: 'Loader', value: 'loader' },
-];
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UserMaster() {
   const [formData, setFormData] = useState({
@@ -564,12 +558,10 @@ export default function UserMaster() {
     password: '',
     contactNumber: '',
     moduleRights: [],
-    allowedPlants: [],
+    allowedPlant: ''
   });
 
   const [plantList, setPlantList] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
 
   useEffect(() => {
     fetchPlants();
@@ -577,154 +569,123 @@ export default function UserMaster() {
 
   const fetchPlants = async () => {
     try {
-      const res = await axios.get('http://localhost:3001/api/plants');
+      const res = await axios.get(`${API_URL}/api/plants`);
       setPlantList(res.data);
     } catch (err) {
-      console.error('Error fetching plant list:', err);
+      console.error('❌ Error fetching plants:', err);
     }
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    const { name, value, type, checked } = e.target;
 
-  const handleModuleRightChange = (e) => {
-    const { value, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      moduleRights: checked
-        ? [...prev.moduleRights, value]
-        : prev.moduleRights.filter((v) => v !== value),
-    }));
-  };
-
-  const handlePlantChange = (e) => {
-    const value = Number(e.target.value);
-    const checked = e.target.checked;
-    setFormData((prev) => ({
-      ...prev,
-      allowedPlants: checked
-        ? [...prev.allowedPlants, value]
-        : prev.allowedPlants.filter((v) => v !== value),
-    }));
+    if (type === 'checkbox') {
+      setFormData((prev) => ({
+        ...prev,
+        moduleRights: checked
+          ? [...prev.moduleRights, value]
+          : prev.moduleRights.filter((right) => right !== value),
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-
-    if (formData.allowedPlants.length === 0) {
-      setMessage('❌ Please select at least one allowed plant.');
-      return;
-    }
-
-    setLoading(true);
     try {
-      await axios.post('http://localhost:3001/api/users', formData);
-      setMessage('✅ User created successfully!');
+      const res = await axios.post(`${API_URL}/api/usermaster`, formData);
+      alert('✅ User created successfully!');
       setFormData({
         username: '',
         password: '',
         contactNumber: '',
         moduleRights: [],
-        allowedPlants: [],
+        allowedPlant: ''
       });
-    } catch {
-      setMessage('❌ Error creating user');
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error('❌ Error creating user:', err);
+      alert('Failed to create user.');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 p-4">
-      <div className="bg-white shadow-2xl rounded-3xl p-8 w-full max-w-2xl transform transition-all duration-300 hover:shadow-3xl">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-          User Master
-        </h2>
-        <form className="space-y-6" onSubmit={handleSubmit}>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-white">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold text-center mb-6 text-blue-700">👤 User Master</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Username</label>
+            <label className="block mb-1 font-medium">Username</label>
             <input
               type="text"
               name="username"
               value={formData.username}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-xl border-2 border-gray-200 shadow-sm p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               required
+              className="w-full border p-2 rounded bg-blue-50"
             />
           </div>
-
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+            <label className="block mb-1 font-medium">Password</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-xl border-2 border-gray-200 shadow-sm p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               required
+              className="w-full border p-2 rounded bg-blue-50"
             />
           </div>
-
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Contact Number</label>
+            <label className="block mb-1 font-medium">Contact Number</label>
             <input
               type="text"
               name="contactNumber"
               value={formData.contactNumber}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-xl border-2 border-gray-200 shadow-sm p-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-              required
+              className="w-full border p-2 rounded"
             />
           </div>
-
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Module Rights</label>
-            <div className="flex flex-wrap gap-4">
-              {MODULE_RIGHTS.map((right) => (
-                <label key={right.value} className="flex items-center gap-2">
+            <label className="block mb-1 font-medium">Module Rights</label>
+            <div className="flex flex-wrap gap-2">
+              {['Admin', 'GateKeeper', 'Report', 'Dispatch', 'Loader'].map((right) => (
+                <label key={right} className="flex items-center gap-1">
                   <input
                     type="checkbox"
-                    value={right.value}
-                    checked={formData.moduleRights.includes(right.value)}
-                    onChange={handleModuleRightChange}
+                    value={right}
+                    checked={formData.moduleRights.includes(right)}
+                    onChange={handleChange}
                   />
-                  {right.label}
+                  {right}
                 </label>
               ))}
             </div>
           </div>
-
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Allowed Plants</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto border rounded-xl p-2">
-              {[...new Map(plantList.map(plant => [plant.plantId, plant])).values()].map((plant) => (
-                <label key={plant.plantId}>
-                  <input
-                    type="checkbox"
-                    value={plant.plantId}
-                    checked={formData.allowedPlants.includes(plant.plantId)}
-                    onChange={handlePlantChange}
-                  />
-                  {plant.plantName}
-                </label>
+            <label className="block mb-1 font-medium">Allowed Plants</label>
+            <select
+              name="allowedPlant"
+              value={formData.allowedPlant}
+              onChange={handleChange}
+              className="w-full border p-2 rounded"
+            >
+              <option value="">-- Select Plant --</option>
+              {plantList.map((plant) => (
+                <option key={plant.plantid || plant.plantId} value={plant.plantid || plant.plantId}>
+                  {plant.plantname || plant.plantName}
+                </option>
               ))}
-            </div>
+            </select>
           </div>
-
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-            disabled={loading || formData.allowedPlants.length === 0}
+            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
           >
-            {loading ? 'Saving...' : 'Create User'}
+            Create User
           </button>
-
-          {message && <div className="text-center mt-4 font-semibold text-blue-700">{message}</div>}
         </form>
       </div>
     </div>
   );
 }
-
