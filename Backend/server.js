@@ -89,6 +89,57 @@ app.use(bodyParser.json());
 
 
 // ✅ Login API with role, rights & assigned plants
+// app.post("/api/login", async (req, res) => {
+//   const { username, password } = req.body;
+
+//   if (!username || !password) {
+//     return res.status(400).json({ success: false, message: "Username and password required" });
+//   }
+
+//   try {
+//     const result = await pool.query(
+//       `SELECT userid, username, role, rights
+//        FROM users 
+//        WHERE LOWER(username) = LOWER($1) AND password = $2`,
+//       [username, password]
+//     );
+
+//     if (result.rows.length === 0) {
+//       return res.status(401).json({ success: false, message: "Invalid credentials" });
+//     }
+
+//     const user = result.rows[0];
+//     let assignedPlants = [];
+
+//     if (user.role === 'staff') {
+//       const plantResult = await pool.query(
+//         `SELECT p.PlantID, p.PlantName
+//          FROM UserPlants up
+//          JOIN PlantMaster p ON up.PlantID = p.PlantID
+//          WHERE up.UserID = $1`,
+//         [user.userid]
+//       );
+//       assignedPlants = plantResult.rows;
+//     }
+
+//     res.json({
+//       success: true,
+//       message: "Login successful",
+//       username: user.username,
+//       role: user.role,
+//       rights: user.rights,         // ✅ Make sure this is included!
+//       assignedPlants
+//     });
+//   } catch (err) {
+//     console.error("Login error:", err);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// });
+
+////////////////////////////////////////////////
+
+
+// ✅ Login API with role & assigned plants & rights
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -98,8 +149,7 @@ app.post("/api/login", async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT userid, username, role, rights
-       FROM users 
+      `SELECT userid, username, role, rights FROM users 
        WHERE LOWER(username) = LOWER($1) AND password = $2`,
       [username, password]
     );
@@ -122,12 +172,20 @@ app.post("/api/login", async (req, res) => {
       assignedPlants = plantResult.rows;
     }
 
+    // ✅ Parse rights string if stored as JSON string in DB
+    let parsedRights = {};
+    try {
+      parsedRights = JSON.parse(user.rights || '{}');
+    } catch {
+      parsedRights = {};
+    }
+
     res.json({
       success: true,
       message: "Login successful",
       username: user.username,
       role: user.role,
-      rights: user.rights,         // ✅ Make sure this is included!
+      rights: parsedRights,   // ✅ Send rights to frontend
       assignedPlants
     });
   } catch (err) {
@@ -135,6 +193,7 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
 
 
 
