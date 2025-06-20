@@ -615,10 +615,107 @@ app.get('/api/truck-plant-quantities', async (req, res) => {
 
 ///////////////////////////////////////////////////////////////////////////
 // 👥 GET all users (admin only)
+// app.get("/api/users", async (req, res) => {
+//   try {
+//     const result = await pool.query(
+//       `SELECT u.userid, u.username, u.role,
+//               ARRAY(
+//                 SELECT p."PlantName"
+//                 FROM UserPlants up
+//                 JOIN PlantMaster p ON p.PlantID = up.PlantID
+//                 WHERE up.UserID = u.UserID
+//               ) AS plants
+//        FROM Users u
+//        ORDER BY u.userid`
+//     );
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error("Error fetching users:", error);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
+
+// // 👥 POST create user
+// app.post("/api/users", async (req, res) => {
+//   const { username, password, role } = req.body;
+//   if (!username || !password || !role) {
+//     return res.status(400).json({ error: "Missing fields" });
+//   }
+
+//   try {
+//     const result = await pool.query(
+//       `INSERT INTO Users (Username, Password, Role)
+//        VALUES ($1, $2, $3)
+//        RETURNING *`,
+//       [username, password, role]
+//     );
+//     res.status(201).json({ message: "User created", user: result.rows[0] });
+//   } catch (error) {
+//     console.error("Error creating user:", error);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
+
+// // 🔗 Assign plants to staff
+// app.post("/api/user-plants", async (req, res) => {
+//   const { userId, plantIds } = req.body;
+//   if (!userId || !Array.isArray(plantIds)) {
+//     return res.status(400).json({ error: "Invalid data" });
+//   }
+
+//   try {
+//     await pool.query("BEGIN");
+//     await pool.query("DELETE FROM UserPlants WHERE UserID = $1", [userId]);
+
+//     for (const plantId of plantIds) {
+//       await pool.query(
+//         `INSERT INTO UserPlants (UserID, PlantID)
+//          VALUES ($1, $2)`,
+//         [userId, plantId]
+//       );
+//     }
+
+//     await pool.query("COMMIT");
+//     res.json({ message: "Plants assigned successfully" });
+//   } catch (error) {
+//     await pool.query("ROLLBACK");
+//     console.error("Error assigning plants:", error);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
+
+// // 🌱 Get user’s plant access
+// app.get("/api/user-plants/:userId", async (req, res) => {
+//   const { userId } = req.params;
+
+//   try {
+//     const result = await pool.query(
+//       `SELECT p.PlantID, p.PlantName
+//        FROM UserPlants up
+//        JOIN PlantMaster p ON up.PlantID = p.PlantID
+//        WHERE up.UserID = $1`,
+//       [userId]
+//     );
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error("Error fetching user's plants:", error);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
+
+
+
+// // 🚀 Start the server
+// app.listen(PORT, () => {
+//   console.log(`🚀 Server is running at http://localhost:${PORT}`);
+// });
+
+
+// 👥 GET all users (admin only)
 app.get("/api/users", async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT u.userid, u.username, u.role,
+      `SELECT u.userid, u.username, u.role, u.employeeName, u.contactNo, u.rights,
               ARRAY(
                 SELECT p."PlantName"
                 FROM UserPlants up
@@ -635,28 +732,58 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-// 👥 POST create user
+// 👥 POST create user (with rights, employeeName, contactNo, and plant assignment)
 app.post("/api/users", async (req, res) => {
-  const { username, password, role } = req.body;
+  const {
+    username,
+    password,
+    role,
+    employeeName,
+    contactNo,
+    rights,
+    plants
+  } = req.body;
+
   if (!username || !password || !role) {
-    return res.status(400).json({ error: "Missing fields" });
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
+  const client = await pool.connect();
   try {
-    const result = await pool.query(
-      `INSERT INTO Users (Username, Password, Role)
-       VALUES ($1, $2, $3)
-       RETURNING *`,
-      [username, password, role]
+    await client.query("BEGIN");
+
+    // Insert into users table with extra fields
+    const userResult = await client.query(
+      `INSERT INTO Users (Username, Password, Role, employeeName, contactNo, rights)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING userid`,
+      [username, password, role, employeeName, contactNo, rights]
     );
-    res.status(201).json({ message: "User created", user: result.rows[0] });
+
+    const userId = userResult.rows[0].userid;
+
+    // Assign plants only if role is 'staff'
+    if (role === "staff" && Array.isArray(plants)) {
+      for (const plantId of plants) {
+        await client.query(
+          `INSERT INTO UserPlants (UserID, PlantID) VALUES ($1, $2)`,
+          [userId, plantId]
+        );
+      }
+    }
+
+    await client.query("COMMIT");
+    res.status(201).json({ message: "User created successfully" });
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Error creating user:", error);
     res.status(500).json({ error: "Server error" });
+  } finally {
+    client.release();
   }
 });
 
-// 🔗 Assign plants to staff
+// 🔗 Assign plants to staff (optional if handled in /api/users above)
 app.post("/api/user-plants", async (req, res) => {
   const { userId, plantIds } = req.body;
   if (!userId || !Array.isArray(plantIds)) {
@@ -669,8 +796,7 @@ app.post("/api/user-plants", async (req, res) => {
 
     for (const plantId of plantIds) {
       await pool.query(
-        `INSERT INTO UserPlants (UserID, PlantID)
-         VALUES ($1, $2)`,
+        `INSERT INTO UserPlants (UserID, PlantID) VALUES ($1, $2)`,
         [userId, plantId]
       );
     }
@@ -702,8 +828,6 @@ app.get("/api/user-plants/:userId", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-
-
 
 // 🚀 Start the server
 app.listen(PORT, () => {
