@@ -23,24 +23,68 @@ app.use(bodyParser.json());
 
 
 // 🔐 Login API
+// app.post("/api/login", async (req, res) => {
+//   const { username, password } = req.body;
+//   try {
+//     const result = await pool.query(
+//       "SELECT * FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2",
+//       [username, password]
+//     );
+//     if (result.rows.length > 0) {
+//       res.json({ success: true, message: "Login successful" });
+//     } else {
+//       res.status(401).json({ success: false, message: "Invalid credentials" });
+//     }
+//   } catch (err) {
+//     console.error("SQL error:", err);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// });
+
+
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Username and password required",
+    });
+  }
+
   try {
     const result = await pool.query(
-      "SELECT * FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2",
+      "SELECT username, role FROM users WHERE LOWER(username) = LOWER($1) AND password = $2",
       [username, password]
     );
+
     if (result.rows.length > 0) {
-      res.json({ success: true, message: "Login successful" });
+      const user = result.rows[0];
+
+      console.log("✅ DB Result:", result.rows);
+      console.log("✅ Username:", user.username);
+      console.log("✅ Role:", user.role);
+
+      return res.json({
+        success: true,
+        message: "Login successful",
+        username: user.username,
+        role: user.role, // ✅ Send role back to frontend
+      });
     } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
     }
   } catch (err) {
-    console.error("SQL error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("❌ SQL error:", err.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 });
-
 
 
 // // Get all plant names
