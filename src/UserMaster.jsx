@@ -864,7 +864,7 @@
 
 
 
-//////////////////////////////////////////////
+////////////////////////////
 
 
 import React, { useState, useEffect } from 'react';
@@ -873,9 +873,15 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function UserMaster() {
-  const [username, setUsername] = useState('');
-  const [plants, setPlants] = useState([]);
-  const [selectedPlants, setSelectedPlants] = useState([]);
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    contactNumber: '',
+    moduleRights: [],
+    allowedPlants: [],
+  });
+
+  const [plantList, setPlantList] = useState([]);
 
   useEffect(() => {
     fetchPlants();
@@ -884,77 +890,136 @@ export default function UserMaster() {
   const fetchPlants = async () => {
     try {
       const res = await axios.get(`${API_URL}/api/plants`);
-      setPlants(res.data);
+      setPlantList(res.data);
     } catch (err) {
-      console.error('Error fetching plants:', err);
+      console.error('❌ Error fetching plants:', err);
     }
   };
 
-  const handleCheckboxChange = (plantId) => {
-    setSelectedPlants((prev) =>
-      prev.includes(plantId)
-        ? prev.filter((id) => id !== plantId)
-        : [...prev, plantId]
-    );
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    if (type === 'checkbox' && name === 'moduleRights') {
+      setFormData((prev) => ({
+        ...prev,
+        moduleRights: checked
+          ? [...prev.moduleRights, value]
+          : prev.moduleRights.filter((right) => right !== value),
+      }));
+    } else if (type === 'checkbox' && name === 'allowedPlants') {
+      setFormData((prev) => ({
+        ...prev,
+        allowedPlants: checked
+          ? [...prev.allowedPlants, value]
+          : prev.allowedPlants.filter((plant) => plant !== value),
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_URL}/api/user-master`, {
-        username,
-        plantIds: selectedPlants,
-      });
+      await axios.post(`${API_URL}/api/usermaster`, formData);
       alert('✅ User created successfully!');
-      setUsername('');
-      setSelectedPlants([]);
+      setFormData({
+        username: '',
+        password: '',
+        contactNumber: '',
+        moduleRights: [],
+        allowedPlants: [],
+      });
     } catch (err) {
       console.error('❌ Error creating user:', err);
-      alert('❌ Failed to create user');
+      alert('Failed to create user.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6">
-        <h2 className="text-3xl font-bold text-center text-blue-700 mb-6 flex items-center justify-center gap-2">
-          <span>👤</span> User Master
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-white px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-xl">
+        <h2 className="text-3xl font-bold text-center mb-6 text-blue-700 flex items-center justify-center gap-2">
+          <span className="text-4xl">👤</span> User Master
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium mb-1">Username</label>
+            <label className="block mb-1 font-semibold">Username</label>
             <input
               type="text"
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
               required
+              className="w-full border border-blue-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Select Plants</label>
-            <div className="max-h-48 overflow-y-auto border rounded-lg p-2 space-y-2">
-              {plants.map((plant) => (
-                <div key={plant.plantid || plant.plantId} className="flex items-center gap-2">
+            <label className="block mb-1 font-semibold">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="w-full border border-blue-300 rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-semibold">Contact Number</label>
+            <input
+              type="text"
+              name="contactNumber"
+              value={formData.contactNumber}
+              onChange={handleChange}
+              className="w-full border border-blue-300 rounded px-3 py-2 focus:outline-none focus:ring"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-semibold">Module Rights</label>
+            <div className="flex flex-wrap gap-3">
+              {['Admin', 'GateKeeper', 'Report', 'Dispatch', 'Loader'].map((right) => (
+                <label key={right} className="flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
-                    id={`plant-${plant.plantid || plant.plantId}`}
-                    checked={selectedPlants.includes(plant.plantid || plant.plantId)}
-                    onChange={() => handleCheckboxChange(plant.plantid || plant.plantId)}
+                    name="moduleRights"
+                    value={right}
+                    checked={formData.moduleRights.includes(right)}
+                    onChange={handleChange}
                     className="accent-blue-600"
                   />
-                  <label htmlFor={`plant-${plant.plantid || plant.plantId}`} className="text-sm">
-                    {plant.plantname || plant.plantName}
-                  </label>
-                </div>
+                  {right}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block mb-1 font-semibold">Allowed Plants</label>
+            <div className="grid grid-cols-2 gap-3 max-h-40 overflow-y-auto border p-3 rounded bg-blue-50">
+              {plantList.map((plant) => (
+                <label key={plant.plantid || plant.plantId} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="allowedPlants"
+                    value={plant.plantid || plant.plantId}
+                    checked={formData.allowedPlants.includes(plant.plantid || plant.plantId)}
+                    onChange={handleChange}
+                    className="accent-green-600"
+                  />
+                  {plant.plantname || plant.plantName}
+                </label>
               ))}
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-200"
           >
             Create User
           </button>
