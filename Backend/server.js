@@ -803,6 +803,48 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
+// GET all plants
+app.get('/api/plants', async (req, res) => {
+  const result = await pool.query('SELECT * FROM plant_master ORDER BY plantname');
+  res.json(result.rows);
+});
+
+// POST new user
+app.post('/api/user-master', async (req, res) => {
+  const { username, plantIds } = req.body;
+
+  if (!username || !Array.isArray(plantIds)) {
+    return res.status(400).json({ message: 'Invalid data' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const userRes = await client.query(
+      'INSERT INTO user_master(username) VALUES($1) RETURNING userid',
+      [username]
+    );
+    const userId = userRes.rows[0].userid;
+
+    for (const pid of plantIds) {
+      await client.query(
+        'INSERT INTO user_plants(userid, plantid) VALUES($1, $2)',
+        [userId, pid]
+      );
+    }
+
+    await client.query('COMMIT');
+    res.status(201).json({ message: 'User created successfully' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  } finally {
+    client.release();
+  }
+});
+
+
 
 
 
