@@ -967,6 +967,33 @@ app.get('/api/truck-plant-quantities', async (req, res) => {
 // });
 
 
+// app.post('/api/users', async (req, res) => {
+//   const { username, password, contactNumber, moduleRights, allowedPlants } = req.body;
+
+//   if (!username || !password || !contactNumber) {
+//     return res.status(400).json({ message: 'Username, password, and contact number are required.' });
+//   }
+
+//   try {
+//     const roleString = moduleRights.join(',');
+//     const plantsString = allowedPlants.join(',');
+
+//     await pool.query(
+//       `INSERT INTO Users (Username, Password, ContactNumber, Role, AllowedPlants)
+//        VALUES ($1, $2, $3, $4, $5)`,
+//       [username, password, contactNumber, roleString, plantsString]
+//     );
+
+//     res.status(201).json({ message: 'User created successfully.' });
+//   } catch (err) {
+//     console.error('Error creating user:', err);
+//     res.status(500).json({ message: 'Error creating user.' });
+//   }
+// });
+
+
+//////////////////////////////////////
+
 app.post('/api/users', async (req, res) => {
   const { username, password, contactNumber, moduleRights, allowedPlants } = req.body;
 
@@ -976,8 +1003,24 @@ app.post('/api/users', async (req, res) => {
 
   try {
     const roleString = moduleRights.join(',');
-    const plantsString = allowedPlants.join(',');
 
+    // 🔁 Step 1: Get PlantName → PlantID mapping
+    const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
+    const plantMap = {};
+    result.rows.forEach(p => {
+      plantMap[p.plantname.toLowerCase()] = p.plantid;
+    });
+
+    // 🔁 Step 2: Convert allowed plant names to IDs
+    const allowedPlantIds = allowedPlants.map(name => {
+      const id = plantMap[name.toLowerCase()];
+      if (!id) throw new Error(`Invalid plant name: ${name}`);
+      return id;
+    });
+
+    const plantsString = allowedPlantIds.join(',');
+
+    // ✅ Step 3: Insert into Users table
     await pool.query(
       `INSERT INTO Users (Username, Password, ContactNumber, Role, AllowedPlants)
        VALUES ($1, $2, $3, $4, $5)`,
@@ -986,10 +1029,11 @@ app.post('/api/users', async (req, res) => {
 
     res.status(201).json({ message: 'User created successfully.' });
   } catch (err) {
-    console.error('Error creating user:', err);
+    console.error('❌ Error creating user:', err.message || err);
     res.status(500).json({ message: 'Error creating user.' });
   }
 });
+////////////////////////////////////////
 
 // GET all plants
 app.get('/api/plants', async (req, res) => {
