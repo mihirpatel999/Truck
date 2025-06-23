@@ -140,6 +140,32 @@ app.post('/api/login', async (req, res) => {
 });
 
 
+
+app.post('/api/usermaster', async (req, res) => {
+  const { username, password, contactNumber, moduleRights, allowedPlants } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and password are required.' });
+  }
+
+  try {
+    const roleString = (moduleRights || []).join(',');
+    const plantsString = (allowedPlants || []).join(',');
+
+    await pool.query(
+      `INSERT INTO Users (Username, Password, ContactNumber, Role, AllowedPlants)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [username, password, contactNumber, roleString, plantsString]
+    );
+
+    res.status(201).json({ message: 'User created successfully.' });
+  } catch (err) {
+    console.error('Error creating user:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
  
 
 // Get all plant names
