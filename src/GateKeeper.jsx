@@ -2020,10 +2020,15 @@ function GateKeeper() {
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
-    axios.get(`${API_URL}/api/plants`)
-      .then(res => setPlantList(res.data))
-      .catch(err => console.error('Error fetching plants:', err));
-  }, []);
+  const userId = localStorage.getItem('userId'); // Login ke time store hua hona chahiye
+
+  axios.get(`${API_URL}/api/plants`, {
+    headers: { 'userid': userId }
+  })
+    .then(res => setPlantList(res.data))
+    .catch(err => console.error('Error fetching plants:', err));
+}, []);
+
 
   useEffect(() => {
     if (selectedPlant) {
