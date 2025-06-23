@@ -2448,7 +2448,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -2582,7 +2581,9 @@ function GateKeeper() {
           >
             <option value="">Select Plant</option>
             {plantList.map((plant, i) => (
-              <option key={i} value={plant.PlantName}>{plant.PlantName}</option>
+              <option key={i} value={plant.PlantName || plant.plantname}>
+                {plant.PlantName || plant.plantname}
+              </option>
             ))}
           </select>
 
@@ -2687,4 +2688,3 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
-
