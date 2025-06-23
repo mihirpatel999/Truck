@@ -165,8 +165,25 @@ app.post('/api/usermaster', async (req, res) => {
   }
 });
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ app.get('/api/plants', async (req, res) => {
+  const userId = req.headers['userid'];  // Frontend se userId bhejna padega
 
- 
+  try {
+    const result = await pool.query(`
+      SELECT p.plantname 
+      FROM plantmaster p
+      JOIN userplantmapping up ON up.plantid = p.plantid
+      WHERE up.userid = $1
+    `, [userId]);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error fetching plants' });
+  }
+});
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Get all plant names
 
