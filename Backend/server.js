@@ -181,16 +181,45 @@ app.post('/api/login', async (req, res) => {
 ///////////////////////////////////////////////////////////////////////////////
 
 
+// app.get('/api/plants', async (req, res) => {
+//   const userId = req.headers['userid'];
+//   const role = req.headers['role'];
+
+//   try {
+//     if (role && role.toLowerCase() === 'admin') {
+//       // ✅ Admin: Return all plants
+//       const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
+//       return res.json(result.rows);
+//     } else {
+//       // ✅ Staff: Return only allowed plants from mapping
+//       const result = await pool.query(`
+//         SELECT p.PlantID, p.PlantName
+//         FROM PlantMaster p
+//         INNER JOIN UserPlantMapping up ON up.PlantId = p.PlantId
+//         WHERE up.UserId = $1
+//       `, [userId]);
+
+//       return res.json(result.rows);
+//     }
+//   } catch (err) {
+//     console.error('Error fetching plants:', err);
+//     res.status(500).json({ error: 'Error fetching plants' });
+//   }
+// });
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 app.get('/api/plants', async (req, res) => {
   const userId = req.headers['userid'];
-  const role = req.headers['role'];
+  const role = req.headers['role'] || 'admin'; // default: admin if not sent
 
   try {
-    if (role && role.toLowerCase() === 'admin') {
+    if (role.toLowerCase() === 'admin') {
       // ✅ Admin: Return all plants
       const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
       return res.json(result.rows);
-    } else {
+    } else if (userId) {
       // ✅ Staff: Return only allowed plants from mapping
       const result = await pool.query(`
         SELECT p.PlantID, p.PlantName
@@ -200,16 +229,15 @@ app.get('/api/plants', async (req, res) => {
       `, [userId]);
 
       return res.json(result.rows);
+    } else {
+      // ❌ If userId is missing (and not admin), return error
+      return res.status(400).json({ error: 'Missing userId in headers' });
     }
   } catch (err) {
     console.error('Error fetching plants:', err);
     res.status(500).json({ error: 'Error fetching plants' });
   }
 });
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 
 
@@ -230,7 +258,7 @@ app.get('/api/plants', async (req, res) => {
 //     console.error('Error fetching plants:', err);
 //     res.status(500).send('Server error');
 //   }
-// });
+// });   ////////// ye final hai 
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
