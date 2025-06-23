@@ -187,15 +187,15 @@ app.post('/api/usermaster', async (req, res) => {
 
 // Get all plant names
 
-app.get('/api/plants', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
-    res.json(result.rows); // PostgreSQL uses `.rows`
-  } catch (err) {
-    console.error('Error fetching plants:', err);
-    res.status(500).send('Server error');
-  }
-});
+// app.get('/api/plants', async (req, res) => {
+//   try {
+//     const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
+//     res.json(result.rows); // PostgreSQL uses `.rows`
+//   } catch (err) {
+//     console.error('Error fetching plants:', err);
+//     res.status(500).send('Server error');
+//   }
+// });
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
