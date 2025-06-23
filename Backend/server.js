@@ -210,27 +210,69 @@ app.post('/api/login', async (req, res) => {
 
 
 
+// app.get('/api/plants', async (req, res) => {
+//   const userId = req.headers['userid'];
+//   const role = req.headers['role'] || 'admin'; // default: admin if not sent
+
+//   try {
+//     if (role.toLowerCase() === 'admin') {
+//       // ✅ Admin: Return all plants
+//       const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
+//       return res.json(result.rows);
+//     } else if (userId) {
+//       // ✅ Staff: Return only allowed plants from mapping
+//       const result = await pool.query(`
+//         SELECT p.PlantID, p.PlantName
+//         FROM PlantMaster p
+//         INNER JOIN UserPlantMapping up ON up.PlantId = p.PlantId
+//         WHERE up.UserId = $1
+//       `, [userId]);
+
+//       return res.json(result.rows);
+//     } else {
+//       // ❌ If userId is missing (and not admin), return error
+//       return res.status(400).json({ error: 'Missing userId in headers' });
+//     }
+//   } catch (err) {
+//     console.error('Error fetching plants:', err);
+//     res.status(500).json({ error: 'Error fetching plants' });
+//   }
+// });//////////////////////
+////////////////////
+
 app.get('/api/plants', async (req, res) => {
   const userId = req.headers['userid'];
-  const role = req.headers['role'] || 'admin'; // default: admin if not sent
+  const role = req.headers['role'] || 'admin';
 
   try {
     if (role.toLowerCase() === 'admin') {
-      // ✅ Admin: Return all plants
+      // ✅ Admin gets all plants
       const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
       return res.json(result.rows);
     } else if (userId) {
-      // ✅ Staff: Return only allowed plants from mapping
-      const result = await pool.query(`
-        SELECT p.PlantID, p.PlantName
-        FROM PlantMaster p
-        INNER JOIN UserPlantMapping up ON up.PlantId = p.PlantId
-        WHERE up.UserId = $1
-      `, [userId]);
+      // ✅ Staff: get allowedplants from users table
+      const userRes = await pool.query('SELECT allowedplants FROM users WHERE userid = $1', [userId]);
+      if (userRes.rows.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
 
+      const allowedPlantIds = userRes.rows[0].allowedplants;
+      if (!allowedPlantIds) {
+        return res.json([]); // No access to any plant
+      }
+
+      const plantIdArray = allowedPlantIds.split(',').map(id => id.trim()).filter(Boolean);
+      if (plantIdArray.length === 0) {
+        return res.json([]); // No valid plant IDs
+      }
+
+      // Use WHERE IN clause for selected plants
+      const placeholders = plantIdArray.map((_, i) => `$${i + 1}`).join(',');
+      const plantQuery = `SELECT PlantID, PlantName FROM PlantMaster WHERE PlantID IN (${placeholders})`;
+
+      const result = await pool.query(plantQuery, plantIdArray);
       return res.json(result.rows);
     } else {
-      // ❌ If userId is missing (and not admin), return error
       return res.status(400).json({ error: 'Missing userId in headers' });
     }
   } catch (err) {
@@ -238,6 +280,7 @@ app.get('/api/plants', async (req, res) => {
     res.status(500).json({ error: 'Error fetching plants' });
   }
 });
+
 
 
 
