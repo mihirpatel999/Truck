@@ -112,43 +112,12 @@ app.use(bodyParser.json());
 // });
 
 
-// app.post('/api/login', async (req, res) => {
-//   const { username, password } = req.body;
-
-//   try {
-//     const result = await pool.query(
-//       'SELECT Username, Role, AllowedPlants FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2',
-//       [username, password]
-//     );
-
-//     if (result.rows.length > 0) {
-//       const user = result.rows[0];
-//       res.json({
-//         success: true,
-//         message: "Login successful",
-//         role: user.role,
-//         username: user.username,
-//         allowedPlants: user.allowedplants
-//       });
-//     } else {
-//       res.status(401).json({ success: false, message: "Invalid credentials" });
-//     }
-//   } catch (err) {
-//     console.error("SQL error:", err);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// });
-
-
-// Login route
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
     const result = await pool.query(
-      `SELECT UserID, Username, Role, AllowedPlants 
-       FROM Users 
-       WHERE LOWER(Username) = LOWER($1) AND Password = $2`,
+      'SELECT Username, Role, AllowedPlants FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2',
       [username, password]
     );
 
@@ -157,9 +126,8 @@ app.post('/api/login', async (req, res) => {
       res.json({
         success: true,
         message: "Login successful",
-        userId: user.userid,          // ✅ Add this
-        username: user.username,
         role: user.role,
+        username: user.username,
         allowedPlants: user.allowedplants
       });
     } else {
@@ -178,45 +146,47 @@ app.post('/api/login', async (req, res) => {
 
 
 
-app.get('/api/plants', async (req, res) => {
-  const userId = req.headers['userid'];
-  const role = req.headers['role']; // Role bhi frontend se bhejna padega
 
-  try {
-    if (role && role.toLowerCase() === 'admin') {
-      // ✅ Admin hai - sabhi plants bhejo
-      const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
-      return res.json(result.rows);
-    } else {
-      // ✅ Normal user - allowed plants ke hisaab se bhejo
-      const result = await pool.query(`
-        SELECT p.plantname 
-        FROM plantmaster p
-        JOIN userplantmapping up ON up.plantid = p.plantid
-        WHERE up.userid = $1
-      `, [userId]);
 
-      return res.json(result.rows);
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error fetching plants' });
-  }
-});
+// app.get('/api/plants', async (req, res) => {
+//   const userId = req.headers['userid'];
+//   const role = req.headers['role']; // Role bhi frontend se bhejna padega
+
+//   try {
+//     if (role && role.toLowerCase() === 'admin') {
+//       // ✅ Admin hai - sabhi plants bhejo
+//       const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
+//       return res.json(result.rows);
+//     } else {
+//       // ✅ Normal user - allowed plants ke hisaab se bhejo
+//       const result = await pool.query(`
+//         SELECT p.plantname 
+//         FROM plantmaster p
+//         JOIN userplantmapping up ON up.plantid = p.plantid
+//         WHERE up.userid = $1
+//       `, [userId]);
+
+//       return res.json(result.rows);
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: 'Error fetching plants' });
+//   }
+// });
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Get all plant names
 
-// app.get('/api/plants', async (req, res) => {
-//   try {
-//     const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
-//     res.json(result.rows); // PostgreSQL uses `.rows`
-//   } catch (err) {
-//     console.error('Error fetching plants:', err);
-//     res.status(500).send('Server error');
-//   }
-// });
+app.get('/api/plants', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
+    res.json(result.rows); // PostgreSQL uses `.rows`
+  } catch (err) {
+    console.error('Error fetching plants:', err);
+    res.status(500).send('Server error');
+  }
+});
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
