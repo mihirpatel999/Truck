@@ -141,61 +141,61 @@ app.post('/api/login', async (req, res) => {
 
 
 
-app.post('/api/usermaster', async (req, res) => {
-  const { username, password, contactNumber, moduleRights, allowedPlants } = req.body;
+// app.post('/api/usermaster', async (req, res) => {
+//   const { username, password, contactNumber, moduleRights, allowedPlants } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username and password are required.' });
-  }
+//   if (!username || !password) {
+//     return res.status(400).json({ message: 'Username and password are required.' });
+//   }
 
-  try {
-    const roleString = (moduleRights || []).join(',');
-    const plantsString = (allowedPlants || []).join(',');
+//   try {
+//     const roleString = (moduleRights || []).join(',');
+//     const plantsString = (allowedPlants || []).join(',');
 
-    await pool.query(
-      `INSERT INTO Users (Username, Password, ContactNumber, Role, AllowedPlants)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [username, password, contactNumber, roleString, plantsString]
-    );
+//     await pool.query(
+//       `INSERT INTO Users (Username, Password, ContactNumber, Role, AllowedPlants)
+//        VALUES ($1, $2, $3, $4, $5)`,
+//       [username, password, contactNumber, roleString, plantsString]
+//     );
 
-    res.status(201).json({ message: 'User created successfully.' });
-  } catch (err) {
-    console.error('Error creating user:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+//     res.status(201).json({ message: 'User created successfully.' });
+//   } catch (err) {
+//     console.error('Error creating user:', err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- app.get('/api/plants', async (req, res) => {
-  const userId = req.headers['userid'];  // Frontend se userId bhejna padega
+// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  app.get('/api/plants', async (req, res) => {
+//   const userId = req.headers['userid'];  // Frontend se userId bhejna padega
 
-  try {
-    const result = await pool.query(`
-      SELECT p.plantname 
-      FROM plantmaster p
-      JOIN userplantmapping up ON up.plantid = p.plantid
-      WHERE up.userid = $1
-    `, [userId]);
+//   try {
+//     const result = await pool.query(`
+//       SELECT p.plantname 
+//       FROM plantmaster p
+//       JOIN userplantmapping up ON up.plantid = p.plantid
+//       WHERE up.userid = $1
+//     `, [userId]);
 
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error fetching plants' });
-  }
-});
+//     res.json(result.rows);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: 'Error fetching plants' });
+//   }
+// });
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Get all plant names
 
-// app.get('/api/plants', async (req, res) => {
-//   try {
-//     const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
-//     res.json(result.rows); // PostgreSQL uses `.rows`
-//   } catch (err) {
-//     console.error('Error fetching plants:', err);
-//     res.status(500).send('Server error');
-//   }
-// });
+app.get('/api/plants', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT PlantID, PlantName FROM PlantMaster');
+    res.json(result.rows); // PostgreSQL uses `.rows`
+  } catch (err) {
+    console.error('Error fetching plants:', err);
+    res.status(500).send('Server error');
+  }
+});
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
