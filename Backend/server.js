@@ -23,36 +23,36 @@ app.use(bodyParser.json());
 
 
 
-app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
+// app.post('/api/login', async (req, res) => {
+//   const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ success: false, message: "Username and password are required" });
-  }
+//   if (!username || !password) {
+//     return res.status(400).json({ success: false, message: "Username and password are required" });
+//   }
 
-  try {
-    const result = await pool.query(
-      'SELECT Username, Role, AllowedPlants FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2',
-      [username, password]
-    );
+//   try {
+//     const result = await pool.query(
+//       'SELECT Username, Role, AllowedPlants FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2',
+//       [username, password]
+//     );
 
-    if (result.rows.length > 0) {
-      const user = result.rows[0];
-      res.json({
-        success: true,
-        message: "Login successful",
-        role: user.role,
-        username: user.username,
-        allowedPlants: user.allowedplants,
-      });
-    } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-    }
-  } catch (err) {
-    console.error("SQL error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
+//     if (result.rows.length > 0) {
+//       const user = result.rows[0];
+//       res.json({
+//         success: true,
+//         message: "Login successful",
+//         role: user.role,
+//         username: user.username,
+//         allowedPlants: user.allowedplants,
+//       });
+//     } else {
+//       res.status(401).json({ success: false, message: "Invalid credentials" });
+//     }
+//   } catch (err) {
+//     console.error("SQL error:", err);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// });
 
 
 // // 🔐 Login API
