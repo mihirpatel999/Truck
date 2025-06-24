@@ -4517,10 +4517,9 @@
 //       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
 //     </div>
 //   );
-// }
+// 
 
 import React, { useEffect, useState } from 'react';
-
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -4651,8 +4650,8 @@ function GateKeeper() {
 
             {/* Bar Chart */}
             <div
-              className="absolute bottom-[26%] left-[28%] flex items-end gap-[4px] z-10"
-              style={{ width: '47%', height: '60%' }}
+              className="absolute bottom-[26%] left-[10%] flex items-end gap-[4px] z-10"
+              style={{ width: '78%', height: '60%' }}
             >
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
