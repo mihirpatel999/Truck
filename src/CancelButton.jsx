@@ -1,22 +1,18 @@
 // src/CancelButton.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
 
-function CancelButton() {
+export default function CancelButton() {
   const navigate = useNavigate();
 
-  const handleCancel = () => {
-    navigate('/home');
-  };
-
   return (
-    <div style={{ textAlign: 'right', padding: '10px 20px' }}>
-      <Button variant="secondary" onClick={handleCancel}>
+    <div className="flex justify-end mb-4">
+      <button
+        onClick={() => navigate('/home')}
+        className="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-lg shadow"
+      >
         Cancel
-      </Button>
+      </button>
     </div>
   );
 }
-
-export default CancelButton;
