@@ -4116,7 +4116,6 @@
 
 
 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4198,7 +4197,7 @@ function GateKeeper() {
         type
       });
       setTruckNumbers(prev => prev.filter(t => getTruckNo(t) !== formData.truckNo));
-      if (type === 'Check In' && !checkedInTrucks.some(t => getTruckNo(t) === formData.truckNo)) {
+      if (type === 'Check In' && !checkedInTrucks.some(t => getTruckNo(t) === formData.trantNo)) {
         setCheckedInTrucks(prev => [...prev, { TruckNo: formData.truckNo }]);
       }
       toast.success(res.data.message);
@@ -4248,8 +4247,8 @@ function GateKeeper() {
 
             {/* Bar Chart */}
             <div
-              className="absolute bottom-[60px] left-[48px] h-[75px] flex items-end gap-[2px] z-10"
-              style={{ width: 'calc(100% - 160px)', maxWidth: '380px' }}
+              className="absolute bottom-[60px] left-[35px] h-[75px] flex items-end gap-[2px] z-10"
+              style={{ width: 'calc(100% - 170px)' }}
             >
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
@@ -4312,3 +4311,7 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
+
+
+
+
