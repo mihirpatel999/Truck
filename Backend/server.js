@@ -2157,7 +2157,11 @@ app.post('/api/users', async (req, res) => {
 
   try {
     const roleString = moduleRights.join(',');
-    const plantsString = allowedPlants.join(','); // ✅ Already plant IDs
+    const plantsString = allowedPlants.join(',');
+
+    console.log('👉 Incoming Data:', {
+      username, password, contactNumber, roleString, plantsString
+    });
 
     await pool.query(
       `INSERT INTO Users (Username, Password, ContactNumber, Role, AllowedPlants)
@@ -2167,10 +2171,11 @@ app.post('/api/users', async (req, res) => {
 
     res.status(201).json({ message: 'User created successfully.' });
   } catch (err) {
-    console.error('❌ Error creating user:', err.message || err);
+    console.error('❌ Error creating user:', err); // ← important fix
     res.status(500).json({ message: 'Error creating user.' });
   }
 });
+
 
 ////////////////////////////////////////
 
