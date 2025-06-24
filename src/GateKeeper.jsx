@@ -3318,16 +3318,12 @@
 ////////////////////////////////////////////////////////////////////////
 
 
-
+// 👇 Updated GateKeeper with proportional width and height bars overlaying truck image
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend,
-} from 'recharts';
-import truckImage from './assets/Truck.png.jpeg'; // ✅ Correct image path
+import truckImage from './assets/Truck.png.jpeg';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -3344,9 +3340,6 @@ function GateKeeper() {
   const [truckNumbers, setTruckNumbers] = useState([]);
   const [checkedInTrucks, setCheckedInTrucks] = useState([]);
   const [quantityPanels, setQuantityPanels] = useState([]);
-  const [chartData, setChartData] = useState([]);
-
-  const panelColors = ['bg-green-400', 'bg-blue-400', 'bg-yellow-400', 'bg-red-400'];
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -3372,80 +3365,55 @@ function GateKeeper() {
   }, [selectedPlant]);
 
   const getTruckNo = (truck) => truck.TruckNo || truck.truckno || truck.truck_no || '';
-  const getPlantName = (plant) =>
-    typeof plant === 'string' ? plant : (plant.PlantName || plant.plantname || 'Unknown');
+  const getPlantName = (plant) => typeof plant === 'string' ? plant : (plant.PlantName || plant.plantname || 'Unknown');
 
-  const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handlePlantChange = (e) => {
     setSelectedPlant(e.target.value);
     setCheckedInTrucks([]);
     setQuantityPanels([]);
-    setChartData([]);
-    setFormData(prev => ({
-      ...prev,
-      truckNo: '',
-      dispatchDate: new Date().toISOString().split('T')[0],
-    }));
+    setFormData(prev => ({ ...prev, truckNo: '', dispatchDate: new Date().toISOString().split('T')[0] }));
   };
 
   const handleTruckSelect = async (truckNo) => {
     setFormData(prev => ({ ...prev, truckNo }));
-
     try {
       const remarksRes = await axios.get(`${API_URL}/api/fetch-remarks`, {
         params: { plantName: selectedPlant, truckNo }
       });
-
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
-
       setQuantityPanels(quantityRes.data);
-      setChartData(quantityRes.data);
-      setFormData(prev => ({
-        ...prev,
-        remarks: remarksRes.data.remarks || 'No remarks available.'
-      }));
+      setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
     } catch (err) {
       console.error('Error fetching data:', err);
-      setFormData(prev => ({
-        ...prev,
-        remarks: 'No remarks available or error fetching remarks.'
-      }));
+      setFormData(prev => ({ ...prev, remarks: 'No remarks available or error fetching remarks.' }));
     }
   };
 
   const handleSubmit = async (type) => {
-    if (!formData.truckNo) {
-      toast.warn('🚛 Please select a truck number.');
-      return;
-    }
-
+    if (!formData.truckNo) return toast.warn('🚛 Please select a truck number.');
     try {
       const res = await axios.post(`${API_URL}/api/update-truck-status`, {
         truckNo: formData.truckNo,
         plantName: selectedPlant,
         type
       });
-
-      setTruckNumbers(prev =>
-        prev.filter(t => getTruckNo(t) !== formData.truckNo)
-      );
-
+      setTruckNumbers(prev => prev.filter(t => getTruckNo(t) !== formData.truckNo));
       if (type === 'Check In' && !checkedInTrucks.some(t => getTruckNo(t) === formData.truckNo)) {
         setCheckedInTrucks(prev => [...prev, { TruckNo: formData.truckNo }]);
       }
-
       toast.success(res.data.message);
       setFormData(prev => ({ ...prev, truckNo: '' }));
       setQuantityPanels([]);
-      setChartData([]);
     } catch (err) {
       console.error('Error:', err);
       toast.error('⚠️ Error while updating status');
     }
   };
+
+  const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0));
+  const totalQty = quantityPanels.reduce((acc, p) => acc + p.quantity, 0);
 
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen p-6">
@@ -3468,11 +3436,7 @@ function GateKeeper() {
             <h3 className="text-md font-semibold text-blue-800 mb-2">Truck List</h3>
             <ul className="space-y-1 text-sm text-gray-700 cursor-pointer">
               {truckNumbers.map((truck, index) => (
-                <li
-                  key={index}
-                  onClick={() => handleTruckSelect(getTruckNo(truck))}
-                  className="hover:text-blue-600"
-                >
+                <li key={index} onClick={() => handleTruckSelect(getTruckNo(truck))} className="hover:text-blue-600">
                   {getTruckNo(truck)}
                 </li>
               ))}
@@ -3484,28 +3448,22 @@ function GateKeeper() {
         {/* Middle Panel */}
         <div className="col-span-1 space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
-            {/* Truck Image */}
             <img
               src={truckImage}
               alt="Truck"
               className="absolute bottom-0 left-0 w-full h-full object-contain"
             />
-
-            {/* Bars inside truck container */}
-            <div
-              className="absolute bottom-[48px] left-[70px] h-[110px] flex items-end gap-2"
-              style={{ width: 'calc(100% - 170px)' }}
-            >
+            <div className="absolute inset-0 flex items-end justify-evenly px-4">
               {quantityPanels.map((panel, index) => {
-                const barHeight = Math.min(panel.quantity / 5, 110); // scale height
-                const totalPanels = quantityPanels.length;
-                const barWidth = `${100 / totalPanels - 2}%`;
-
+                const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
+                const widthRatio = panel.quantity / totalQty;
+                const width = `${Math.max(12, widthRatio * 100)}%`;
+                const bgColors = ['bg-green-400', 'bg-blue-400', 'bg-yellow-400', 'bg-red-400'];
                 return (
                   <div
                     key={index}
-                    className={`flex flex-col justify-end items-center text-white ${panelColors[index % panelColors.length]} rounded-t-md`}
-                    style={{ height: `${barHeight}px`, width: barWidth, minWidth: '40px' }}
+                    className={`flex flex-col items-center justify-end text-white ${bgColors[index % bgColors.length]} rounded-t-md`}
+                    style={{ height: `${height}%`, width }}
                   >
                     <div className="text-[10px]">{panel.plantname}</div>
                     <div className="text-xs font-bold">{panel.quantity}</div>
@@ -3516,48 +3474,15 @@ function GateKeeper() {
           </div>
 
           <div className="space-y-2">
-            <input
-              name="truckNo"
-              value={formData.truckNo}
-              onChange={handleChange}
-              className="w-full border rounded px-4 py-2 shadow-sm"
-              placeholder="Truck No"
-            />
-            <input
-              name="dispatchDate"
-              type="date"
-              value={formData.dispatchDate}
-              onChange={handleChange}
-              className="w-full border rounded px-4 py-2 shadow-sm"
-            />
-            <input
-              name="invoiceNo"
-              value={formData.invoiceNo}
-              onChange={handleChange}
-              className="w-full border rounded px-4 py-2 shadow-sm"
-              placeholder="Invoice No"
-            />
-            <textarea
-              name="remarks"
-              value={formData.remarks}
-              readOnly
-              className="w-full border rounded px-4 py-2 shadow-sm bg-gray-100 text-gray-700 resize-none h-24"
-            />
+            <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Truck No" />
+            <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" />
+            <input name="invoiceNo" value={formData.invoiceNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Invoice No" />
+            <textarea name="remarks" value={formData.remarks} readOnly className="w-full border rounded px-4 py-2 shadow-sm bg-gray-100 text-gray-700 resize-none h-24" />
           </div>
 
           <div className="flex justify-between mt-2">
-            <button
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              onClick={() => handleSubmit('Check In')}
-            >
-              Check In
-            </button>
-            <button
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-              onClick={() => handleSubmit('Check Out')}
-            >
-              Check Out
-            </button>
+            <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onClick={() => handleSubmit('Check In')}>Check In</button>
+            <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700" onClick={() => handleSubmit('Check Out')}>Check Out</button>
           </div>
         </div>
 
@@ -3567,11 +3492,7 @@ function GateKeeper() {
             <h3 className="text-lg font-bold text-green-800 mb-2">Checked In Trucks</h3>
             <ul className="space-y-1 text-sm text-gray-700">
               {checkedInTrucks.map((truck, idx) => (
-                <li
-                  key={idx}
-                  className="hover:text-green-600 cursor-pointer"
-                  onClick={() => handleTruckSelect(getTruckNo(truck))}
-                >
+                <li key={idx} className="hover:text-green-600 cursor-pointer" onClick={() => handleTruckSelect(getTruckNo(truck))}>
                   {getTruckNo(truck)}
                 </li>
               ))}
@@ -3579,25 +3500,6 @@ function GateKeeper() {
             </ul>
           </div>
         </div>
-      </div>
-
-      {/* Quantity Chart */}
-      <div className="max-w-5xl mx-auto mt-8 p-4 bg-white shadow-md rounded-lg">
-        <h2 className="text-xl font-bold mb-4 text-center">Plant-wise Quantity Chart</h2>
-        {chartData.length > 0 ? (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="plantname" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="quantity" fill="#0ea5e9" />
-            </BarChart>
-          </ResponsiveContainer>
-        ) : (
-          <p className="text-center text-gray-500">No data to display. Select a truck.</p>
-        )}
       </div>
 
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
