@@ -3042,6 +3042,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend,
 } from 'recharts';
+import CancelButton from './CancelButton';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -3167,6 +3168,7 @@ function GateKeeper() {
 
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen p-6">
+      <CancelButton
       <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
 
         {/* Left Panel - Plant + Truck List */}
