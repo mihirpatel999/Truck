@@ -2221,7 +2221,72 @@ app.post('/api/user-master', async (req, res) => {
 });
 
 
+//////////////////////////////////////////////////////////////////////
 
+app.get('/api/truck-find', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT "TruckNo", "TransactionDate", "CityName"
+      FROM "TruckTransactionMaster"
+      WHERE "TruckNo" IS NOT NULL AND "Completed" = FALSE
+      ORDER BY "TransactionDate" DESC
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching truck transactions:', err);
+    res.status(500).json({ error: 'Failed to fetch truck data' });
+  }
+});
+
+
+app.get('/api/truck-transaction/:truckNo', async (req, res) => {
+  const { truckNo } = req.params;
+
+  try {
+    // Step 1: Fetch master data
+    const masterQuery = `
+      SELECT 
+        "TransactionID", "TruckNo", "TransactionDate", "CityName", 
+        "Transporter", "AmountPerTon", "DeliverPoint", 
+        "TruckWeight", "Remarks"
+      FROM "TruckTransactionMaster"
+      WHERE TRIM(LOWER("TruckNo")) = TRIM(LOWER($1))
+    `;
+
+    const masterResult = await pool.query(masterQuery, [truckNo]);
+
+    if (masterResult.rows.length === 0) {
+      console.log('⚠️ No truck found for:', truckNo);
+      return res.status(404).json({ error: 'Truck not found' });
+    }
+
+    const masterData = masterResult.rows[0];
+    console.log('✅ Master Data:', masterData);
+
+    // Step 2: Fetch details by TransactionID
+    const detailQuery = `
+      SELECT 
+        d."PlantId", 
+        p."PlantName",
+        d."LoadingSlipNo", d."Qty", d."Priority", 
+        d."Remarks", d."Freight"
+      FROM "TruckTransactionDetails" d
+      LEFT JOIN "PlantMaster" p ON d."PlantId" = p."PlantId"
+      WHERE d."TransactionID" = $1
+    `;
+
+    const detailResult = await pool.query(detailQuery, [masterData.TransactionID]);
+
+    const detailsData = detailResult.rows;
+    console.log(`✅ Loaded ${detailsData.length} detail rows`);
+
+    res.json({ master: masterData, details: detailsData });
+
+  } catch (err) {
+    console.error('❌ Fetch error:', err);
+    res.status(500).json({ error: 'Server error', message: err.message });
+  }
+});
 
 
 // 🚀 Start the server
