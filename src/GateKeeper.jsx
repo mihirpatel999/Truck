@@ -3318,11 +3318,12 @@
 ////////////////////////////////////////////////////////////////////////
 
 
+
 // import React, { useEffect, useState } from 'react';
 // import axios from 'axios';
 // import { ToastContainer, toast } from 'react-toastify';
 // import 'react-toastify/dist/ReactToastify.css';
-// import truckImage from './assets/Truck.png.png'; // Sirf load area wali cropped image lagao
+// import truckImage from './assets/Truck.png.png';  // Full truck image
 
 // const API_URL = import.meta.env.VITE_API_URL;
 
@@ -3448,8 +3449,8 @@
 //         <div className="col-span-1 space-y-4">
 //           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
 
-//             {/* Bar Chart Over Load Area */}
-//             <div className="absolute bottom-[58px] left-[50px] right-[50px] h-[70px] flex items-end justify-between z-10">
+//             {/* Bar Chart only over container */}
+//             <div className="absolute bottom-[58px] left-[65px] right-[160px] h-[70px] flex items-end justify-between z-10">
 //               {quantityPanels.map((panel, index) => {
 //                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
 //                 const barWidth = quantityPanels.length > 0 ? `${100 / quantityPanels.length}%` : '0%';
@@ -3467,7 +3468,7 @@
 //               })}
 //             </div>
 
-//             {/* Cropped Truck Image */}
+//             {/* Truck Image */}
 //             <img
 //               src={truckImage}
 //               alt="Truck"
@@ -3513,8 +3514,7 @@
 
 // export default GateKeeper;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////////////
 
 
 import React, { useEffect, useState } from 'react';
@@ -3611,7 +3611,6 @@ function GateKeeper() {
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0));
-  const totalQty = quantityPanels.reduce((acc, p) => acc + p.quantity, 0);
 
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen p-6">
@@ -3647,8 +3646,11 @@ function GateKeeper() {
         <div className="col-span-1 space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
 
-            {/* Bar Chart only over container */}
-            <div className="absolute bottom-[58px] left-[65px] right-[160px] h-[70px] flex items-end justify-between z-10">
+            {/* Bar Chart only over container area */}
+            <div
+              className="absolute bottom-[58px] left-[65px] h-[70px] flex items-end justify-between z-10"
+              style={{ right: '160px' }} // Dynamic right spacing
+            >
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
                 const barWidth = quantityPanels.length > 0 ? `${100 / quantityPanels.length}%` : '0%';
@@ -3711,4 +3713,5 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
+
 
