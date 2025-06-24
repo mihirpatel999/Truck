@@ -3322,7 +3322,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-import truckImage from "./assets/TruckCropped.png"; // Tum cropped truck image yaha rakho
+import truckImage from "./assets/Truck.png.png"; // Tum cropped truck image yaha rakho
 
 const API_URL = import.meta.env.VITE_API_URL;
 
