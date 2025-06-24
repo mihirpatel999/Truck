@@ -3845,21 +3845,16 @@ function GateKeeper() {
 
         {/* Middle Panel */}
         <div className="col-span-1 space-y-4">
-
-          {/* Truck + Chart */}
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
-
-            {/* Chart */}
-            <div className="absolute bottom-[58px] left-[160px] flex items-end gap-2 z-10 pr-8 max-w-[260px] overflow-hidden">
+            <div className="absolute bottom-[58px] left-[135px] right-[80px] flex items-end gap-2 z-10">
               {quantityPanels.map((panel, index) => {
-                const barHeight = (panel.quantity / maxQty) * 100;
-                const barWidth = Math.max((panel.quantity / maxQty) * 80, 40);
-                const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-400', 'bg-red-400'];
+                const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
+                const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-400', 'bg-red-400', 'bg-purple-500'];
                 return (
                   <div
                     key={index}
-                    className={`h-[70px] ${bgColors[index % bgColors.length]} rounded text-white text-[10px] px-1 flex flex-col justify-center items-center`}
-                    style={{ width: `${barWidth}px` }}
+                    className={`h-[70px] ${bgColors[index % bgColors.length]} rounded text-white text-[10px] px-1 flex flex-col justify-center items-center flex-1 min-w-[40px]`}
+                    style={{ height: `${height}%` }}
                   >
                     <div className="font-bold">{panel.quantity}</div>
                     <div>{panel.plantname}</div>
@@ -3868,15 +3863,15 @@ function GateKeeper() {
               })}
             </div>
 
-            {/* Truck Image */}
             <img
               src={truckImage}
               alt="Truck"
-              className="absolute bottom-0 left-0 h-[65%] object-contain z-0"
+              className="absolute bottom-0 left-0 w-full h-auto object-contain z-0"
+              style={{ height: '65%' }}
             />
           </div>
 
-          {/* Form */}
+          {/* Form Inputs */}
           <div className="space-y-2">
             <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Truck No" />
             <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" />
@@ -3912,4 +3907,3 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
-
