@@ -3317,8 +3317,6 @@
 
 ////////////////////////////////////////////////////////////////////////
 
-
-// 👇 Updated GateKeeper with proportional width and height bars overlaying truck image
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -3453,18 +3451,18 @@ function GateKeeper() {
               alt="Truck"
               className="absolute bottom-0 left-0 w-full h-full object-contain"
             />
-         <div className="absolute bottom-[48px] left-[60px] right-[90px] h-[110px] flex items-end gap-2">
 
+            {/* Bar chart container */}
+            <div className="absolute bottom-[50px] left-[50px] right-[50px] h-[100px] flex items-end justify-between">
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
-                const widthRatio = panel.quantity / totalQty;
-                const width = `${Math.max(12, widthRatio * 100)}%`;
+                const barWidth = quantityPanels.length > 0 ? `${100 / quantityPanels.length}%` : '0%';
                 const bgColors = ['bg-green-400', 'bg-blue-400', 'bg-yellow-400', 'bg-red-400'];
                 return (
                   <div
                     key={index}
                     className={`flex flex-col items-center justify-end text-white ${bgColors[index % bgColors.length]} rounded-t-md`}
-                    style={{ height: `${height}%`, width }}
+                    style={{ height: `${height}%`, width: barWidth }}
                   >
                     <div className="text-[10px]">{panel.plantname}</div>
                     <div className="text-xs font-bold">{panel.quantity}</div>
