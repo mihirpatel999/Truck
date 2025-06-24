@@ -4524,7 +4524,6 @@
 
 
 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4656,8 +4655,8 @@ function GateKeeper() {
 
             {/* Bar Chart */}
             <div
-              className="absolute bottom-[22%] left-[14%] flex items-end gap-[4px] z-10"
-              style={{ width: '72%' }}
+              className="absolute bottom-[22%] left-[18%] flex items-end gap-[4px] z-10"
+              style={{ width: '60%' }}
             >
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
@@ -4720,6 +4719,7 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
+
 
 
 
