@@ -3319,7 +3319,6 @@
 
 
 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -3328,8 +3327,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend,
 } from 'recharts';
-import truckImage from './assets/Truck.png.jpeg';
-
+import truckImage from './assets/Truck.png.jpeg'; // ✅ Correct image path
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -3347,6 +3345,8 @@ function GateKeeper() {
   const [checkedInTrucks, setCheckedInTrucks] = useState([]);
   const [quantityPanels, setQuantityPanels] = useState([]);
   const [chartData, setChartData] = useState([]);
+
+  const panelColors = ['bg-green-400', 'bg-blue-400', 'bg-yellow-400', 'bg-red-400'];
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -3372,7 +3372,8 @@ function GateKeeper() {
   }, [selectedPlant]);
 
   const getTruckNo = (truck) => truck.TruckNo || truck.truckno || truck.truck_no || '';
-  const getPlantName = (plant) => typeof plant === 'string' ? plant : (plant.PlantName || plant.plantname || 'Unknown');
+  const getPlantName = (plant) =>
+    typeof plant === 'string' ? plant : (plant.PlantName || plant.plantname || 'Unknown');
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -3446,8 +3447,6 @@ function GateKeeper() {
     }
   };
 
-  const panelColors = ['bg-green-400', 'bg-blue-400', 'bg-yellow-400', 'bg-red-400'];
-
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -3486,22 +3485,27 @@ function GateKeeper() {
         <div className="col-span-1 space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
             {/* Truck Image */}
-           <img
-             src={truckImage}
-             alt="Truck"
-             className="absolute bottom-0 left-0 w-full h-[130px] object-contain"/>
+            <img
+              src={truckImage}
+              alt="Truck"
+              className="absolute bottom-0 left-0 w-full h-full object-contain"
+            />
 
-
-            {/* Quantity Panels */}
-            <div className="absolute bottom-[60px] left-[40px] flex justify-between w-[90%] px-2">
+            {/* Bars inside truck container */}
+            <div
+              className="absolute bottom-[48px] left-[70px] h-[110px] flex items-end gap-2"
+              style={{ width: 'calc(100% - 170px)' }}
+            >
               {quantityPanels.map((panel, index) => {
-                const barHeight = Math.min(panel.quantity / 5, 120);
-                const barWidth = `${100 / quantityPanels.length - 2}%`;
+                const barHeight = Math.min(panel.quantity / 5, 110); // scale height
+                const totalPanels = quantityPanels.length;
+                const barWidth = `${100 / totalPanels - 2}%`;
+
                 return (
                   <div
                     key={index}
                     className={`flex flex-col justify-end items-center text-white ${panelColors[index % panelColors.length]} rounded-t-md`}
-                    style={{ height: `${barHeight}px`, width: barWidth }}
+                    style={{ height: `${barHeight}px`, width: barWidth, minWidth: '40px' }}
                   >
                     <div className="text-[10px]">{panel.plantname}</div>
                     <div className="text-xs font-bold">{panel.quantity}</div>
@@ -3511,7 +3515,6 @@ function GateKeeper() {
             </div>
           </div>
 
-          {/* Form */}
           <div className="space-y-2">
             <input
               name="truckNo"
@@ -3542,7 +3545,6 @@ function GateKeeper() {
             />
           </div>
 
-          {/* Buttons */}
           <div className="flex justify-between mt-2">
             <button
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -3579,7 +3581,7 @@ function GateKeeper() {
         </div>
       </div>
 
-      {/* Chart */}
+      {/* Quantity Chart */}
       <div className="max-w-5xl mx-auto mt-8 p-4 bg-white shadow-md rounded-lg">
         <h2 className="text-xl font-bold mb-4 text-center">Plant-wise Quantity Chart</h2>
         {chartData.length > 0 ? (
