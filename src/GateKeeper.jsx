@@ -4612,7 +4612,8 @@ function GateKeeper() {
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0));
-  const barChartWidth = Math.min(quantityPanels.length * 40, 240); // Limit chart width based on 6 bars max
+  const barChartWidth = Math.min(quantityPanels.length * 42, 252); // Max width for up to 6 panels
+  const chartLeftOffset = `calc(12% + ${(6 - Math.min(quantityPanels.length, 6)) * 3}px)`; // Adjust based on bars
 
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen p-6">
@@ -4650,8 +4651,8 @@ function GateKeeper() {
 
             {/* Bar Chart */}
             <div
-              className="absolute bottom-[26%] left-[8.5%] flex items-end gap-[4px] z-10"
-              style={{ width: `${barChartWidth}px`, height: '60%' }}
+              className="absolute bottom-[26%] flex items-end gap-[4px] z-10"
+              style={{ width: `${barChartWidth}px`, height: '60%', left: chartLeftOffset }}
             >
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
