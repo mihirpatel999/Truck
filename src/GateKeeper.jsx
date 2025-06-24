@@ -4522,8 +4522,6 @@
 // export default GateKeeper;
 ///////////////////////////////////////
 
-
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4578,7 +4576,11 @@ function GateKeeper() {
     setSelectedPlant(e.target.value);
     setCheckedInTrucks([]);
     setQuantityPanels([]);
-    setFormData(prev => ({ ...prev, truckNo: '', dispatchDate: new Date().toISOString().split('T')[0] }));
+    setFormData(prev => ({
+      ...prev,
+      truckNo: '',
+      dispatchDate: new Date().toISOString().split('T')[0],
+    }));
   };
 
   const handleTruckSelect = async (truckNo) => {
@@ -4589,10 +4591,16 @@ function GateKeeper() {
       });
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
       setQuantityPanels(quantityRes.data);
-      setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
+      setFormData(prev => ({
+        ...prev,
+        remarks: remarksRes.data.remarks || 'No remarks available.'
+      }));
     } catch (err) {
       console.error('Error fetching data:', err);
-      setFormData(prev => ({ ...prev, remarks: 'No remarks available or error fetching remarks.' }));
+      setFormData(prev => ({
+        ...prev,
+        remarks: 'No remarks available or error fetching remarks.'
+      }));
     }
   };
 
@@ -4604,10 +4612,13 @@ function GateKeeper() {
         plantName: selectedPlant,
         type
       });
+
       setTruckNumbers(prev => prev.filter(t => getTruckNo(t) !== formData.truckNo));
+
       if (type === 'Check In' && !checkedInTrucks.some(t => getTruckNo(t) === formData.truckNo)) {
         setCheckedInTrucks(prev => [...prev, { TruckNo: formData.truckNo }]);
       }
+
       toast.success(res.data.message);
       setFormData(prev => ({ ...prev, truckNo: '' }));
       setQuantityPanels([]);
@@ -4653,22 +4664,23 @@ function GateKeeper() {
         <div className="col-span-1 space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
 
-            {/* Bar Chart */}
+            {/* ✅ Fixed Bar Chart inside container area */}
             <div
-              className="absolute bottom-[22%] left-[18%] flex items-end gap-[4px] z-10"
-              style={{ width: '60%' }}
+              className="absolute bottom-[23%] left-[20.5%] flex items-end gap-[4px] z-10"
+              style={{ width: '54%' }}
             >
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
+                const width = `${100 / quantityPanels.length}%`;
                 const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500', 'bg-pink-500'];
                 return (
                   <div
                     key={index}
                     className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md`}
-                    style={{ height: `${height}%`, width: `${100 / quantityPanels.length}%`, minWidth: '30px' }}
+                    style={{ height: `${height}%`, width }}
                   >
                     <div>{panel.quantity}</div>
-                    <div className="whitespace-nowrap text-[8px] truncate max-w-full">{panel.plantname}</div>
+                    <div className="whitespace-nowrap text-[8px]">{panel.plantname}</div>
                   </div>
                 );
               })}
