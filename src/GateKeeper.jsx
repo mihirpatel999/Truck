@@ -4654,7 +4654,7 @@ function GateKeeper() {
               alt="Truck"
               className="absolute bottom-0 left-0 w-full h-full object-contain z-0"
             />
-            <div className="absolute bottom-[15%] left-0 right-0 z-10 flex justify-center gap-1 px-1">
+            <div className="absolute bottom-[18.5%] left-[6.5%] right-[24.5%] z-10 flex justify-between items-end">
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
                 const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500', 'bg-pink-500'];
@@ -4662,7 +4662,7 @@ function GateKeeper() {
                   <div
                     key={index}
                     className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md`}
-                    style={{ height: `${height}%`, width: `${100 / quantityPanels.length - 1}%`, minWidth: '32px' }}
+                    style={{ height: `${height}%`, width: `${100 / quantityPanels.length - 2}%`, minWidth: '30px' }}
                   >
                     <div>{panel.quantity}</div>
                     <div className="whitespace-nowrap text-[8px]">{panel.plantname}</div>
