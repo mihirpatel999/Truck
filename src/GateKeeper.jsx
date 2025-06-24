@@ -4520,7 +4520,6 @@
 // 
 // export default GateKeeper;
 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4649,7 +4648,12 @@ function GateKeeper() {
         {/* Middle Panel */}
         <div className="col-span-1 space-y-4">
           <div className="relative h-[200px] w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
-            <div className="absolute top-0 left-[6.5%] right-[24.5%] bottom-[48%] z-10 flex justify-between items-end">
+            <img
+              src={truckImage}
+              alt="Truck"
+              className="absolute bottom-0 left-0 w-full h-[60%] object-contain z-0"
+            />
+            <div className="absolute left-[6.5%] right-[24.5%] bottom-[39%] top-[10%] z-10 flex justify-between items-end">
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
                 const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500', 'bg-pink-500'];
@@ -4665,11 +4669,6 @@ function GateKeeper() {
                 );
               })}
             </div>
-            <img
-              src={truckImage}
-              alt="Truck"
-              className="absolute bottom-0 left-0 w-full h-[60%] object-contain z-0"
-            />
           </div>
 
           <div className="space-y-2">
@@ -4707,4 +4706,5 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
+
 
