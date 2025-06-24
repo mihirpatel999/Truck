@@ -4649,19 +4649,18 @@ function GateKeeper() {
 
         {/* Middle Panel */}
         <div className="col-span-1 space-y-4">
-          <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
+          <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md flex items-end">
 
-            {/* Truck Image */}
+            {/* Truck Image as Background */}
             <img
               src={truckImage}
               alt="Truck"
-              className="absolute bottom-0 left-0 w-full h-full object-contain z-0"
+              className="absolute bottom-0 left-0 w-full h-full object-cover z-0"
             />
 
-            {/* Bar Chart */}
+            {/* Bar Chart Positioned on Truck Platform */}
             <div
-              className="absolute bottom-[11.5%] left-[8%] right-[10%] flex items-end justify-between gap-[6px] z-10"
-              style={{ height: '60%' }}
+              className="relative z-10 flex items-end gap-2 px-4 pb-[11%] w-full"
             >
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
@@ -4670,7 +4669,7 @@ function GateKeeper() {
                   <div
                     key={index}
                     className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md`}
-                    style={{ height: `${height}%`, flex: 1 }}
+                    style={{ height: `${height}%`, width: `${100 / quantityPanels.length - 2}%` }}
                   >
                     <div>{panel.quantity}</div>
                     <div className="whitespace-nowrap text-[8px]">{panel.plantname}</div>
