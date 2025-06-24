@@ -3317,11 +3317,13 @@
 
 ////////////////////////////////////////////////////////////////////////
 
+
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import truckImage from './assets/Truck.png.png';
+import truckImage from './assets/Truck.png.jpeg';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -3446,14 +3448,9 @@ function GateKeeper() {
         {/* Middle Panel */}
         <div className="col-span-1 space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
-            <img
-              src={truckImage}
-              alt="Truck"
-              className="absolute bottom-0 left-0 w-full h-full object-contain"
-            />
 
-            {/* Bar chart container */}
-            <div className="absolute bottom-[50px] left-[50px] right-[50px] h-[100px] flex items-end justify-between">
+            {/* Bar Chart Over Truck */}
+            <div className="absolute top-[20px] left-[50px] right-[50px] h-[100px] flex items-end justify-between z-10">
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
                 const barWidth = quantityPanels.length > 0 ? `${100 / quantityPanels.length}%` : '0%';
@@ -3470,8 +3467,17 @@ function GateKeeper() {
                 );
               })}
             </div>
+
+            {/* Truck Image shifted down */}
+            <img
+              src={truckImage}
+              alt="Truck"
+              className="absolute bottom-0 left-0 w-full h-auto object-contain z-0"
+              style={{ height: '65%' }}
+            />
           </div>
 
+          {/* Form Inputs */}
           <div className="space-y-2">
             <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Truck No" />
             <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" />
