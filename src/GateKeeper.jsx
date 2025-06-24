@@ -3718,13 +3718,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-
-// GateKeeper.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import truckImage from './assets/Truck.png.png'; // Replace with your actual path
+import truckImage from './assets/Truck.png.png';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -3813,7 +3811,7 @@ function GateKeeper() {
     }
   };
 
-  const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0), 1); // Avoid divide by 0
+  const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0));
 
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen p-6">
@@ -3847,21 +3845,24 @@ function GateKeeper() {
 
         {/* Middle Panel */}
         <div className="col-span-1 space-y-4">
+
+          {/* Truck + Chart */}
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
 
-            {/* Chart Bars */}
-            <div className="absolute bottom-[58px] left-[120px] flex items-end gap-2 z-10">
+            {/* Chart */}
+            <div className="absolute bottom-[58px] left-[160px] flex items-end gap-2 z-10 pr-8 max-w-[260px] overflow-hidden">
               {quantityPanels.map((panel, index) => {
-                const width = (panel.quantity / maxQty) * 100 + 40; // 40px min width
+                const barHeight = (panel.quantity / maxQty) * 100;
+                const barWidth = Math.max((panel.quantity / maxQty) * 80, 40);
                 const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-400', 'bg-red-400'];
                 return (
                   <div
                     key={index}
-                    className={`h-[50px] ${bgColors[index % bgColors.length]} rounded text-white text-xs font-bold px-2 flex flex-col justify-center items-center`}
-                    style={{ width: `${width}px` }}
+                    className={`h-[70px] ${bgColors[index % bgColors.length]} rounded text-white text-[10px] px-1 flex flex-col justify-center items-center`}
+                    style={{ width: `${barWidth}px` }}
                   >
-                    <div className="leading-tight text-center">{panel.plantname}</div>
-                    <div>{panel.quantity}</div>
+                    <div className="font-bold">{panel.quantity}</div>
+                    <div>{panel.plantname}</div>
                   </div>
                 );
               })}
@@ -3875,7 +3876,7 @@ function GateKeeper() {
             />
           </div>
 
-          {/* Form Inputs */}
+          {/* Form */}
           <div className="space-y-2">
             <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Truck No" />
             <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" />
@@ -3911,3 +3912,4 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
+
