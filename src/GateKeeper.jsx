@@ -3717,12 +3717,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import truckImage from './assets/Truck.png.png';
+import truckImage from './assets/Truck.png.png'; // Adjust path if needed
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -3731,7 +3730,7 @@ function GateKeeper() {
     truckNo: '',
     dispatchDate: new Date().toISOString().split('T')[0],
     invoiceNo: '',
-    remarks: 'This is a system-generated remark.',
+    remarks: 'This is a system-generated remark.'
   });
 
   const [plantList, setPlantList] = useState([]);
@@ -3811,12 +3810,14 @@ function GateKeeper() {
     }
   };
 
-  const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0));
+  const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0), 1);
+  const barAreaPadding = 135;
+  const totalBarAreaWidth = 260; // the width available before the cabin
+  const barWidth = quantityPanels.length > 0 ? totalBarAreaWidth / quantityPanels.length : 0;
 
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-
         {/* Left Panel */}
         <div className="col-span-1 space-y-4">
           <select
@@ -3846,18 +3847,26 @@ function GateKeeper() {
         {/* Middle Panel */}
         <div className="col-span-1 space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
-            <div className="absolute bottom-[58px] left-[135px] right-[80px] flex items-end gap-2 z-10">
+            <div
+              className="absolute bottom-[58px] left-[135px] flex items-end gap-[4px] z-10"
+              style={{ width: `${totalBarAreaWidth}px` }}
+            >
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
-                const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-400', 'bg-red-400', 'bg-purple-500'];
+                const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500'];
                 return (
                   <div
                     key={index}
-                    className={`h-[70px] ${bgColors[index % bgColors.length]} rounded text-white text-[10px] px-1 flex flex-col justify-center items-center flex-1 min-w-[40px]`}
-                    style={{ height: `${height}%` }}
+                    className={`flex flex-col items-center justify-end text-white ${bgColors[index % bgColors.length]} rounded-t-md text-[10px]`}
+                    style={{
+                      height: `${height}%`,
+                      width: `${barWidth - 4}px`,
+                      minWidth: '30px',
+                      maxWidth: '80px'
+                    }}
                   >
-                    <div className="font-bold">{panel.quantity}</div>
                     <div>{panel.plantname}</div>
+                    <div className="text-[10px] font-bold">{panel.quantity}</div>
                   </div>
                 );
               })}
@@ -3871,7 +3880,6 @@ function GateKeeper() {
             />
           </div>
 
-          {/* Form Inputs */}
           <div className="space-y-2">
             <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Truck No" />
             <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" />
