@@ -4114,8 +4114,6 @@
 // export default GateKeeper;/////////////////////////////final chart////////////
 
 
-
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4180,14 +4178,7 @@ function GateKeeper() {
         params: { plantName: selectedPlant, truckNo }
       });
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
-
-      // Fill with fixed 6 bars logic
-      const paddedData = [...quantityRes.data];
-      while (paddedData.length < 6) {
-        paddedData.push({ plantname: '', quantity: 0 });
-      }
-      setQuantityPanels(paddedData);
-
+      setQuantityPanels(quantityRes.data);
       setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -4217,6 +4208,7 @@ function GateKeeper() {
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0));
+  const barWidth = quantityPanels.length > 0 ? `calc((100% - 170px) / ${quantityPanels.length})` : '0';
 
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen p-6">
@@ -4254,7 +4246,7 @@ function GateKeeper() {
 
             {/* Bar Chart */}
             <div
-              className="absolute bottom-[60px] left-[35px] h-[75px] flex items-end gap-[2px] z-10"
+              className="absolute bottom-[46px] left-[35px] flex items-end gap-[2px] z-10"
               style={{ width: 'calc(100% - 170px)' }}
             >
               {quantityPanels.map((panel, index) => {
@@ -4264,7 +4256,7 @@ function GateKeeper() {
                   <div
                     key={index}
                     className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md`}
-                    style={{ height: `${height}%`, width: `${100 / 6}%` }}
+                    style={{ height: `${height}%`, width: barWidth }}
                   >
                     <div>{panel.quantity}</div>
                     <div className="whitespace-nowrap text-[8px]">{panel.plantname}</div>
@@ -4318,7 +4310,6 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
-
 
 
 
