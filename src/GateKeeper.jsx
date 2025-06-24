@@ -4530,7 +4530,7 @@ import truckImage from './assets/Truck.png.png';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-function GateKeeper() {
+export default function GateKeeper() {
   const [formData, setFormData] = useState({
     truckNo: '',
     dispatchDate: new Date().toISOString().split('T')[0],
@@ -4576,11 +4576,7 @@ function GateKeeper() {
     setSelectedPlant(e.target.value);
     setCheckedInTrucks([]);
     setQuantityPanels([]);
-    setFormData(prev => ({
-      ...prev,
-      truckNo: '',
-      dispatchDate: new Date().toISOString().split('T')[0],
-    }));
+    setFormData(prev => ({ ...prev, truckNo: '', dispatchDate: new Date().toISOString().split('T')[0] }));
   };
 
   const handleTruckSelect = async (truckNo) => {
@@ -4591,16 +4587,10 @@ function GateKeeper() {
       });
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
       setQuantityPanels(quantityRes.data);
-      setFormData(prev => ({
-        ...prev,
-        remarks: remarksRes.data.remarks || 'No remarks available.'
-      }));
+      setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
     } catch (err) {
       console.error('Error fetching data:', err);
-      setFormData(prev => ({
-        ...prev,
-        remarks: 'No remarks available or error fetching remarks.'
-      }));
+      setFormData(prev => ({ ...prev, remarks: 'No remarks available or error fetching remarks.' }));
     }
   };
 
@@ -4612,13 +4602,10 @@ function GateKeeper() {
         plantName: selectedPlant,
         type
       });
-
       setTruckNumbers(prev => prev.filter(t => getTruckNo(t) !== formData.truckNo));
-
       if (type === 'Check In' && !checkedInTrucks.some(t => getTruckNo(t) === formData.truckNo)) {
         setCheckedInTrucks(prev => [...prev, { TruckNo: formData.truckNo }]);
       }
-
       toast.success(res.data.message);
       setFormData(prev => ({ ...prev, truckNo: '' }));
       setQuantityPanels([]);
@@ -4664,10 +4651,10 @@ function GateKeeper() {
         <div className="col-span-1 space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
 
-            {/* ✅ Fixed Bar Chart inside container area */}
+            {/* ✅ Bar Chart FIXED to truck container only */}
             <div
-              className="absolute bottom-[23%] left-[20.5%] flex items-end gap-[4px] z-10"
-              style={{ width: '54%' }}
+              className="absolute bottom-[26%] left-[28%] flex items-end gap-[4px] z-10"
+              style={{ width: '47%' }}
             >
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
@@ -4729,9 +4716,6 @@ function GateKeeper() {
     </div>
   );
 }
-
-export default GateKeeper;
-
 
 
 
