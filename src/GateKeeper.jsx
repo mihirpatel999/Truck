@@ -3453,7 +3453,8 @@ function GateKeeper() {
               alt="Truck"
               className="absolute bottom-0 left-0 w-full h-full object-contain"
             />
-            <div className="absolute inset-0 flex items-end justify-evenly px-4">
+         <div className="absolute bottom-[48px] left-[60px] right-[90px] h-[110px] flex items-end gap-2">
+
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
                 const widthRatio = panel.quantity / totalQty;
