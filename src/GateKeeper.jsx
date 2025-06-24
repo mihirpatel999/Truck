@@ -4518,6 +4518,10 @@
 //     </div>
 //   );
 // 
+// export default GateKeeper;
+
+
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4612,8 +4616,6 @@ function GateKeeper() {
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0));
-  const barChartWidth = Math.min(quantityPanels.length * 42, 252); // Max width for up to 6 panels
-  const chartLeftOffset = `calc(12% + ${(6 - Math.min(quantityPanels.length, 6)) * 3}px)`; // Adjust based on bars
 
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen p-6">
@@ -4651,17 +4653,18 @@ function GateKeeper() {
 
             {/* Bar Chart */}
             <div
-              className="absolute bottom-[26%] flex items-end gap-[4px] z-10"
-              style={{ width: `${barChartWidth}px`, height: '60%', left: chartLeftOffset }}
+              className="absolute bottom-0 flex items-end gap-[4px] z-10 left-0 right-0 px-[30px]"
+              style={{ height: '65%' }}
             >
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
+                const width = `${100 / quantityPanels.length}%`;
                 const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500', 'bg-pink-500'];
                 return (
                   <div
                     key={index}
                     className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md`}
-                    style={{ height: `${height}%`, width: '36px' }}
+                    style={{ height: `${height}%`, width: '100%' }}
                   >
                     <div>{panel.quantity}</div>
                     <div className="whitespace-nowrap text-[8px]">{panel.plantname}</div>
