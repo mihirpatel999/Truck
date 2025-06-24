@@ -3322,7 +3322,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import truckImage from './assets/TruckCropped.png'; // Sirf load area wali cropped image lagao
+import truckImage from './assets/Truck.png.png'; // Sirf load area wali cropped image lagao
 
 const API_URL = import.meta.env.VITE_API_URL;
 
