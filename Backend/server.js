@@ -303,141 +303,61 @@ app.get('/api/plantmaster/:id', async (req, res) => {
 
 
 // 🚚 Truck Transaction API
-// app.post("/api/truck-transaction", async (req, res) => {
-//   const { formData, tableData } = req.body;
-//   const client = await pool.connect();
-//   try {
-//     await client.query('BEGIN');
-//     // Insert into TruckTransactionMaster
-//     const insertMain = await client.query(
-//       `INSERT INTO TruckTransactionMaster
-//         (TruckNo, TransactionDate, CityName, Transporter, AmountPerTon, TruckWeight, DeliverPoint, Remarks, CreatedAt)
-//         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-//         RETURNING TransactionID`,
-//       [
-//         formData.truckNo,
-//         formData.transactionDate,
-//         formData.cityName,
-//         formData.transporter,
-//         formData.amountPerTon,
-//         formData.truckWeight,
-//         formData.deliverPoint,
-//         formData.remarks
-//       ]
-//     );
-//     const transactionId = insertMain.rows[0].transactionid;
-
-//     // Insert into TruckTransactionDetails
-//     for (const row of tableData) {
-//       const plantResult = await client.query(
-//         `SELECT PlantId FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
-//         [row.plantName]
-//       );
-//       const plantId = plantResult.rows[0]?.plantid;
-//       if (!plantId) {
-//         throw new Error(`Plant not found: ${row.plantName}`);
-//       }
-//       await client.query(
-//         `INSERT INTO TruckTransactionDetails
-//           (TransactionID, PlantId, LoadingSlipNo, Qty, Priority, Remarks, Freight)
-//           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-//         [
-//           transactionId,
-//           plantId,
-//           row.loadingSlipNo,
-//           row.qty,
-//           row.priority,
-//           row.remarks || "",
-//           row.freight
-//         ]
-//       );
-//     }
-//     await client.query('COMMIT');
-//     res.json({ success: true });
-//   } catch (error) {
-//     await client.query('ROLLBACK');
-//     console.error("Transaction failed:", error);
-//     res.status(500).json({ success: false, error: error.message });
-//   } finally {
-//     client.release();
-//   }
-// });
-
-//////////////////////////nil code/////////////////////////////////////
-
-app.post('/api/truck-transaction', async (req, res) => {
+app.post("/api/truck-transaction", async (req, res) => {
+  const { formData, tableData } = req.body;
   const client = await pool.connect();
   try {
-    const { formData, tableData } = req.body;
-
     await client.query('BEGIN');
+    // Insert into TruckTransactionMaster
+    const insertMain = await client.query(
+      `INSERT INTO TruckTransactionMaster
+        (TruckNo, TransactionDate, CityName, Transporter, AmountPerTon, TruckWeight, DeliverPoint, Remarks, CreatedAt)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        RETURNING TransactionID`,
+      [
+        formData.truckNo,
+        formData.transactionDate,
+        formData.cityName,
+        formData.transporter,
+        formData.amountPerTon,
+        formData.truckWeight,
+        formData.deliverPoint,
+        formData.remarks
+      ]
+    );
+    const transactionId = insertMain.rows[0].transactionid;
 
-    // Update master
-    const updateMasterQuery = `
-      UPDATE trucktransactionmaster
-      SET
-        "transactiondate" = $1,
-        "cityname" = $2,
-        "transporter" = $3,
-        "amountperton" = $4,
-        "truckweight" = $5,
-        "deliverpoint" = $6,
-        "remarks" = $7
-      WHERE "truckno" = $8
-      RETURNING "transactionid"
-    `;
-    const masterValues = [
-      formData.transactionDate,
-      formData.cityName,
-      formData.transporter,
-      formData.amountPerTon,
-      formData.truckWeight,
-      formData.deliverPoint,
-      formData.remarks,
-      formData.truckNo
-    ];
-    const masterRes = await client.query(updateMasterQuery, masterValues);
-
-    const transactionId = masterRes.rows[0].transactionid;
-
-    // Loop through details and insert/update
+    // Insert into TruckTransactionDetails
     for (const row of tableData) {
-      const { detailId, plantName, loadingSlipNo, qty, priority, remarks, freight } = row;
-
-      // Get plantId from plantName
-      const plantRes = await client.query(
-        `SELECT plantid FROM plantmaster WHERE plantname = $1`,
-        [plantName]
+      const plantResult = await client.query(
+        `SELECT PlantId FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
+        [row.plantName]
       );
-      const plantId = plantRes.rows[0]?.plantid;
-      if (!plantId) throw new Error(`Invalid plant: ${plantName}`);
-
-      if (detailId) {
-        // Update existing
-        await client.query(
-          `UPDATE trucktransactiondetails
-           SET "plantid" = $1, "loadingslipno" = $2, "qty" = $3,
-               "priority" = $4, "remarks" = $5, "freight" = $6
-           WHERE "trucktransactiondetailsid" = $7`,
-          [plantId, loadingSlipNo, qty, priority, remarks, freight, detailId]
-        );
-      } else {
-        // Insert new
-        await client.query(
-          `INSERT INTO trucktransactiondetails
-           ("transactionid", "plantid", "loadingslipno", "qty", "priority", "remarks", "freight")
-           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-          [transactionId, plantId, loadingSlipNo, qty, priority, remarks, freight]
-        );
+      const plantId = plantResult.rows[0]?.plantid;
+      if (!plantId) {
+        throw new Error(`Plant not found: ${row.plantName}`);
       }
+      await client.query(
+        `INSERT INTO TruckTransactionDetails
+          (TransactionID, PlantId, LoadingSlipNo, Qty, Priority, Remarks, Freight)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          transactionId,
+          plantId,
+          row.loadingSlipNo,
+          row.qty,
+          row.priority,
+          row.remarks || "",
+          row.freight
+        ]
+      );
     }
-
     await client.query('COMMIT');
     res.json({ success: true });
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error in POST /api/truck-transaction:', error);
-    res.status(500).json({ error: 'Failed to update transaction' });
+    console.error("Transaction failed:", error);
+    res.status(500).json({ success: false, error: error.message });
   } finally {
     client.release();
   }
