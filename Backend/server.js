@@ -2228,7 +2228,7 @@ app.get('/api/truck-find', async (req, res) => {
     const result = await pool.query(`
       SELECT "TruckNo", "TransactionDate", "CityName"
       FROM "TruckTransactionMaster"
-      WHERE "TruckNo" IS NOT NULL AND "Completed" = FALSE
+      WHERE "TruckNo" IS NOT NULL AND "Completed" = 0
       ORDER BY "TransactionDate" DESC
     `);
     res.json(result.rows);
