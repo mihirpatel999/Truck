@@ -585,18 +585,25 @@ export default function Report() {
   const [error, setError] = useState('');
 
   // ✅ Fetch all plants for dropdown
-  useEffect(() => {
-    const fetchPlants = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/api/plants`);
-        setPlants(res.data);
-      } catch (err) {
-        console.error(err);
-        setError('Failed to fetch plants');
-      }
-    };
-    fetchPlants();
-  }, []);
+useEffect(() => {
+  const fetchPlants = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/plants`, {
+        headers: {
+          userid: localStorage.getItem('userId'),
+          role: localStorage.getItem('role')
+        }
+      });
+      console.log(res.data);  // 👈 Console me response dekhna
+      setPlants(res.data);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to fetch plants');
+    }
+  };
+  fetchPlants();
+}, []);
+
 
   // ✅ Fetch report based on filters
   const fetchReport = async () => {
