@@ -4326,7 +4326,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import truckImage from './assets/Truck.png.png';
+import truckImage from './assets/truck-flatbed.png'; // Replace with your flatbed truck image
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -4347,9 +4347,8 @@ function GateKeeper() {
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     const role = localStorage.getItem('role');
-
     axios.get(`${API_URL}/api/plants`, {
-      headers: { userid: userId, role }
+      headers: { userid: userId, role },
     })
       .then(res => setPlantList(res.data))
       .catch(err => console.error('Error fetching plants:', err));
@@ -4383,7 +4382,7 @@ function GateKeeper() {
     setFormData(prev => ({ ...prev, truckNo }));
     try {
       const remarksRes = await axios.get(`${API_URL}/api/fetch-remarks`, {
-        params: { plantName: selectedPlant, truckNo }
+        params: { plantName: selectedPlant, truckNo },
       });
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
       setQuantityPanels(quantityRes.data);
@@ -4400,7 +4399,7 @@ function GateKeeper() {
       const res = await axios.post(`${API_URL}/api/update-truck-status`, {
         truckNo: formData.truckNo,
         plantName: selectedPlant,
-        type
+        type,
       });
       setTruckNumbers(prev => prev.filter(t => getTruckNo(t) !== formData.truckNo));
       if (type === 'Check In' && !checkedInTrucks.some(t => getTruckNo(t) === formData.truckNo)) {
@@ -4416,27 +4415,22 @@ function GateKeeper() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-blue-100 min-h-screen p-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="min-h-screen bg-gradient-to-br from-sky-100 to-blue-200 p-6">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
 
         {/* Left Panel */}
-        <div className="bg-white rounded-xl shadow p-4">
-          <select
-            value={selectedPlant}
-            onChange={handlePlantChange}
-            className="w-full border px-4 py-2 rounded-md shadow-sm mb-4"
-          >
+        <div className="bg-white rounded-xl p-4 shadow space-y-4">
+          <select value={selectedPlant} onChange={handlePlantChange} className="w-full px-4 py-2 rounded border shadow-sm">
             <option value="">Select Plant</option>
-            {plantList.map((plant, i) => (
-              <option key={i} value={getPlantName(plant)}>{getPlantName(plant)}</option>
+            {plantList.map((plant, idx) => (
+              <option key={idx} value={getPlantName(plant)}>{getPlantName(plant)}</option>
             ))}
           </select>
-
           <div className="bg-blue-50 rounded-lg p-4 h-[300px] overflow-y-auto">
-            <h3 className="text-md font-semibold text-blue-800 mb-2">Truck List</h3>
-            <ul className="space-y-1 text-sm text-gray-700 cursor-pointer">
-              {truckNumbers.map((truck, index) => (
-                <li key={index} onClick={() => handleTruckSelect(getTruckNo(truck))} className="hover:text-blue-600">
+            <h3 className="font-semibold mb-2 text-blue-800">Truck List</h3>
+            <ul className="space-y-1 text-sm">
+              {truckNumbers.map((truck, i) => (
+                <li key={i} onClick={() => handleTruckSelect(getTruckNo(truck))} className="hover:text-blue-600 cursor-pointer">
                   {getTruckNo(truck)}
                 </li>
               ))}
@@ -4445,60 +4439,51 @@ function GateKeeper() {
           </div>
         </div>
 
-        {/* Middle Panel */}
-        <div className="bg-white rounded-xl shadow p-4 relative">
-          <div className="relative h-56 w-full bg-blue-100 rounded-lg overflow-hidden shadow">
-            <img
-              src={truckImage}
-              alt="Truck"
-              className="absolute bottom-0 left-0 w-full h-auto object-contain z-0"
-              style={{ height: '65%' }}
-            />
-
-            {/* Container Slot Badges */}
-            <div className="absolute bottom-[60%] left-[10%] flex gap-3 w-[80%] justify-around z-20">
-              {quantityPanels.map((panel, i) => (
-                <div
-                  key={i}
-                  className="w-[60px] h-[60px] bg-green-500 text-white rounded-lg shadow-lg flex flex-col items-center justify-center text-xs relative"
-                >
-                  <span className="text-sm font-bold">{panel.quantity}</span>
-                  <span className="text-[10px] text-center">{panel.plantname}</span>
-                  {i === 0 && (
-                    <span className="absolute -top-2 -right-2 bg-yellow-300 text-black text-[8px] px-1 rounded-full shadow">
-                      🥇
-                    </span>
-                  )}
+        {/* Middle Panel with Truck + Chart */}
+        <div className="bg-white rounded-xl p-4 shadow space-y-4">
+          <div className="relative w-full h-[180px] bg-blue-100 rounded-lg overflow-hidden">
+            <div className="absolute bottom-[58px] left-[8%] right-[8%] z-10 flex justify-between gap-2">
+              {quantityPanels.map((panel, idx) => (
+                <div key={idx} className="bg-green-500 text-white text-xs font-bold rounded-full px-3 py-1 shadow text-center flex-1 whitespace-nowrap">
+                  <div>{panel.quantity}</div>
+                  <div className="text-[10px] font-normal">{panel.plantname}</div>
                 </div>
               ))}
             </div>
+            <img
+              src={truckImage}
+              alt="Truck"
+              className="absolute bottom-0 left-0 w-full h-full object-contain z-0"
+            />
           </div>
 
-          {/* Form Inputs */}
-          <div className="space-y-2 mt-4">
-            <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Truck No" />
-            <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" />
-            <input name="invoiceNo" value={formData.invoiceNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Invoice No" />
-            <textarea name="remarks" value={formData.remarks} readOnly className="w-full border rounded px-4 py-2 shadow-sm bg-gray-100 text-gray-700 resize-none h-24" />
+          {/* Form */}
+          <div className="space-y-2">
+            <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border px-4 py-2 rounded shadow-sm" placeholder="Truck No" />
+            <input type="date" name="dispatchDate" value={formData.dispatchDate} onChange={handleChange} className="w-full border px-4 py-2 rounded shadow-sm" />
+            <input name="invoiceNo" value={formData.invoiceNo} onChange={handleChange} className="w-full border px-4 py-2 rounded shadow-sm" placeholder="Invoice No" />
+            <textarea name="remarks" readOnly value={formData.remarks} className="w-full h-20 resize-none bg-gray-100 border px-4 py-2 rounded shadow-sm text-sm" />
           </div>
 
-          <div className="flex justify-between mt-2">
-            <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onClick={() => handleSubmit('Check In')}>Check In</button>
-            <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700" onClick={() => handleSubmit('Check Out')}>Check Out</button>
+          <div className="flex gap-2 pt-2">
+            <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded shadow" onClick={() => handleSubmit('Check In')}>✅ Check In</button>
+            <button className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded shadow" onClick={() => handleSubmit('Check Out')}>❌ Check Out</button>
           </div>
         </div>
 
         {/* Right Panel */}
-        <div className="bg-white rounded-xl shadow p-4">
-          <div className="bg-green-50 rounded-lg p-4 h-full overflow-y-auto">
-            <h3 className="text-lg font-bold text-green-800 mb-2">Checked In Trucks</h3>
+        <div className="bg-white rounded-xl p-4 shadow">
+          <h3 className="text-lg font-semibold text-green-700 mb-2">🟢 Checked In Trucks</h3>
+          <div className="bg-green-50 rounded-lg p-4 h-[300px] overflow-y-auto">
             <ul className="space-y-1 text-sm text-gray-700">
-              {checkedInTrucks.map((truck, idx) => (
-                <li key={idx} className="hover:text-green-600 cursor-pointer" onClick={() => handleTruckSelect(getTruckNo(truck))}>
+              {checkedInTrucks.map((truck, i) => (
+                <li key={i} onClick={() => handleTruckSelect(getTruckNo(truck))} className="hover:text-green-600 cursor-pointer">
                   {getTruckNo(truck)}
                 </li>
               ))}
-              {checkedInTrucks.length === 0 && <li className="text-gray-400 italic">No checked-in trucks</li>}
+              {checkedInTrucks.length === 0 && (
+                <li className="text-gray-400 italic">No checked-in trucks</li>
+              )}
             </ul>
           </div>
         </div>
