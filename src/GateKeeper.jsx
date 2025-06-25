@@ -4248,7 +4248,7 @@ function GateKeeper() {
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
 
             {/* Bar Chart */}
-            {/* <div
+            <div
               // className="absolute bottom-[60px] left-[50px] h-[75px] flex items-end gap-[2px] z-10"
                className="absolute bottom-[51px] left-[50px] h-[75px] w-[80px] flex items-end gap-[2px] z-10"
               style={{ width: 'calc(100% - 170px)', maxWidth: '370px' }}
@@ -4271,35 +4271,7 @@ function GateKeeper() {
                   </div>
                 );
               })}
-            </div> */}
-
-            <div
-  className="absolute bottom-[18%] left-[10%] w-[80%] h-[75px] flex items-end gap-[4px] z-10"
->
-  {quantityPanels.map((panel, index) => {
-    const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
-    const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500'];
-    return (
-      <div
-        key={index}
-        className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md transition-transform transform hover:scale-105 hover:shadow-lg`}
-        style={{
-          height: `${height}%`,
-          flex: 1,
-          minWidth: '28px',
-          maxWidth: '48px'
-        }}
-        title={`${panel.plantname}: ${panel.quantity}`}
-      >
-        <div className="flex items-center gap-[2px]">
-          📦 <span>{panel.quantity}</span>
-        </div>
-        <div className="whitespace-nowrap text-[8px]">{panel.plantname}</div>
-      </div>
-    );
-  })}
-</div>
-
+            </div>
 
             {/* Truck Image */}
             <img
