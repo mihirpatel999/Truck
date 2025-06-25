@@ -4247,7 +4247,7 @@ function GateKeeper() {
         <div className="col-span-1 space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
 
-            {/* Bar Chart */}
+            {/* Bar Chart
             <div
               // className="absolute bottom-[60px] left-[50px] h-[75px] flex items-end gap-[2px] z-10"
                className="absolute bottom-[51px] left-[50px] h-[75px] w-[80px] flex items-end gap-[2px] z-10"
@@ -4271,7 +4271,44 @@ function GateKeeper() {
                   </div>
                 );
               })}
-            </div>
+            </div> */}
+
+              {/* Bar Chart */}
+<div
+  className="absolute bottom-[51px] left-[10%] flex items-end gap-[2px] z-10"
+  style={{
+    width: '80%',          // 80% of the truck width (responsive)
+    height: '55%',         // height of the container area
+    display: 'flex',
+    justifyContent: 'space-between'
+  }}
+>
+  {quantityPanels.map((panel, index) => {
+    const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
+    const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500'];
+    return (
+      <div
+        key={index}
+        className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md transition-transform transform hover:scale-105 hover:shadow-lg cursor-pointer`}
+        style={{
+          height: `${height}%`,
+          width: `${100 / quantityPanels.length}%`,
+          minWidth: '28px',
+          maxWidth: '60px'
+        }}
+        title={`${panel.plantname}: ${panel.quantity}`}
+      >
+        <div className="flex items-center gap-[2px]">
+          <span>📦</span>
+          <span>{panel.quantity}</span>
+        </div>
+        <div className="whitespace-nowrap text-[8px] px-1">{panel.plantname}</div>
+      </div>
+    );
+  })}
+</div>
+
+
 
             {/* Truck Image */}
             <img
