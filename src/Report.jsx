@@ -612,14 +612,20 @@ export default function Report() {
         `${API_URL}/api/truck-report?fromDate=${fromDate}&toDate=${toDate}&plant=${plant}`
       );
 
-      if (Array.isArray(res.data)) {
-        setReportData(res.data);
+      console.log('API raw response:', res.data);
+
+      if (res.data.success && Array.isArray(res.data.data)) {
+        setReportData(res.data.data);
+      } else if (Array.isArray(res.data)) {
+        setReportData(res.data); // In case backend is returning raw array
       } else {
         setError('Invalid data format from server');
+        setReportData([]);
       }
     } catch (err) {
       console.error(err);
-      setError('Failed to fetch report');
+      setError(err.response?.data?.error || 'Failed to fetch report');
+      setReportData([]);
     } finally {
       setLoading(false);
     }
@@ -688,7 +694,9 @@ export default function Report() {
           <div className="text-center text-red-500 font-medium">{error}</div>
         )}
         {!loading && !error && reportData.length === 0 && (
-          <div className="text-center text-gray-500">No data found.</div>
+          <div className="text-center text-gray-500">
+            No records found for selected filters.
+          </div>
         )}
 
         {/* 🔵 Report Table */}

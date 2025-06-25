@@ -524,7 +524,6 @@ await client.query(
 // });
 
 /////////////////////////////////////////////////
-
 app.get('/api/truck-report', async (req, res) => {
   const { fromDate, toDate, plant } = req.query;
 
@@ -563,32 +562,39 @@ app.get('/api/truck-report', async (req, res) => {
 
 
 
+
   
 // 🚚 Truck Report API (for report page) — place this **after** your other APIs
-app.get('/api/truck-report', async (req, res) => {
+app.get('/api/truck-wise-report', async (req, res) => {
   const { truckNo } = req.query;
+
+  if (!truckNo) {
+    return res.status(400).json({ error: 'Missing truck number' });
+  }
+
   try {
     const result = await pool.query(
       `SELECT 
-        ttm.TruckNo, 
-        p.PlantName, 
-        TO_CHAR(ttd.CheckInTime, 'YYYY-MM-DD HH24:MI') as CheckInTime,
-        TO_CHAR(ttd.CheckOutTime, 'YYYY-MM-DD HH24:MI') as CheckOutTime,
-        ttd.LoadingSlipNo, 
-        ttd.Quantity, 
-        ttd.Freight, 
-        ttd.Priority, 
-        ttd.Remarks
-      FROM TruckTransactionDetails ttd
-      JOIN PlantMaster p ON ttd.PlantID = p.PlantID
-      JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
-      WHERE ttm.TruckNo = $1
-      ORDER BY ttd.CheckInTime DESC`,
+        ttm.truckno AS "truckNo",
+        p.plantname AS "plantName",
+        TO_CHAR(ttd.checkintime, 'YYYY-MM-DD HH24:MI') AS "checkInTime",
+        TO_CHAR(ttd.checkouttime, 'YYYY-MM-DD HH24:MI') AS "checkOutTime",
+        ttd.loadingslipno AS "loadingSlipNo",
+        ttd.qty AS "qty",
+        ttd.freight AS "freight",
+        ttd.priority AS "priority",
+        ttd.remarks AS "remarks"
+      FROM trucktransactiondetails ttd
+      JOIN plantmaster p ON ttd.plantid = p.plantid
+      JOIN trucktransactionmaster ttm ON ttd.transactionid = ttm.transactionid
+      WHERE ttm.truckno = $1
+      ORDER BY ttd.checkintime DESC`,
       [truckNo]
     );
+
     res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching truck report:', error);
+    console.error('Error fetching truck-wise report:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
