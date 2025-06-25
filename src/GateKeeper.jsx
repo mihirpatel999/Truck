@@ -4322,7 +4322,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4348,7 +4347,6 @@ function GateKeeper() {
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     const role = localStorage.getItem('role');
-
     axios.get(`${API_URL}/api/plants`, {
       headers: { userid: userId, role }
     })
@@ -4361,7 +4359,6 @@ function GateKeeper() {
       axios.get(`${API_URL}/api/trucks?plantName=${selectedPlant}`)
         .then(res => setTruckNumbers(res.data))
         .catch(err => console.error('Error fetching trucks:', err));
-
       axios.get(`${API_URL}/api/checked-in-trucks?plantName=${selectedPlant}`)
         .then(res => setCheckedInTrucks(res.data))
         .catch(err => console.error('Error fetching checked-in trucks:', err));
@@ -4419,31 +4416,30 @@ function GateKeeper() {
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0));
 
   return (
-    <div className="bg-gradient-to-br from-slate-100 to-blue-50 min-h-screen py-6 px-4">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 bg-white rounded-3xl shadow-2xl p-6">
+    <div className="bg-gradient-to-b from-slate-100 to-white min-h-screen py-8 px-6">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        {/* Left Panel */}
-        <div className="space-y-4">
+        {/* Left: Plant + Truck List */}
+        <div className="bg-white rounded-xl shadow-md p-4 space-y-4">
           <select
             value={selectedPlant}
             onChange={handlePlantChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-300"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            <option value="">Select Plant</option>
+            <option value="">🌱 Select Plant</option>
             {plantList.map((plant, i) => (
               <option key={i} value={getPlantName(plant)}>{getPlantName(plant)}</option>
             ))}
           </select>
 
-          <div className="bg-blue-100 rounded-2xl p-4 h-[300px] overflow-y-auto shadow-inner">
-            <h3 className="text-lg font-bold text-blue-800 mb-2">🚛 Truck List</h3>
-            <ul className="space-y-1 text-sm text-gray-700 cursor-pointer">
-              {truckNumbers.map((truck, index) => (
-                <li
-                  key={index}
-                  onClick={() => handleTruckSelect(getTruckNo(truck))}
-                  className="hover:bg-blue-200 px-3 py-1 rounded transition"
-                >
+          <div className="bg-indigo-50 rounded-xl p-4 h-80 overflow-y-auto shadow-inner">
+            <h2 className="text-lg font-bold text-indigo-800 mb-2 flex items-center gap-1">
+              🚚 Truck List
+            </h2>
+            <ul className="space-y-1 text-sm text-gray-800">
+              {truckNumbers.map((truck, i) => (
+                <li key={i} onClick={() => handleTruckSelect(getTruckNo(truck))}
+                    className="hover:bg-indigo-100 px-3 py-1 rounded cursor-pointer transition">
                   {getTruckNo(truck)}
                 </li>
               ))}
@@ -4454,83 +4450,66 @@ function GateKeeper() {
           </div>
         </div>
 
-        {/* Middle Panel */}
-        <div className="space-y-4">
-          <div className="relative h-56 w-full bg-blue-200 rounded-2xl overflow-hidden shadow-lg">
-            <div
-              className="absolute bottom-[60px] left-[40px] h-[80px] flex items-end gap-[4px] z-10"
-              style={{ width: 'calc(100% - 140px)' }}
-            >
+        {/* Middle: Chart + Form */}
+        <div className="bg-white rounded-xl shadow-md p-4 space-y-4">
+          {/* Chart Panel */}
+          <div className="relative h-52 w-full bg-blue-100 rounded-xl overflow-hidden shadow-sm">
+            <div className="absolute bottom-[60px] left-[40px] h-[80px] flex items-end gap-[6px] z-10"
+                 style={{ width: 'calc(100% - 140px)' }}>
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
-                const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500'];
+                const bgColors = ['bg-emerald-500', 'bg-blue-500', 'bg-yellow-400', 'bg-rose-500'];
                 return (
-                  <div
-                    key={index}
-                    className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-lg hover:scale-105 hover:shadow-xl cursor-pointer transition-all`}
-                    style={{ height: `${height}%`, width: `${100 / quantityPanels.length}%` }}
-                    title={`${panel.plantname}: ${panel.quantity}`}
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>📦</span>
-                      <span>{panel.quantity}</span>
-                    </div>
-                    <div className="text-[8px] mt-1 whitespace-nowrap">{panel.plantname}</div>
+                  <div key={index}
+                       className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-lg hover:scale-105 transition-transform shadow`}
+                       style={{ height: `${height}%`, width: `${100 / quantityPanels.length}%` }}
+                       title={`${panel.plantname}: ${panel.quantity}`}>
+                    <div>📦 {panel.quantity}</div>
+                    <div className="text-[8px] mt-1">{panel.plantname}</div>
                   </div>
                 );
               })}
             </div>
-            <img
-              src={truckImage}
-              alt="Truck"
-              className="absolute bottom-0 left-0 w-full object-contain z-0"
-              style={{ height: '65%' }}
-            />
+            <img src={truckImage} alt="Truck" className="absolute bottom-0 left-0 w-full object-contain z-0" style={{ height: '65%' }} />
           </div>
 
-          <div className="space-y-2">
-            <input name="truckNo" value={formData.truckNo} onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-200"
+          {/* Form Fields */}
+          <div className="space-y-3">
+            <input type="text" name="truckNo" value={formData.truckNo} onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-indigo-300 focus:outline-none"
               placeholder="Truck No" />
-
-            <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-200" />
-
-            <input name="invoiceNo" value={formData.invoiceNo} onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-200"
-              placeholder="Invoice No" />
-
-            <textarea name="remarks" value={formData.remarks} readOnly
-              className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100 text-gray-700 resize-none h-24 shadow-sm" />
+            <input type="date" name="dispatchDate" value={formData.dispatchDate} onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-indigo-300" />
+            <input type="text" name="invoiceNo" value={formData.invoiceNo} onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm" placeholder="Invoice No" />
+            <textarea readOnly name="remarks" value={formData.remarks}
+              className="w-full bg-gray-100 text-gray-700 border border-gray-300 rounded-md px-4 py-2 resize-none h-24 shadow-sm" />
           </div>
 
-          <div className="flex justify-between gap-2 mt-2">
-            <button
-              onClick={() => handleSubmit('Check In')}
-              className="w-full bg-green-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-green-700 transition"
-            >
+          {/* Buttons */}
+          <div className="flex justify-between gap-2">
+            <button onClick={() => handleSubmit('Check In')}
+              className="flex-1 bg-emerald-600 text-white font-semibold py-2 rounded-lg shadow hover:bg-emerald-700 transition">
               ✅ Check In
             </button>
-            <button
-              onClick={() => handleSubmit('Check Out')}
-              className="w-full bg-red-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-red-700 transition"
-            >
+            <button onClick={() => handleSubmit('Check Out')}
+              className="flex-1 bg-rose-600 text-white font-semibold py-2 rounded-lg shadow hover:bg-rose-700 transition">
               ❌ Check Out
             </button>
           </div>
         </div>
 
-        {/* Right Panel */}
-        <div>
-          <div className="bg-green-100 rounded-2xl p-4 h-full overflow-y-auto shadow-inner">
-            <h3 className="text-lg font-bold text-green-800 mb-2">🟢 Checked In Trucks</h3>
-            <ul className="space-y-1 text-sm text-gray-700">
-              {checkedInTrucks.map((truck, idx) => (
-                <li
-                  key={idx}
-                  className="hover:bg-green-200 px-3 py-1 rounded cursor-pointer transition"
-                  onClick={() => handleTruckSelect(getTruckNo(truck))}
-                >
+        {/* Right: Checked In Trucks */}
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <div className="bg-green-50 rounded-xl p-4 h-full overflow-y-auto shadow-inner">
+            <h2 className="text-lg font-bold text-green-700 flex items-center gap-2 mb-2">
+              🟢 Checked In Trucks
+            </h2>
+            <ul className="space-y-1 text-sm text-gray-800">
+              {checkedInTrucks.map((truck, i) => (
+                <li key={i}
+                    onClick={() => handleTruckSelect(getTruckNo(truck))}
+                    className="hover:bg-green-100 px-3 py-1 rounded cursor-pointer transition">
                   {getTruckNo(truck)}
                 </li>
               ))}
@@ -4548,4 +4527,5 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
+
 
