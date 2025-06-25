@@ -525,9 +525,9 @@ await client.query(
 
 /////////////////////////////////////////////////
 app.get('/api/truck-report', async (req, res) => {
-  const { fromDate, toDate, plant } = req.query;
+  const { fromDate, toDate } = req.query;
 
-  if (!fromDate || !toDate || !plant) {
+  if (!fromDate || !toDate) {
     return res.status(400).json({ error: 'Missing required filters' });
   }
 
@@ -547,10 +547,10 @@ app.get('/api/truck-report', async (req, res) => {
        FROM trucktransactiondetails ttd
        JOIN plantmaster p ON ttd.plantid = p.plantid
        JOIN trucktransactionmaster ttm ON ttd.transactionid = ttm.transactionid
-       WHERE ttd.plantid = $1
-         AND ttm.transactiondate::date BETWEEN $2 AND $3
+       WHERE ttd.plantid = 7
+         AND DATE(ttm.transactiondate) BETWEEN $1 AND $2
        ORDER BY ttm.transactiondate DESC`,
-      [plant, fromDate, toDate]
+      [fromDate, toDate]
     );
 
     res.json(result.rows);
@@ -559,6 +559,7 @@ app.get('/api/truck-report', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
 
