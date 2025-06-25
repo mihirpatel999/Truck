@@ -2226,10 +2226,10 @@ app.post('/api/user-master', async (req, res) => {
 app.get('/api/truck-find', async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT "TruckNo", "TransactionDate", "CityName"
-      FROM "TruckTransactionMaster"
-      WHERE "TruckNo" IS NOT NULL AND "Completed" = 0
-      ORDER BY "TransactionDate" DESC
+      SELECT "truckno", "transactiondate", "cityname"
+      FROM "trucktransactionmaster"
+      WHERE "truckno" IS NOT NULL AND "completed" = 0
+      ORDER BY "transactiondate" DESC
     `);
     res.json(result.rows);
   } catch (err) {
