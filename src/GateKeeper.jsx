@@ -4247,7 +4247,7 @@ function GateKeeper() {
         <div className="col-span-1 space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
 
-            {/* Bar Chart
+            Bar Chart
             <div
               // className="absolute bottom-[60px] left-[50px] h-[75px] flex items-end gap-[2px] z-10"
                className="absolute bottom-[51px] left-[50px] h-[75px] w-[80px] flex items-end gap-[2px] z-10"
@@ -4271,43 +4271,7 @@ function GateKeeper() {
                   </div>
                 );
               })}
-            </div> */}
-
-{/* Bar Chart - Fixed Position Relative to Container */}
-<div
-  className="absolute z-10 flex items-end gap-[2px]"
-  style={{
-    bottom: '14%', // Push bars to sit on truck's flatbed (same in desktop & mobile)
-    left: '11%',   // Same horizontal start point for all screen sizes (container zone)
-    width: '78%',  // Container width only, not cabin (auto-fit)
-    height: '60%', // Matches truck container height
-  }}
->
-  {quantityPanels.map((panel, index) => {
-    const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
-    const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500', 'bg-purple-500'];
-    return (
-      <div
-        key={index}
-        className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md transition-transform transform hover:scale-105 hover:shadow-lg cursor-pointer`}
-        style={{
-          height: `${height}%`,
-          width: `${100 / quantityPanels.length}%`,
-          minWidth: '22px',
-          maxWidth: '60px'
-        }}
-        title={`${panel.plantname}: ${panel.quantity}`}
-      >
-        <div className="flex items-center gap-[1px] leading-none">
-          <span>📦</span>
-          <span>{panel.quantity}</span>
-        </div>
-        <div className="text-[8px] px-1 whitespace-nowrap">{panel.plantname}</div>
-      </div>
-    );
-  })}
-</div>
-
+            </div>
 
             {/* Truck Image */}
             <img
