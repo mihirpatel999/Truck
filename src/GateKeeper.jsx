@@ -4247,7 +4247,7 @@ function GateKeeper() {
         <div className="col-span-1 space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
 
-            Bar Chart
+            {/* Bar Chart */}
             <div
               // className="absolute bottom-[60px] left-[50px] h-[75px] flex items-end gap-[2px] z-10"
                className="absolute bottom-[51px] left-[50px] h-[75px] w-[80px] flex items-end gap-[2px] z-10"
