@@ -4273,14 +4273,14 @@ function GateKeeper() {
               })}
             </div> */}
 
-              {/* Bar Chart */}
+{/* Bar Chart - Fixed Position Relative to Container */}
 <div
-  className="absolute bottom-[51px] left-[10%] flex items-end gap-[2px] z-10"
+  className="absolute z-10 flex items-end gap-[2px]"
   style={{
-    width: '80%',          // 80% of the truck width (responsive)
-    height: '55%',         // height of the container area
-    display: 'flex',
-    justifyContent: 'space-between'
+    bottom: '14%', // Push bars to sit on truck's flatbed (same in desktop & mobile)
+    left: '11%',   // Same horizontal start point for all screen sizes (container zone)
+    width: '78%',  // Container width only, not cabin (auto-fit)
+    height: '60%', // Matches truck container height
   }}
 >
   {quantityPanels.map((panel, index) => {
@@ -4293,21 +4293,20 @@ function GateKeeper() {
         style={{
           height: `${height}%`,
           width: `${100 / quantityPanels.length}%`,
-          minWidth: '28px',
+          minWidth: '22px',
           maxWidth: '60px'
         }}
         title={`${panel.plantname}: ${panel.quantity}`}
       >
-        <div className="flex items-center gap-[2px]">
+        <div className="flex items-center gap-[1px] leading-none">
           <span>📦</span>
           <span>{panel.quantity}</span>
         </div>
-        <div className="whitespace-nowrap text-[8px] px-1">{panel.plantname}</div>
+        <div className="text-[8px] px-1 whitespace-nowrap">{panel.plantname}</div>
       </div>
     );
   })}
 </div>
-
 
 
             {/* Truck Image */}
