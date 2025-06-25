@@ -4249,7 +4249,8 @@ function GateKeeper() {
 
             {/* Bar Chart */}
             <div
-              className="absolute bottom-[60px] left-[50px] h-[75px] flex items-end gap-[2px] z-10"
+              // className="absolute bottom-[60px] left-[50px] h-[75px] flex items-end gap-[2px] z-10"
+               className="absolute left-[12%] bottom-[24%] sm:bottom-[16%] flex gap-[2px] w-[76%] h-[75px] z-10 items-end overflow-x-auto"
               style={{ width: 'calc(100% - 170px)', maxWidth: '370px' }}
             >
               {quantityPanels.map((panel, index) => {
