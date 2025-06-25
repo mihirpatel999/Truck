@@ -346,9 +346,9 @@ export default function Report() {
               className="p-2 border border-gray-300 rounded"
             >
               <option value="">Select Plant</option>
-              {plants.map((p, idx) => (
-                <option key={idx} value={p}>
-                  {p}
+              {plants.map((p) => (
+                <option key={p.plantid} value={p.plantid}>
+                  {p.plantname}
                 </option>
               ))}
             </select>
