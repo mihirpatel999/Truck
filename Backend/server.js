@@ -458,6 +458,43 @@ await client.query(
     }
 
 
+    
+    // 5. Recheck updated status
+    // 6. Check if all plants for this transaction are checked-in and checked-out
+    const allStatusResult = await client.query(
+      `SELECT COUNT(*) AS totalplants,
+              SUM(CASE WHEN CheckInStatus = 1 THEN 1 ELSE 0 END) AS checkedin,
+              SUM(CASE WHEN CheckOutStatus = 1 THEN 1 ELSE 0 END) AS checkedout
+         FROM TruckTransactionDetails
+         WHERE TransactionID = $1`,
+      [transactionId]
+    );
+    const statusCheck = allStatusResult.rows[0];
+    if (
+      Number(statusCheck.totalplants) === Number(statusCheck.checkedin) &&
+      Number(statusCheck.totalplants) === Number(statusCheck.checkedout)
+    ) {
+      // All plants completed
+      await client.query(
+        `UPDATE TruckTransactionMaster
+         SET Completed = 1
+         WHERE TransactionID = $1`,
+        [transactionId]
+      );
+      return res.json({
+        message: "✅ All plants processed. Truck process completed.",
+      });
+    }
+    // 7. Return success for one action
+    return res.json({ message: `✅ ${type} successful` });
+  } catch (error) {
+    console.error("Status update error:", error);
+    res.status(500).json({ error: "Server error" });
+  } finally {
+    client.release();
+  }
+});
+
 
 
 // // 🚚 Truck Report API (for report page) — place this **after** your other APIs
@@ -525,9 +562,9 @@ await client.query(
 
 /////////////////////////////////////////////////
 app.get('/api/truck-report', async (req, res) => {
-  const { fromDate, toDate } = req.query;
+  const { fromDate, toDate, plant } = req.query;
 
-  if (!fromDate || !toDate) {
+  if (!fromDate || !toDate || !plant) {
     return res.status(400).json({ error: 'Missing required filters' });
   }
 
@@ -547,10 +584,10 @@ app.get('/api/truck-report', async (req, res) => {
        FROM trucktransactiondetails ttd
        JOIN plantmaster p ON ttd.plantid = p.plantid
        JOIN trucktransactionmaster ttm ON ttd.transactionid = ttm.transactionid
-       WHERE ttd.plantid = 7
-         AND DATE(ttm.transactiondate) BETWEEN $1 AND $2
+       WHERE ttd.plantid = $1
+         AND DATE(ttm.transactiondate) BETWEEN $2 AND $3
        ORDER BY ttm.transactiondate DESC`,
-      [fromDate, toDate]
+      [plant, fromDate, toDate]
     );
 
     res.json(result.rows);
@@ -562,48 +599,9 @@ app.get('/api/truck-report', async (req, res) => {
 
 
 
-
-
   
 
 
-
-
-    // 5. Recheck updated status
-    // 6. Check if all plants for this transaction are checked-in and checked-out
-    const allStatusResult = await client.query(
-      `SELECT COUNT(*) AS totalplants,
-              SUM(CASE WHEN CheckInStatus = 1 THEN 1 ELSE 0 END) AS checkedin,
-              SUM(CASE WHEN CheckOutStatus = 1 THEN 1 ELSE 0 END) AS checkedout
-         FROM TruckTransactionDetails
-         WHERE TransactionID = $1`,
-      [transactionId]
-    );
-    const statusCheck = allStatusResult.rows[0];
-    if (
-      Number(statusCheck.totalplants) === Number(statusCheck.checkedin) &&
-      Number(statusCheck.totalplants) === Number(statusCheck.checkedout)
-    ) {
-      // All plants completed
-      await client.query(
-        `UPDATE TruckTransactionMaster
-         SET Completed = 1
-         WHERE TransactionID = $1`,
-        [transactionId]
-      );
-      return res.json({
-        message: "✅ All plants processed. Truck process completed.",
-      });
-    }
-    // 7. Return success for one action
-    return res.json({ message: `✅ ${type} successful` });
-  } catch (error) {
-    console.error("Status update error:", error);
-    res.status(500).json({ error: "Server error" });
-  } finally {
-    client.release();
-  }
-});
 
 // 🚚 Fetch Checked-in Trucks API (CASE INSENSITIVE)
 app.get("/api/checked-in-trucks", async (req, res) => {
