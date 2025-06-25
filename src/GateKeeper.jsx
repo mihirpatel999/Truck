@@ -4450,19 +4450,27 @@ function GateKeeper() {
           </div>
         </div>
 
-    {/* Middle: Chart + Form */}
+{/* Middle: Chart + Form */}
 <div className="bg-white rounded-xl shadow-md p-4 space-y-4">
   {/* Chart Panel */}
-  <div className="relative h-52 w-full bg-blue-100 rounded-xl overflow-hidden shadow-sm flex items-end justify-center px-6 pb-6 pt-4">
-    {/* Bar Chart */}
-    <div className="flex items-end gap-3 h-full w-full max-w-md z-10 justify-center">
+  <div className="relative h-52 w-full bg-blue-100 rounded-xl overflow-hidden shadow-sm">
+    {/* Truck Image */}
+    <img
+      src={truckImage}
+      alt="Truck"
+      className="absolute bottom-0 left-0 w-full object-contain z-0"
+      style={{ height: '100%' }}
+    />
+
+    {/* Bounded Bar Chart inside truck container */}
+    <div className="absolute bottom-[36%] left-[12%] w-[75%] h-[40%] z-10 flex items-end gap-3 justify-center">
       {quantityPanels.map((panel, index) => {
-        const height = maxQty ? (panel.quantity / maxQty) * 80 : 0;
+        const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
         const bgColors = ['bg-emerald-500', 'bg-blue-500', 'bg-yellow-400', 'bg-rose-500'];
         return (
           <div
             key={index}
-            className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-lg hover:scale-105 transition-transform shadow`}
+            className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md hover:scale-105 transition-transform shadow`}
             style={{ height: `${height}%`, width: '40px' }}
             title={`${panel.plantname}: ${panel.quantity}`}
           >
@@ -4472,14 +4480,6 @@ function GateKeeper() {
         );
       })}
     </div>
-
-    {/* Truck Image */}
-    <img
-      src={truckImage}
-      alt="Truck"
-      className="absolute bottom-0 left-0 w-full object-contain z-0"
-      style={{ height: '55%' }}
-    />
   </div>
 
   {/* Form Fields */}
@@ -4531,7 +4531,6 @@ function GateKeeper() {
     </button>
   </div>
 </div>
-
 
         {/* Right: Checked In Trucks */}
         <div className="bg-white rounded-xl shadow-md p-4">
