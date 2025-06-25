@@ -465,23 +465,33 @@ app.get('/api/truck-report', async (req, res) => {
   const { truckNo } = req.query;
   try {
     const result = await pool.query(
-      `SELECT 
-         ttm.TruckNo AS "truckNo",
-         p.PlantName AS "plantName",
-         ttd.CheckInTime AS "checkInTime",
-         ttd.CheckOutTime AS "checkOutTime",
-         ttd.LoadingSlipNo AS "loadingSlipNo",
-         ttd.Qty AS "qty",
-         ttd.Freight AS "freight",
-         ttd.Priority AS "priority",
-         ttd.Remarks AS "remarks"
-       FROM TruckTransactionDetails ttd
-       JOIN PlantMaster p ON ttd.PlantID = p.PlantID
-       JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
-       WHERE LOWER(ttm.TruckNo) = LOWER($1)
-       ORDER BY ttd.CheckInTime DESC`,
-      [truckNo]
-     
+      // `SELECT 
+      //    ttm.TruckNo AS "truckNo",
+      //    p.PlantName AS "plantName",
+      //    ttd.CheckInTime AS "checkInTime",
+      //    ttd.CheckOutTime AS "checkOutTime",
+      //    ttd.LoadingSlipNo AS "loadingSlipNo",
+      //    ttd.Qty AS "qty",
+      //    ttd.Freight AS "freight",
+      //    ttd.Priority AS "priority",
+      //    ttd.Remarks AS "remarks"
+      //  FROM TruckTransactionDetails ttd
+      //  JOIN PlantMaster p ON ttd.PlantID = p.PlantID
+      //  JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
+      //  WHERE LOWER(ttm.TruckNo) = LOWER($1)
+      //  ORDER BY ttd.CheckInTime DESC`,
+      // [truckNo]
+      `	   SELECT 
+  d.transactionid,
+  d.checkintime,
+  d.checkouttime,
+  d.plantid,
+  p.plantname
+FROM trucktransactiondetails d
+INNER JOIN trucktransactionmaster m ON d.transactionid = m.transactionid
+LEFT JOIN plantmaster p ON d.plantid = p.plantid
+ WHERE LOWER(ttm.TruckNo) = LOWER($1) AND m.completed = 0;`
+
     );
     res.json(result.rows);
   } catch (error) {
