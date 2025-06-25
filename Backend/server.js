@@ -461,8 +461,40 @@ await client.query(
 
 
 // // 🚚 Truck Report API (for report page) — place this **after** your other APIs
+// app.get('/api/truck-report', async (req, res) => {
+//   const { truckNo } = req.query;
+//   try {
+//     const result = await pool.query(
+//       `SELECT 
+//          ttm.TruckNo AS "truckNo",
+//          p.PlantName AS "plantName",
+//          ttd.CheckInTime AS "checkInTime",
+//          ttd.CheckOutTime AS "checkOutTime",
+//          ttd.LoadingSlipNo AS "loadingSlipNo",
+//          ttd.Qty AS "qty",
+//          ttd.Freight AS "freight",
+//          ttd.Priority AS "priority",
+//          ttd.Remarks AS "remarks"
+//        FROM TruckTransactionDetails ttd
+//        JOIN PlantMaster p ON ttd.PlantID = p.PlantID
+//        JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
+//        WHERE LOWER(ttm.TruckNo) = LOWER($1)
+//        ORDER BY ttd.CheckInTime DESC`,
+//       [truckNo]  );
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error('Error fetching truck report:', error);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
 app.get('/api/truck-report', async (req, res) => {
-  const { truckNo } = req.query;
+  const { fromDate, toDate, plant } = req.query;
+
+  if (!fromDate || !toDate || !plant) {
+    return res.status(400).json({ error: 'Missing required filters' });
+  }
+
   try {
     const result = await pool.query(
       `SELECT 
@@ -478,15 +510,20 @@ app.get('/api/truck-report', async (req, res) => {
        FROM TruckTransactionDetails ttd
        JOIN PlantMaster p ON ttd.PlantID = p.PlantID
        JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
-       WHERE LOWER(ttm.TruckNo) = LOWER($1)
+       WHERE ttd.PlantID = $1
+         AND DATE(ttd.CheckInTime) BETWEEN $2 AND $3
        ORDER BY ttd.CheckInTime DESC`,
-      [truckNo]  );
+      [plant, fromDate, toDate]
+    );
+
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching truck report:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+
 
   
 // 🚚 Truck Report API (for report page) — place this **after** your other APIs
