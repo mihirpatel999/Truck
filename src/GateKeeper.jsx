@@ -4325,7 +4325,8 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import 'react-toastify/dist/ReactToastify.css';
-import truckImage from './assets/truck-base.png'; // Replace with your new truck bed image
+import truckImage from './assets/Truck.png.png';
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
