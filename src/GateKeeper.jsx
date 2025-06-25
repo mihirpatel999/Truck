@@ -4321,7 +4321,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4347,6 +4346,7 @@ function GateKeeper() {
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     const role = localStorage.getItem('role');
+
     axios.get(`${API_URL}/api/plants`, {
       headers: { userid: userId, role }
     })
@@ -4359,6 +4359,7 @@ function GateKeeper() {
       axios.get(`${API_URL}/api/trucks?plantName=${selectedPlant}`)
         .then(res => setTruckNumbers(res.data))
         .catch(err => console.error('Error fetching trucks:', err));
+
       axios.get(`${API_URL}/api/checked-in-trucks?plantName=${selectedPlant}`)
         .then(res => setCheckedInTrucks(res.data))
         .catch(err => console.error('Error fetching checked-in trucks:', err));
@@ -4405,7 +4406,7 @@ function GateKeeper() {
         setCheckedInTrucks(prev => [...prev, { TruckNo: formData.truckNo }]);
       }
       toast.success(res.data.message);
-      setFormData(prev => ({ ...prev, truckNo: '', invoiceNo: '', remarks: '' }));
+      setFormData(prev => ({ ...prev, truckNo: '' }));
       setQuantityPanels([]);
     } catch (err) {
       console.error('Error:', err);
@@ -4416,141 +4417,98 @@ function GateKeeper() {
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0));
 
   return (
-    <div className="bg-gradient-to-b from-slate-100 to-white min-h-screen py-8 px-6">
+    <div className="bg-gradient-to-b from-blue-50 to-white min-h-screen py-10 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        {/* Left: Plant + Truck List */}
-        <div className="bg-white rounded-xl shadow-md p-4 space-y-4">
+        {/* Left Panel */}
+        <div className="space-y-4">
           <select
             value={selectedPlant}
             onChange={handlePlantChange}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="w-full border border-gray-300 px-4 py-2 rounded-lg shadow-sm focus:ring focus:ring-blue-200"
           >
-            <option value="">🌱 Select Plant</option>
+            <option value="">Select Plant</option>
             {plantList.map((plant, i) => (
               <option key={i} value={getPlantName(plant)}>{getPlantName(plant)}</option>
             ))}
           </select>
 
-          <div className="bg-indigo-50 rounded-xl p-4 h-80 overflow-y-auto shadow-inner">
-            <h2 className="text-lg font-bold text-indigo-800 mb-2 flex items-center gap-1">
-              🚚 Truck List
-            </h2>
-            <ul className="space-y-1 text-sm text-gray-800">
-              {truckNumbers.map((truck, i) => (
-                <li key={i} onClick={() => handleTruckSelect(getTruckNo(truck))}
-                    className="hover:bg-indigo-100 px-3 py-1 rounded cursor-pointer transition">
+          <div className="bg-white rounded-xl shadow p-4 h-[320px] overflow-y-auto">
+            <h3 className="text-md font-semibold text-gray-700 mb-2 flex items-center">🚛 Truck List</h3>
+            <ul className="space-y-1 text-sm text-gray-700 cursor-pointer">
+              {truckNumbers.map((truck, index) => (
+                <li
+                  key={index}
+                  onClick={() => handleTruckSelect(getTruckNo(truck))}
+                  className="hover:bg-blue-100 px-3 py-1 rounded"
+                >
                   {getTruckNo(truck)}
                 </li>
               ))}
-              {truckNumbers.length === 0 && (
-                <li className="text-gray-400 italic">No trucks available</li>
-              )}
+              {truckNumbers.length === 0 && <li className="text-gray-400 italic">No trucks available</li>}
             </ul>
           </div>
         </div>
 
-{/* Middle: Chart + Form */}
-<div className="bg-white rounded-xl shadow-md p-4 space-y-4">
-  {/* Chart Panel */}
-  <div className="relative h-52 w-full bg-blue-100 rounded-xl overflow-hidden shadow-sm">
-    {/* Truck Image */}
-    <img
-      src={truckImage}
-      alt="Truck"
-      className="absolute bottom-0 left-0 w-full object-contain z-0"
-      style={{ height: '100%' }}
-    />
+        {/* Center Panel */}
+        <div className="space-y-4">
+          <div className="relative h-56 w-full bg-blue-200 rounded-xl overflow-hidden shadow">
+            <img
+              src={truckImage}
+              alt="Truck"
+              className="absolute bottom-0 left-0 w-full object-contain z-0"
+              style={{ height: '65%' }}
+            />
 
-    {/* Bounded Bar Chart inside truck container */}
-    <div className="absolute bottom-[36%] left-[12%] w-[75%] h-[40%] z-10 flex items-end gap-3 justify-center">
-      {quantityPanels.map((panel, index) => {
-        const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
-        const bgColors = ['bg-emerald-500', 'bg-blue-500', 'bg-yellow-400', 'bg-rose-500'];
-        return (
-          <div
-            key={index}
-            className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md hover:scale-105 transition-transform shadow`}
-            style={{ height: `${height}%`, width: '40px' }}
-            title={`${panel.plantname}: ${panel.quantity}`}
-          >
-            <div>📦 {panel.quantity}</div>
-            <div className="text-[8px] mt-1">{panel.plantname}</div>
+            <div className="absolute bottom-[36%] left-[12%] w-[75%] h-[40%] z-10 flex items-end gap-3 justify-center">
+              {quantityPanels.map((panel, index) => {
+                const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
+                const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-400', 'bg-rose-500'];
+                return (
+                  <div
+                    key={index}
+                    className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md hover:scale-105 transition-transform shadow`}
+                    style={{ height: `${height}%`, width: '40px' }}
+                    title={`${panel.plantname}: ${panel.quantity}`}
+                  >
+                    <div>📦 {panel.quantity}</div>
+                    <div className="text-[8px] mt-1">{panel.plantname}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        );
-      })}
-    </div>
-  </div>
 
-  {/* Form Fields */}
-  <div className="space-y-3">
-    <input
-      type="text"
-      name="truckNo"
-      value={formData.truckNo}
-      onChange={handleChange}
-      className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-indigo-300 focus:outline-none"
-      placeholder="Truck No"
-    />
-    <input
-      type="date"
-      name="dispatchDate"
-      value={formData.dispatchDate}
-      onChange={handleChange}
-      className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-indigo-300"
-    />
-    <input
-      type="text"
-      name="invoiceNo"
-      value={formData.invoiceNo}
-      onChange={handleChange}
-      className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm"
-      placeholder="Invoice No"
-    />
-    <textarea
-      readOnly
-      name="remarks"
-      value={formData.remarks}
-      className="w-full bg-gray-100 text-gray-700 border border-gray-300 rounded-md px-4 py-2 resize-none h-24 shadow-sm"
-    />
-  </div>
-
-  {/* Buttons */}
-  <div className="flex justify-between gap-2">
-    <button
-      onClick={() => handleSubmit('Check In')}
-      className="flex-1 bg-emerald-600 text-white font-semibold py-2 rounded-lg shadow hover:bg-emerald-700 transition"
-    >
-      ✅ Check In
-    </button>
-    <button
-      onClick={() => handleSubmit('Check Out')}
-      className="flex-1 bg-rose-600 text-white font-semibold py-2 rounded-lg shadow hover:bg-rose-700 transition"
-    >
-      ❌ Check Out
-    </button>
-  </div>
-</div>
-
-        {/* Right: Checked In Trucks */}
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <div className="bg-green-50 rounded-xl p-4 h-full overflow-y-auto shadow-inner">
-            <h2 className="text-lg font-bold text-green-700 flex items-center gap-2 mb-2">
-              🟢 Checked In Trucks
-            </h2>
-            <ul className="space-y-1 text-sm text-gray-800">
-              {checkedInTrucks.map((truck, i) => (
-                <li key={i}
-                    onClick={() => handleTruckSelect(getTruckNo(truck))}
-                    className="hover:bg-green-100 px-3 py-1 rounded cursor-pointer transition">
-                  {getTruckNo(truck)}
-                </li>
-              ))}
-              {checkedInTrucks.length === 0 && (
-                <li className="text-gray-400 italic">No checked-in trucks</li>
-              )}
-            </ul>
+          <div className="space-y-2">
+            <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Truck No" />
+            <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" />
+            <input name="invoiceNo" value={formData.invoiceNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Invoice No" />
+            <textarea name="remarks" value={formData.remarks} readOnly className="w-full border rounded px-4 py-2 shadow-sm bg-gray-100 text-gray-700 resize-none h-24" />
           </div>
+
+          <div className="flex justify-between mt-2">
+            <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onClick={() => handleSubmit('Check In')}>Check In</button>
+            <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700" onClick={() => handleSubmit('Check Out')}>Check Out</button>
+          </div>
+        </div>
+
+        {/* Right Panel */}
+        <div className="bg-white rounded-xl shadow p-4">
+          <h3 className="text-lg font-bold text-green-700 mb-3 flex items-center">🟢 Checked In Trucks</h3>
+          <ul className="space-y-1 text-sm text-gray-700 max-h-[400px] overflow-y-auto">
+            {checkedInTrucks.map((truck, idx) => (
+              <li
+                key={idx}
+                onClick={() => handleTruckSelect(getTruckNo(truck))}
+                className="hover:bg-green-100 px-3 py-1 rounded cursor-pointer"
+              >
+                {getTruckNo(truck)}
+              </li>
+            ))}
+            {checkedInTrucks.length === 0 && (
+              <li className="text-gray-400 italic">No checked-in trucks</li>
+            )}
+          </ul>
         </div>
       </div>
 
@@ -4560,5 +4518,7 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
+
+
 
 
