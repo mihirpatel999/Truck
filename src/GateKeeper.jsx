@@ -4450,54 +4450,88 @@ function GateKeeper() {
           </div>
         </div>
 
-        {/* Middle: Chart + Form */}
-        <div className="bg-white rounded-xl shadow-md p-4 space-y-4">
-          {/* Chart Panel */}
-          <div className="relative h-52 w-full bg-blue-100 rounded-xl overflow-hidden shadow-sm">
-            <div className="absolute bottom-[60px] left-[40px] h-[80px] flex items-end gap-[6px] z-10"
-                 style={{ width: 'calc(100% - 140px)' }}>
-              {quantityPanels.map((panel, index) => {
-                const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
-                const bgColors = ['bg-emerald-500', 'bg-blue-500', 'bg-yellow-400', 'bg-rose-500'];
-                return (
-                  <div key={index}
-                       className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-lg hover:scale-105 transition-transform shadow`}
-                       style={{ height: `${height}%`, width: `${100 / quantityPanels.length}%` }}
-                       title={`${panel.plantname}: ${panel.quantity}`}>
-                    <div>📦 {panel.quantity}</div>
-                    <div className="text-[8px] mt-1">{panel.plantname}</div>
-                  </div>
-                );
-              })}
-            </div>
-            <img src={truckImage} alt="Truck" className="absolute bottom-0 left-0 w-full object-contain z-0" style={{ height: '65%' }} />
+    {/* Middle: Chart + Form */}
+<div className="bg-white rounded-xl shadow-md p-4 space-y-4">
+  {/* Chart Panel */}
+  <div className="relative h-52 w-full bg-blue-100 rounded-xl overflow-hidden shadow-sm flex items-end justify-center px-6 pb-6 pt-4">
+    {/* Bar Chart */}
+    <div className="flex items-end gap-3 h-full w-full max-w-md z-10 justify-center">
+      {quantityPanels.map((panel, index) => {
+        const height = maxQty ? (panel.quantity / maxQty) * 80 : 0;
+        const bgColors = ['bg-emerald-500', 'bg-blue-500', 'bg-yellow-400', 'bg-rose-500'];
+        return (
+          <div
+            key={index}
+            className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-lg hover:scale-105 transition-transform shadow`}
+            style={{ height: `${height}%`, width: '40px' }}
+            title={`${panel.plantname}: ${panel.quantity}`}
+          >
+            <div>📦 {panel.quantity}</div>
+            <div className="text-[8px] mt-1">{panel.plantname}</div>
           </div>
+        );
+      })}
+    </div>
 
-          {/* Form Fields */}
-          <div className="space-y-3">
-            <input type="text" name="truckNo" value={formData.truckNo} onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-indigo-300 focus:outline-none"
-              placeholder="Truck No" />
-            <input type="date" name="dispatchDate" value={formData.dispatchDate} onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-indigo-300" />
-            <input type="text" name="invoiceNo" value={formData.invoiceNo} onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm" placeholder="Invoice No" />
-            <textarea readOnly name="remarks" value={formData.remarks}
-              className="w-full bg-gray-100 text-gray-700 border border-gray-300 rounded-md px-4 py-2 resize-none h-24 shadow-sm" />
-          </div>
+    {/* Truck Image */}
+    <img
+      src={truckImage}
+      alt="Truck"
+      className="absolute bottom-0 left-0 w-full object-contain z-0"
+      style={{ height: '55%' }}
+    />
+  </div>
 
-          {/* Buttons */}
-          <div className="flex justify-between gap-2">
-            <button onClick={() => handleSubmit('Check In')}
-              className="flex-1 bg-emerald-600 text-white font-semibold py-2 rounded-lg shadow hover:bg-emerald-700 transition">
-              ✅ Check In
-            </button>
-            <button onClick={() => handleSubmit('Check Out')}
-              className="flex-1 bg-rose-600 text-white font-semibold py-2 rounded-lg shadow hover:bg-rose-700 transition">
-              ❌ Check Out
-            </button>
-          </div>
-        </div>
+  {/* Form Fields */}
+  <div className="space-y-3">
+    <input
+      type="text"
+      name="truckNo"
+      value={formData.truckNo}
+      onChange={handleChange}
+      className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-indigo-300 focus:outline-none"
+      placeholder="Truck No"
+    />
+    <input
+      type="date"
+      name="dispatchDate"
+      value={formData.dispatchDate}
+      onChange={handleChange}
+      className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm focus:ring-indigo-300"
+    />
+    <input
+      type="text"
+      name="invoiceNo"
+      value={formData.invoiceNo}
+      onChange={handleChange}
+      className="w-full border border-gray-300 rounded-md px-4 py-2 shadow-sm"
+      placeholder="Invoice No"
+    />
+    <textarea
+      readOnly
+      name="remarks"
+      value={formData.remarks}
+      className="w-full bg-gray-100 text-gray-700 border border-gray-300 rounded-md px-4 py-2 resize-none h-24 shadow-sm"
+    />
+  </div>
+
+  {/* Buttons */}
+  <div className="flex justify-between gap-2">
+    <button
+      onClick={() => handleSubmit('Check In')}
+      className="flex-1 bg-emerald-600 text-white font-semibold py-2 rounded-lg shadow hover:bg-emerald-700 transition"
+    >
+      ✅ Check In
+    </button>
+    <button
+      onClick={() => handleSubmit('Check Out')}
+      className="flex-1 bg-rose-600 text-white font-semibold py-2 rounded-lg shadow hover:bg-rose-700 transition"
+    >
+      ❌ Check Out
+    </button>
+  </div>
+</div>
+
 
         {/* Right: Checked In Trucks */}
         <div className="bg-white rounded-xl shadow-md p-4">
