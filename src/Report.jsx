@@ -417,6 +417,159 @@
 // }
 
 
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+
+// const API_URL = import.meta.env.VITE_API_URL;
+
+// export default function Report() {
+//   const [fromDate, setFromDate] = useState('');
+//   const [toDate, setToDate] = useState('');
+//   const [plant, setPlant] = useState('');
+//   const [plants, setPlants] = useState([]);
+//   const [reportData, setReportData] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+
+//   useEffect(() => {
+//     fetchPlants();
+//   }, []);
+
+//   const fetchPlants = async () => {
+//     try {
+//       const res = await axios.get(`${API_URL}/api/plants`);
+//       setPlants(res.data);
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   const fetchReport = async () => {
+//     if (!fromDate || !toDate || !plant) {
+//       setError('Please select all filters');
+//       return;
+//     }
+//     setError('');
+//     setLoading(true);
+//     try {
+//       const res = await axios.get(`${API_URL}/api/truck-report`, {
+//         params: { fromDate, toDate, plant }
+//       });
+//       setReportData(res.data || []);
+//     } catch (err) {
+//       console.error(err);
+//       setError('Failed to fetch report');
+//       setReportData([]);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-gray-200 flex flex-col items-center p-4">
+//       <div className="bg-white w-full max-w-6xl rounded shadow-lg p-6">
+//         <h2 className="text-2xl font-bold text-center text-gray-800 mb-4 border-b pb-2">
+//           Gate Pass Register
+//         </h2>
+
+//         {/* Filter Section */}
+//         <div className="flex flex-wrap justify-center gap-4 mb-6">
+//           <div className="flex items-center gap-2">
+//             <label className="text-gray-700 font-medium">From:</label>
+//             <input
+//               type="date"
+//               value={fromDate}
+//               onChange={(e) => setFromDate(e.target.value)}
+//               className="p-2 border border-gray-300 rounded"
+//             />
+//           </div>
+//           <div className="flex items-center gap-2">
+//             <label className="text-gray-700 font-medium">To:</label>
+//             <input
+//               type="date"
+//               value={toDate}
+//               onChange={(e) => setToDate(e.target.value)}
+//               className="p-2 border border-gray-300 rounded"
+//             />
+//           </div>
+//           <div className="flex items-center gap-2">
+//             <label className="text-gray-700 font-medium">Plant:</label>
+//             <select
+//               value={plant}
+//               onChange={(e) => setPlant(e.target.value)}
+//               className="p-2 border border-gray-300 rounded"
+//             >
+//               <option value="">Select Plant</option>
+//               {plants.map((p) => (
+//                 <option key={p.plantid} value={p.plantid}>
+//                   {p.plantname}
+//                 </option>
+//               ))}
+//             </select>
+//           </div>
+//           <button
+//             onClick={fetchReport}
+//             className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+//           >
+//             Search
+//           </button>
+//         </div>
+
+//         {/* Error & Loading */}
+//         {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+//         {loading && <div className="text-indigo-600 text-center mb-4">Loading...</div>}
+
+//         {/* Table */}
+//         {reportData.length > 0 && (
+//           <div className="overflow-auto border border-gray-300 rounded mb-4">
+//             <table className="min-w-full text-sm text-left">
+//               <thead className="bg-gray-100 border-b">
+//                 <tr>
+//                   <th className="px-4 py-2">Date</th>
+//                   <th className="px-4 py-2">Truck No</th>
+//                   <th className="px-4 py-2">Freight</th>
+//                   <th className="px-4 py-2">Amount Per</th>
+//                   <th className="px-4 py-2">Zone Name</th>
+//                   <th className="px-4 py-2">Party Name</th>
+//                   <th className="px-4 py-2">City Name</th>
+//                   <th className="px-4 py-2">Truck Weight</th>
+//                   <th className="px-4 py-2">Dispatcher Name</th>
+//                   <th className="px-4 py-2">Contact No</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {reportData.map((row, idx) => (
+//                   <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+//                     <td className="px-4 py-2">{row.date || '—'}</td>
+//                     <td className="px-4 py-2">{row.truckNo || '—'}</td>
+//                     <td className="px-4 py-2">{row.freight || '—'}</td>
+//                     <td className="px-4 py-2">{row.amountPer || '—'}</td>
+//                     <td className="px-4 py-2">{row.zoneName || '—'}</td>
+//                     <td className="px-4 py-2">{row.partyName || '—'}</td>
+//                     <td className="px-4 py-2">{row.cityName || '—'}</td>
+//                     <td className="px-4 py-2">{row.truckWeight || '—'}</td>
+//                     <td className="px-4 py-2">{row.dispatcherName || '—'}</td>
+//                     <td className="px-4 py-2">{row.contactNo || '—'}</td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//           </div>
+//         )}
+
+//         {/* Export Button */}
+//         {reportData.length > 0 && (
+//           <div className="text-center">
+//             <button className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+//               Export Excel
+//             </button>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+//////////////
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -431,19 +584,21 @@ export default function Report() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // ✅ Fetch all plants for dropdown
   useEffect(() => {
+    const fetchPlants = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/plants`);
+        setPlants(res.data);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to fetch plants');
+      }
+    };
     fetchPlants();
   }, []);
 
-  const fetchPlants = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/api/plants`);
-      setPlants(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
+  // ✅ Fetch report based on filters
   const fetchReport = async () => {
     if (!fromDate || !toDate || !plant) {
       setError('Please select all filters');
@@ -451,53 +606,60 @@ export default function Report() {
     }
     setError('');
     setLoading(true);
+
     try {
-      const res = await axios.get(`${API_URL}/api/truck-report`, {
-        params: { fromDate, toDate, plant }
-      });
-      setReportData(res.data || []);
+      const res = await axios.get(
+        `${API_URL}/api/truck-report?fromDate=${fromDate}&toDate=${toDate}&plant=${plant}`
+      );
+
+      if (Array.isArray(res.data)) {
+        setReportData(res.data);
+      } else {
+        setError('Invalid data format from server');
+      }
     } catch (err) {
       console.error(err);
       setError('Failed to fetch report');
-      setReportData([]);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-200 flex flex-col items-center p-4">
-      <div className="bg-white w-full max-w-6xl rounded shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4 border-b pb-2">
-          Gate Pass Register
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-blue-100 p-4">
+      <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-6xl">
+        <h2 className="text-2xl font-bold text-center text-indigo-600 mb-6">
+          Truck Movement Report
         </h2>
 
-        {/* Filter Section */}
-        <div className="flex flex-wrap justify-center gap-4 mb-6">
-          <div className="flex items-center gap-2">
-            <label className="text-gray-700 font-medium">From:</label>
+        {/* 🔵 Filters Section */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex flex-col w-full sm:w-1/4">
+            <label className="mb-1 font-medium">From Date</label>
             <input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="p-2 border border-gray-300 rounded"
+              className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-gray-700 font-medium">To:</label>
+
+          <div className="flex flex-col w-full sm:w-1/4">
+            <label className="mb-1 font-medium">To Date</label>
             <input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="p-2 border border-gray-300 rounded"
+              className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-gray-700 font-medium">Plant:</label>
+
+          <div className="flex flex-col w-full sm:w-1/4">
+            <label className="mb-1 font-medium">Plant</label>
             <select
               value={plant}
               onChange={(e) => setPlant(e.target.value)}
-              className="p-2 border border-gray-300 rounded"
+              className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
             >
               <option value="">Select Plant</option>
               {plants.map((p) => (
@@ -507,62 +669,69 @@ export default function Report() {
               ))}
             </select>
           </div>
-          <button
-            onClick={fetchReport}
-            className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-          >
-            Search
-          </button>
+
+          <div className="flex items-end w-full sm:w-auto">
+            <button
+              onClick={fetchReport}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition duration-300 w-full"
+            >
+              Search
+            </button>
+          </div>
         </div>
 
-        {/* Error & Loading */}
-        {error && <div className="text-red-500 text-center mb-4">{error}</div>}
-        {loading && <div className="text-indigo-600 text-center mb-4">Loading...</div>}
+        {/* 🔵 Loading / Error / No Data */}
+        {loading && (
+          <div className="text-center text-indigo-600 font-medium">Loading report...</div>
+        )}
+        {error && (
+          <div className="text-center text-red-500 font-medium">{error}</div>
+        )}
+        {!loading && !error && reportData.length === 0 && (
+          <div className="text-center text-gray-500">No data found.</div>
+        )}
 
-        {/* Table */}
-        {reportData.length > 0 && (
-          <div className="overflow-auto border border-gray-300 rounded mb-4">
-            <table className="min-w-full text-sm text-left">
-              <thead className="bg-gray-100 border-b">
+        {/* 🔵 Report Table */}
+        {!loading && reportData.length > 0 && (
+          <div className="overflow-x-auto mt-4">
+            <table className="min-w-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+              <thead className="bg-indigo-100 text-indigo-700">
                 <tr>
-                  <th className="px-4 py-2">Date</th>
-                  <th className="px-4 py-2">Truck No</th>
-                  <th className="px-4 py-2">Freight</th>
-                  <th className="px-4 py-2">Amount Per</th>
-                  <th className="px-4 py-2">Zone Name</th>
-                  <th className="px-4 py-2">Party Name</th>
-                  <th className="px-4 py-2">City Name</th>
-                  <th className="px-4 py-2">Truck Weight</th>
-                  <th className="px-4 py-2">Dispatcher Name</th>
-                  <th className="px-4 py-2">Contact No</th>
+                  <th className="px-4 py-3 text-left">Truck No</th>
+                  <th className="px-4 py-3 text-left">Transaction Date</th>
+                  <th className="px-4 py-3 text-left">Plant Name</th>
+                  <th className="px-4 py-3 text-left">Check-In Time</th>
+                  <th className="px-4 py-3 text-left">Check-Out Time</th>
+                  <th className="px-4 py-3 text-left">Loading Slip</th>
+                  <th className="px-4 py-3 text-left">Qty</th>
+                  <th className="px-4 py-3 text-left">Freight</th>
+                  <th className="px-4 py-3 text-left">Priority</th>
+                  <th className="px-4 py-3 text-left">Remarks</th>
                 </tr>
               </thead>
               <tbody>
-                {reportData.map((row, idx) => (
-                  <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-4 py-2">{row.date || '—'}</td>
-                    <td className="px-4 py-2">{row.truckNo || '—'}</td>
-                    <td className="px-4 py-2">{row.freight || '—'}</td>
-                    <td className="px-4 py-2">{row.amountPer || '—'}</td>
-                    <td className="px-4 py-2">{row.zoneName || '—'}</td>
-                    <td className="px-4 py-2">{row.partyName || '—'}</td>
-                    <td className="px-4 py-2">{row.cityName || '—'}</td>
-                    <td className="px-4 py-2">{row.truckWeight || '—'}</td>
-                    <td className="px-4 py-2">{row.dispatcherName || '—'}</td>
-                    <td className="px-4 py-2">{row.contactNo || '—'}</td>
+                {reportData.map((item, i) => (
+                  <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                    <td className="px-4 py-3">{item.truckNo || '—'}</td>
+                    <td className="px-4 py-3">
+                      {item.transactionDate ? new Date(item.transactionDate).toLocaleDateString() : '—'}
+                    </td>
+                    <td className="px-4 py-3">{item.plantName || '—'}</td>
+                    <td className="px-4 py-3">
+                      {item.checkInTime ? new Date(item.checkInTime).toLocaleString() : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      {item.checkOutTime ? new Date(item.checkOutTime).toLocaleString() : '—'}
+                    </td>
+                    <td className="px-4 py-3">{item.loadingSlipNo || '—'}</td>
+                    <td className="px-4 py-3">{item.qty ?? '—'}</td>
+                    <td className="px-4 py-3">{item.freight ?? '—'}</td>
+                    <td className="px-4 py-3">{item.priority ?? '—'}</td>
+                    <td className="px-4 py-3">{item.remarks || '—'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
-
-        {/* Export Button */}
-        {reportData.length > 0 && (
-          <div className="text-center">
-            <button className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-              Export Excel
-            </button>
           </div>
         )}
       </div>

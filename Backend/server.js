@@ -487,7 +487,6 @@ await client.query(
 //     res.status(500).json({ error: 'Server error' });
 //   }
 // });
-
 app.get('/api/truck-report', async (req, res) => {
   const { fromDate, toDate, plant } = req.query;
 
@@ -499,6 +498,7 @@ app.get('/api/truck-report', async (req, res) => {
     const result = await pool.query(
       `SELECT 
          ttm.TruckNo AS "truckNo",
+         ttm.transactiondate AS "transactionDate",
          p.PlantName AS "plantName",
          ttd.CheckInTime AS "checkInTime",
          ttd.CheckOutTime AS "checkOutTime",
