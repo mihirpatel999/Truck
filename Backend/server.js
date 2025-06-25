@@ -480,10 +480,7 @@ app.get('/api/truck-report', async (req, res) => {
        JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
        WHERE LOWER(ttm.TruckNo) = LOWER($1)
        ORDER BY ttd.CheckInTime DESC`,
-      [truckNo]
-     
-
-    );
+      [truckNo]  );
     res.json(result.rows);
   } catch (error) {
     console.error('Error fetching truck report:', error);
