@@ -4325,7 +4325,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
-import { motion } from 'framer-motion';
 import 'react-toastify/dist/ReactToastify.css';
 import truckImage from './assets/Truck.png.png';
 
@@ -4417,15 +4416,15 @@ function GateKeeper() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-blue-100 min-h-screen p-6">
+    <div className="bg-gradient-to-br from-gray-50 to-blue-100 min-h-screen p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        {/* LEFT PANEL */}
-        <div className="bg-white p-4 rounded-xl shadow space-y-4">
+        {/* Left Panel */}
+        <div className="bg-white rounded-xl shadow p-4">
           <select
             value={selectedPlant}
             onChange={handlePlantChange}
-            className="w-full border rounded-md p-2 shadow-sm"
+            className="w-full border px-4 py-2 rounded-md shadow-sm mb-4"
           >
             <option value="">Select Plant</option>
             {plantList.map((plant, i) => (
@@ -4434,70 +4433,74 @@ function GateKeeper() {
           </select>
 
           <div className="bg-blue-50 rounded-lg p-4 h-[300px] overflow-y-auto">
-            <h3 className="font-semibold text-blue-800 mb-2">Truck List</h3>
-            <ul className="text-sm space-y-1">
+            <h3 className="text-md font-semibold text-blue-800 mb-2">Truck List</h3>
+            <ul className="space-y-1 text-sm text-gray-700 cursor-pointer">
               {truckNumbers.map((truck, index) => (
-                <li key={index} onClick={() => handleTruckSelect(getTruckNo(truck))}
-                  className="cursor-pointer hover:text-blue-600">{getTruckNo(truck)}</li>
+                <li key={index} onClick={() => handleTruckSelect(getTruckNo(truck))} className="hover:text-blue-600">
+                  {getTruckNo(truck)}
+                </li>
               ))}
               {truckNumbers.length === 0 && <li className="text-gray-400 italic">No trucks available</li>}
             </ul>
           </div>
         </div>
 
-        {/* MIDDLE PANEL */}
-        <div className="bg-white p-4 rounded-xl shadow space-y-4 relative overflow-hidden">
-          {/* Chart container */}
-          <div className="relative bg-blue-100 h-60 rounded-xl shadow-inner overflow-hidden">
-            {/* Floating Quantity Badges */}
-            <div className="absolute w-full flex justify-center items-end gap-2 bottom-24 px-6 z-20">
-              {quantityPanels.map((panel, index) => (
-                <motion.div
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  key={index}
-                  className="bg-gradient-to-br from-green-400 to-emerald-600 text-white text-xs px-3 py-2 rounded-full shadow-lg hover:scale-105 transition-transform cursor-pointer"
-                >
-                  📦 {panel.quantity} - {panel.plantname}
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Truck Image */}
+        {/* Middle Panel */}
+        <div className="bg-white rounded-xl shadow p-4 relative">
+          <div className="relative h-56 w-full bg-blue-100 rounded-lg overflow-hidden shadow">
             <img
               src={truckImage}
               alt="Truck"
-              className="absolute bottom-0 left-0 w-full object-contain z-10"
-              style={{ height: '70%' }}
+              className="absolute bottom-0 left-0 w-full h-auto object-contain z-0"
+              style={{ height: '65%' }}
             />
+
+            {/* Container Slot Badges */}
+            <div className="absolute bottom-[60%] left-[10%] flex gap-3 w-[80%] justify-around z-20">
+              {quantityPanels.map((panel, i) => (
+                <div
+                  key={i}
+                  className="w-[60px] h-[60px] bg-green-500 text-white rounded-lg shadow-lg flex flex-col items-center justify-center text-xs relative"
+                >
+                  <span className="text-sm font-bold">{panel.quantity}</span>
+                  <span className="text-[10px] text-center">{panel.plantname}</span>
+                  {i === 0 && (
+                    <span className="absolute -top-2 -right-2 bg-yellow-300 text-black text-[8px] px-1 rounded-full shadow">
+                      🥇
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Form */}
-          <div className="space-y-2">
-            <input name="truckNo" value={formData.truckNo} onChange={handleChange} placeholder="Truck No" className="w-full border rounded px-4 py-2 shadow-sm" />
+          {/* Form Inputs */}
+          <div className="space-y-2 mt-4">
+            <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Truck No" />
             <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" />
-            <input name="invoiceNo" value={formData.invoiceNo} onChange={handleChange} placeholder="Invoice No" className="w-full border rounded px-4 py-2 shadow-sm" />
-            <textarea name="remarks" readOnly value={formData.remarks} className="w-full border rounded px-4 py-2 h-24 bg-gray-100 text-gray-700 resize-none shadow-sm" />
+            <input name="invoiceNo" value={formData.invoiceNo} onChange={handleChange} className="w-full border rounded px-4 py-2 shadow-sm" placeholder="Invoice No" />
+            <textarea name="remarks" value={formData.remarks} readOnly className="w-full border rounded px-4 py-2 shadow-sm bg-gray-100 text-gray-700 resize-none h-24" />
           </div>
 
-          <div className="flex justify-between">
-            <button onClick={() => handleSubmit('Check In')} className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 mr-2">✅ Check In</button>
-            <button onClick={() => handleSubmit('Check Out')} className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700">❌ Check Out</button>
+          <div className="flex justify-between mt-2">
+            <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" onClick={() => handleSubmit('Check In')}>Check In</button>
+            <button className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700" onClick={() => handleSubmit('Check Out')}>Check Out</button>
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
-        <div className="bg-white p-4 rounded-xl shadow h-full overflow-y-auto">
-          <h3 className="text-lg font-semibold text-green-700 mb-2">🟢 Checked In Trucks</h3>
-          <ul className="space-y-1 text-sm text-gray-800">
-            {checkedInTrucks.map((truck, idx) => (
-              <li key={idx} className="hover:text-green-600 cursor-pointer" onClick={() => handleTruckSelect(getTruckNo(truck))}>
-                {getTruckNo(truck)}
-              </li>
-            ))}
-            {checkedInTrucks.length === 0 && <li className="text-gray-400 italic">No checked-in trucks</li>}
-          </ul>
+        {/* Right Panel */}
+        <div className="bg-white rounded-xl shadow p-4">
+          <div className="bg-green-50 rounded-lg p-4 h-full overflow-y-auto">
+            <h3 className="text-lg font-bold text-green-800 mb-2">Checked In Trucks</h3>
+            <ul className="space-y-1 text-sm text-gray-700">
+              {checkedInTrucks.map((truck, idx) => (
+                <li key={idx} className="hover:text-green-600 cursor-pointer" onClick={() => handleTruckSelect(getTruckNo(truck))}>
+                  {getTruckNo(truck)}
+                </li>
+              ))}
+              {checkedInTrucks.length === 0 && <li className="text-gray-400 italic">No checked-in trucks</li>}
+            </ul>
+          </div>
         </div>
       </div>
 
