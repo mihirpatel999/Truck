@@ -553,31 +553,31 @@ function TruckTransaction() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const truckDetails = location?.state?.truckDetails;
-    if (!truckDetails) return;
+    const details = location?.state?.truckDetails;
+    if (details?.master) {
+      const { master, details: rows } = details;
 
-    const { master, details } = truckDetails;
+      setFormData({
+        truckNo: master.TruckNo || '',
+        transactionDate: master.TransactionDate?.split('T')[0] || '',
+        cityName: master.CityName || '',
+        transporter: master.Transporter || '',
+        amountPerTon: master.AmountPerTon || '',
+        truckWeight: master.TruckWeight || '',
+        deliverPoint: master.DeliverPoint || '',
+        remarks: master.Remarks || ''
+      });
 
-    setFormData({
-      truckNo: master.TruckNo || '',
-      transactionDate: master.TransactionDate?.split('T')[0] || '',
-      cityName: master.CityName || '',
-      transporter: master.Transporter || '',
-      amountPerTon: master.AmountPerTon || '',
-      truckWeight: master.TruckWeight || '',
-      deliverPoint: master.DeliverPoint || '',
-      remarks: master.Remarks || ''
-    });
-
-    setTableData(details.map(row => ({
-      detailId: row.TruckTransactionDetailsId,
-      plantName: row.PlantName,
-      loadingSlipNo: row.LoadingSlipNo,
-      qty: row.Qty,
-      priority: row.Priority,
-      remarks: row.Remarks,
-      freight: row.Freight
-    })));
+      setTableData(rows.map(row => ({
+        detailId: row.TruckTransactionDetailsId || null,
+        plantName: row.PlantName,
+        loadingSlipNo: row.LoadingSlipNo,
+        qty: row.Qty,
+        priority: row.Priority,
+        remarks: row.Remarks,
+        freight: row.Freight
+      })));
+    }
   }, [location?.state?.truckDetails]);
 
   useEffect(() => {
@@ -702,7 +702,7 @@ function TruckTransaction() {
                   ))}
                 </select>
               </td>
-              {["loadingSlipNo", "qty", "priority", "remarks"].map((name) => (
+              {['loadingSlipNo', 'qty', 'priority', 'remarks'].map(name => (
                 <td key={name}>
                   <input name={name} value={newRow[name]} onChange={handleNewRowChange} className="truck-transaction-input" />
                 </td>
