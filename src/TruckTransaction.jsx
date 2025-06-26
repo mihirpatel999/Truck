@@ -550,49 +550,101 @@ function TruckTransaction() {
   });
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    const truckNo = location?.state?.truckNo;
-    console.log('truckNo:', truckNo);
-    if (!truckNo) return;
+  // // useEffect(() => {
+  // //   const truckNo = location?.state?.truckNo;
+  // //   console.log('truckNo:', truckNo);
+  // //   if (!truckNo) return;
 
-    const fetchTruckDetails = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
-        const { master, details } = res.data;
+  // //   const fetchTruckDetails = async () => {
+  // //     try {
+  // //       const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
+  // //       const { master, details } = res.data;
 
-        setFormData({
-          truckNo: master.TruckNo || '',
-          transactionDate: master.TransactionDate?.split('T')[0] || '',
-          cityName: master.CityName || '',
-          transporter: master.Transporter || '',
-          amountPerTon: master.AmountPerTon || '',
-          truckWeight: master.TruckWeight || '',
-          deliverPoint: master.DeliverPoint || '',
-          remarks: master.Remarks || ''
-        });
+  // //       setFormData({
+  // //         truckNo: master.TruckNo || '',
+  // //         transactionDate: master.TransactionDate?.split('T')[0] || '',
+  // //         cityName: master.CityName || '',
+  // //         transporter: master.Transporter || '',
+  // //         amountPerTon: master.AmountPerTon || '',
+  // //         truckWeight: master.TruckWeight || '',
+  // //         deliverPoint: master.DeliverPoint || '',
+  // //         remarks: master.Remarks || ''
+  // //       });
 
-        setTableData(details.map(row => ({
-          detailId: row.TruckTransactionDetailsId,
-          plantName: row.PlantName,
-          loadingSlipNo: row.LoadingSlipNo,
-          qty: row.Qty,
-          priority: row.Priority,
-          remarks: row.Remarks,
-          freight: row.Freight
-        })));
-      } catch (err) {
-        console.error('Error loading truck details:', err);
-      }
-    };
+  // //       setTableData(details.map(row => ({
+  // //         detailId: row.TruckTransactionDetailsId,
+  // //         plantName: row.PlantName,
+  // //         loadingSlipNo: row.LoadingSlipNo,
+  // //         qty: row.Qty,
+  // //         priority: row.Priority,
+  // //         remarks: row.Remarks,
+  // //         freight: row.Freight
+  // //       })));
+  // //     } catch (err) {
+  // //       console.error('Error loading truck details:', err);
+  // //     }
+  // //   };
 
-    fetchTruckDetails();
-  }, [location?.state?.truckNo]);
+  //   fetchTruckDetails();
+  // }, [location?.state?.truckNo]);
+
+    useEffect(() => {
+  const truckNo = location?.state?.truckNo;
+  if (!truckNo) return;
+
+  console.log('truckNo:', truckNo);
+
+  const fetchTruckDetails = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
+      const { master, details } = res.data;
+
+      setFormData({
+        truckNo: master.TruckNo || '',
+        transactionDate: master.TransactionDate?.split('T')[0] || '',
+        cityName: master.CityName || '',
+        transporter: master.Transporter || '',
+        amountPerTon: master.AmountPerTon || '',
+        truckWeight: master.TruckWeight || '',
+        deliverPoint: master.DeliverPoint || '',
+        remarks: master.Remarks || ''
+      });
+
+      setTableData(details.map(row => ({
+        detailId: row.TruckTransactionDetailsId,
+        plantName: row.PlantName,
+        loadingSlipNo: row.LoadingSlipNo,
+        qty: row.Qty,
+        priority: row.Priority,
+        remarks: row.Remarks,
+        freight: row.Freight
+      })));
+    } catch (err) {
+      console.error('Error loading truck details:', err);
+    }
+  };
+
+  fetchTruckDetails();
+}, [location?.state]);
+
+
+
+  // useEffect(() => {
+  //   axios.get(`${API_URL}/api/plants`)
+  //     .then(res => setPlantList(res.data))
+  //     .catch(err => console.error('Error fetching plants:', err));
+  // }, []);
+
 
   useEffect(() => {
     axios.get(`${API_URL}/api/plants`)
       .then(res => setPlantList(res.data))
-      .catch(err => console.error('Error fetching plants:', err));
+      .catch(err => {
+        setPlantList([]);
+        console.error('Error fetching plants:', err);
+      });
   }, []);
+
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleNewRowChange = (e) => setNewRow({ ...newRow, [e.target.name]: e.target.value });
