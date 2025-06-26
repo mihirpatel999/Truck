@@ -552,6 +552,7 @@ function TruckTransaction() {
 
   useEffect(() => {
     const truckNo = location?.state?.truckNo;
+    console.log('truckNo:', truckNo);
     if (!truckNo) return;
 
     const fetchTruckDetails = async () => {
