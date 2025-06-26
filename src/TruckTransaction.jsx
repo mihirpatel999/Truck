@@ -553,43 +553,41 @@ function TruckTransaction() {
     priority: '', remarks: '', freight: 'To Pay'
   });
   const [message, setMessage] = useState('');
+useEffect(() => {
+  if (!location?.state?.truck?.TruckNo) return;
 
-  useEffect(() => {
-    const truck = location?.state?.truck;
-    if (!truck?.TruckNo) return;
+  const fetchTruckDetails = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/truck-transaction/${location.state.truck.TruckNo}`);
+      const { master, details } = res.data;
 
-    const fetchTruckDetails = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/api/truck-transaction/${truck.TruckNo}`);
-        const { master, details } = res.data;
+      setFormData({
+        truckNo: master.TruckNo || '',
+        transactionDate: master.TransactionDate?.split('T')[0] || '',
+        cityName: master.CityName || '',
+        transporter: master.Transporter || '',
+        amountPerTon: master.AmountPerTon || '',
+        truckWeight: master.TruckWeight || '',
+        deliverPoint: master.DeliverPoint || '',
+        remarks: master.Remarks || ''
+      });
 
-        setFormData({
-          truckNo: master.TruckNo || '',
-          transactionDate: master.TransactionDate?.split('T')[0] || '',
-          cityName: master.CityName || '',
-          transporter: master.Transporter || '',
-          amountPerTon: master.AmountPerTon || '',
-          truckWeight: master.TruckWeight || '',
-          deliverPoint: master.DeliverPoint || '',
-          remarks: master.Remarks || ''
-        });
+      setTableData(details.map(row => ({
+        detailId: row.TruckTransactionDetailsId,
+        plantName: row.PlantName,
+        loadingSlipNo: row.LoadingSlipNo,
+        qty: row.Qty,
+        priority: row.Priority,
+        remarks: row.Remarks,
+        freight: row.Freight
+      })));
+    } catch (err) {
+      console.error('Error loading truck details:', err);
+    }
+  };
 
-        setTableData(details.map(row => ({
-          detailId: row.TruckTransactionDetailsId,
-          plantName: row.PlantName,
-          loadingSlipNo: row.LoadingSlipNo,
-          qty: row.Qty,
-          priority: row.Priority,
-          remarks: row.Remarks,
-          freight: row.Freight
-        })));
-      } catch (err) {
-        console.error('Error loading truck details:', err);
-      }
-    };
-
-    fetchTruckDetails();
-  }, [location?.state?.truck]);
+  fetchTruckDetails();
+}, [location?.state?.truck?.TruckNo]);
 
   useEffect(() => {
     axios.get(`${API_URL}/api/plants`)
