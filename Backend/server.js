@@ -929,11 +929,60 @@ app.get('/api/truck-find', async (req, res) => {
 });
 
 
+// app.get('/api/truck-transaction/:truckNo', async (req, res) => {
+//   const { truckNo } = req.params;
+
+//   try {
+//     // Step 1: Fetch master data
+//     const masterQuery = `
+//       SELECT 
+//         "TransactionID", "TruckNo", "TransactionDate", "CityName", 
+//         "Transporter", "AmountPerTon", "DeliverPoint", 
+//         "TruckWeight", "Remarks"
+//       FROM "TruckTransactionMaster"
+//       WHERE TRIM(LOWER("TruckNo")) = TRIM(LOWER($1))
+//     `;
+
+//     const masterResult = await pool.query(masterQuery, [truckNo]);
+
+//     if (masterResult.rows.length === 0) {
+//       console.log('⚠️ No truck found for:', truckNo);
+//       return res.status(404).json({ error: 'Truck not found' });
+//     }
+
+//     const masterData = masterResult.rows[0];
+//     console.log('✅ Master Data:', masterData);
+
+//     // Step 2: Fetch details by TransactionID
+//     const detailQuery = `
+//       SELECT 
+//         d."PlantId", 
+//         p."PlantName",
+//         d."LoadingSlipNo", d."Qty", d."Priority", 
+//         d."Remarks", d."Freight"
+//       FROM "TruckTransactionDetails" d
+//       LEFT JOIN "PlantMaster" p ON d."PlantId" = p."PlantId"
+//       WHERE d."TransactionID" = $1
+//     `;
+
+//     const detailResult = await pool.query(detailQuery, [masterData.TransactionID]);
+
+//     const detailsData = detailResult.rows;
+//     console.log(`✅ Loaded ${detailsData.length} detail rows`);
+
+//     res.json({ master: masterData, details: detailsData });
+
+//   } catch (err) {
+//     console.error('❌ Fetch error:', err);
+//     res.status(500).json({ error: 'Server error', message: err.message });
+//   }
+// });///////////////////////////final my code 
+
+
 app.get('/api/truck-transaction/:truckNo', async (req, res) => {
   const { truckNo } = req.params;
 
   try {
-    // Step 1: Fetch master data
     const masterQuery = `
       SELECT 
         "TransactionID", "TruckNo", "TransactionDate", "CityName", 
@@ -942,7 +991,6 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
       FROM "TruckTransactionMaster"
       WHERE TRIM(LOWER("TruckNo")) = TRIM(LOWER($1))
     `;
-
     const masterResult = await pool.query(masterQuery, [truckNo]);
 
     if (masterResult.rows.length === 0) {
@@ -951,11 +999,10 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
     }
 
     const masterData = masterResult.rows[0];
-    console.log('✅ Master Data:', masterData);
 
-    // Step 2: Fetch details by TransactionID
     const detailQuery = `
       SELECT 
+        d."TruckTransactionDetailsId",         -- ✅ this was missing earlier
         d."PlantId", 
         p."PlantName",
         d."LoadingSlipNo", d."Qty", d."Priority", 
@@ -964,19 +1011,151 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
       LEFT JOIN "PlantMaster" p ON d."PlantId" = p."PlantId"
       WHERE d."TransactionID" = $1
     `;
-
     const detailResult = await pool.query(detailQuery, [masterData.TransactionID]);
 
-    const detailsData = detailResult.rows;
-    console.log(`✅ Loaded ${detailsData.length} detail rows`);
-
-    res.json({ master: masterData, details: detailsData });
+    res.json({ master: masterData, details: detailResult.rows });
 
   } catch (err) {
     console.error('❌ Fetch error:', err);
     res.status(500).json({ error: 'Server error', message: err.message });
   }
 });
+
+// ✅ 3. POST truck transaction (insert/update)
+app.post("/api/truck-transaction", async (req, res) => {
+  const { formData, tableData } = req.body;
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    let transactionId;
+
+    const checkTruck = await client.query(
+      `SELECT "TransactionID" FROM "TruckTransactionMaster" WHERE "TruckNo" = $1`,
+      [formData.truckNo]
+    );
+
+    if (checkTruck.rows.length > 0) {
+      transactionId = checkTruck.rows[0].TransactionID;
+
+      await client.query(
+        `UPDATE "TruckTransactionMaster"
+         SET "TransactionDate" = $1,
+             "CityName" = $2,
+             "Transporter" = $3,
+             "AmountPerTon" = $4,
+             "TruckWeight" = $5,
+             "DeliverPoint" = $6,
+             "Remarks" = $7
+         WHERE "TransactionID" = $8`,
+        [
+          formData.transactionDate,
+          formData.cityName,
+          formData.transporter,
+          formData.amountPerTon,
+          formData.truckWeight,
+          formData.deliverPoint,
+          formData.remarks,
+          transactionId
+        ]
+      );
+    } else {
+      const insertMain = await client.query(
+        `INSERT INTO "TruckTransactionMaster"
+         ("TruckNo", "TransactionDate", "CityName", "Transporter", "AmountPerTon", "TruckWeight", "DeliverPoint", "Remarks", "CreatedAt")
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+         RETURNING "TransactionID"`,
+        [
+          formData.truckNo,
+          formData.transactionDate,
+          formData.cityName,
+          formData.transporter,
+          formData.amountPerTon,
+          formData.truckWeight,
+          formData.deliverPoint,
+          formData.remarks
+        ]
+      );
+      transactionId = insertMain.rows[0].TransactionID;
+    }
+
+    const filteredTableData = tableData.filter(row => row.plantName?.trim());
+
+    const existingDetailsResult = await client.query(
+      `SELECT "TruckTransactionDetailsId" FROM "TruckTransactionDetails" WHERE "TransactionID" = $1`,
+      [transactionId]
+    );
+
+    const existingDetailIds = existingDetailsResult.rows.map(r => r.TruckTransactionDetailsId);
+    const incomingDetailIds = filteredTableData.map(r => r.detailId).filter(id => !!id);
+    const idsToDelete = existingDetailIds.filter(id => !incomingDetailIds.includes(id));
+
+    for (const id of idsToDelete) {
+      await client.query(
+        `DELETE FROM "TruckTransactionDetails" WHERE "TruckTransactionDetailsId" = $1`,
+        [id]
+      );
+    }
+
+    for (const row of filteredTableData) {
+      const plantResult = await client.query(
+        `SELECT "PlantId" FROM "PlantMaster" WHERE LOWER(TRIM("PlantName")) = LOWER(TRIM($1)) LIMIT 1`,
+        [row.plantName]
+      );
+      const plantId = plantResult.rows[0]?.PlantId;
+      if (!plantId) throw new Error(`Plant not found: ${row.plantName}`);
+
+      if (row.detailId) {
+        await client.query(
+          `UPDATE "TruckTransactionDetails"
+           SET "PlantId" = $1,
+               "LoadingSlipNo" = $2,
+               "Qty" = $3,
+               "Priority" = $4,
+               "Remarks" = $5,
+               "Freight" = $6
+           WHERE "TruckTransactionDetailsId" = $7 AND "TransactionID" = $8`,
+          [
+            plantId,
+            row.loadingSlipNo,
+            row.qty,
+            row.priority,
+            row.remarks || "",
+            row.freight,
+            row.detailId,
+            transactionId
+          ]
+        );
+      } else {
+        await client.query(
+          `INSERT INTO "TruckTransactionDetails"
+           ("TransactionID", "PlantId", "LoadingSlipNo", "Qty", "Priority", "Remarks", "Freight")
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [
+            transactionId,
+            plantId,
+            row.loadingSlipNo,
+            row.qty,
+            row.priority,
+            row.remarks || "",
+            row.freight
+          ]
+        );
+      }
+    }
+
+    await client.query('COMMIT');
+    res.json({ success: true, transactionId });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error("Transaction failed:", error);
+    res.status(500).json({ success: false, error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
 
 
 // 🚀 Start the server
