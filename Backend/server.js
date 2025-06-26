@@ -784,37 +784,98 @@ app.get('/api/truck-find', async (req, res) => {
 });
 
 
+// app.get('/api/truck-transaction/:truckNo', async (req, res) => {
+//   const { truckNo } = req.params;
+
+//   try {
+//     // Step 1: Fetch master data
+//     const masterQuery = `
+//       SELECT 
+//         "TransactionID", "TruckNo", "TransactionDate", "CityName", 
+//         "Transporter", "AmountPerTon", "DeliverPoint", 
+//         "TruckWeight", "Remarks"
+//       FROM "TruckTransactionMaster"
+//       WHERE TRIM(LOWER("TruckNo")) = TRIM(LOWER($1))
+//     `;
+
+//     const masterResult = await pool.query(masterQuery, [truckNo]);
+
+//     if (masterResult.rows.length === 0) {
+//       console.log('⚠️ No truck found for:', truckNo);
+//       return res.status(404).json({ error: 'Truck not found' });
+//     }
+
+//     const masterData = masterResult.rows[0];
+//     console.log('✅ Master Data:', masterData);
+
+//     // Step 2: Fetch details by TransactionID
+//     const detailQuery = `
+//       SELECT 
+//         d."PlantId", 
+//         p."PlantName",
+//         d."LoadingSlipNo", d."Qty", d."Priority", 
+//         d."Remarks", d."Freight"
+//       FROM "TruckTransactionDetails" d
+//       LEFT JOIN "PlantMaster" p ON d."PlantId" = p."PlantId"
+//       WHERE d."TransactionID" = $1
+//     `;
+
+//     const detailResult = await pool.query(detailQuery, [masterData.TransactionID]);
+
+//     const detailsData = detailResult.rows;
+//     console.log(`✅ Loaded ${detailsData.length} detail rows`);
+
+//     res.json({ master: masterData, details: detailsData });
+
+//   } catch (err) {
+//     console.error('❌ Fetch error:', err);
+//     res.status(500).json({ error: 'Server error', message: err.message });
+//   }
+// });
+
+
 app.get('/api/truck-transaction/:truckNo', async (req, res) => {
-  const { truckNo } = req.params;
+  let { truckNo } = req.params;
+
+  // Sanitize truckNo
+  truckNo = truckNo.trim().toLowerCase();
 
   try {
-    // Step 1: Fetch master data
+    // Master Data Query
     const masterQuery = `
       SELECT 
-        "TransactionID", "TruckNo", "TransactionDate", "CityName", 
-        "Transporter", "AmountPerTon", "DeliverPoint", 
-        "TruckWeight", "Remarks"
+        "TransactionID", 
+        "TruckNo", 
+        TO_CHAR("TransactionDate", 'YYYY-MM-DD') AS "TransactionDate", 
+        "CityName", 
+        "Transporter", 
+        "AmountPerTon", 
+        "DeliverPoint", 
+        "TruckWeight", 
+        "Remarks"
       FROM "TruckTransactionMaster"
-      WHERE TRIM(LOWER("TruckNo")) = TRIM(LOWER($1))
+      WHERE LOWER(TRIM("TruckNo")) = $1
     `;
 
     const masterResult = await pool.query(masterQuery, [truckNo]);
 
     if (masterResult.rows.length === 0) {
-      console.log('⚠️ No truck found for:', truckNo);
-      return res.status(404).json({ error: 'Truck not found' });
+      console.log(`⚠️ Truck not found for: ${truckNo}`);
+      return res.status(404).json({ message: 'Truck not found' });
     }
 
     const masterData = masterResult.rows[0];
-    console.log('✅ Master Data:', masterData);
 
-    // Step 2: Fetch details by TransactionID
+    // Details Data Query
     const detailQuery = `
       SELECT 
         d."PlantId", 
         p."PlantName",
-        d."LoadingSlipNo", d."Qty", d."Priority", 
-        d."Remarks", d."Freight"
+        d."LoadingSlipNo", 
+        d."Qty", 
+        d."Priority", 
+        d."Remarks", 
+        d."Freight"
       FROM "TruckTransactionDetails" d
       LEFT JOIN "PlantMaster" p ON d."PlantId" = p."PlantId"
       WHERE d."TransactionID" = $1
@@ -823,13 +884,17 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
     const detailResult = await pool.query(detailQuery, [masterData.TransactionID]);
 
     const detailsData = detailResult.rows;
-    console.log(`✅ Loaded ${detailsData.length} detail rows`);
 
-    res.json({ master: masterData, details: detailsData });
+    console.log(`✅ Found truck: ${truckNo}, Details count: ${detailsData.length}`);
+
+    res.json({
+      master: masterData,
+      details: detailsData
+    });
 
   } catch (err) {
-    console.error('❌ Fetch error:', err);
-    res.status(500).json({ error: 'Server error', message: err.message });
+    console.error('❌ Error fetching truck details:', err);
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
