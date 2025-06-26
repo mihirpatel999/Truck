@@ -9,11 +9,9 @@ export default function TruckFind() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-useEffect(() => {
-  if (location?.state?.refresh) {
+  useEffect(() => {
     fetchAllTruckData();
-  }
-}, [location?.state]);
+  }, []);
 
   const fetchAllTruckData = async () => {
     setLoading(true);
@@ -111,7 +109,3 @@ useEffect(() => {
     </div>
   );
 }
-
-//////////////
-
-
