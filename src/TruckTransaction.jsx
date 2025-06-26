@@ -527,8 +527,6 @@
 
 
 
-
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -553,41 +551,34 @@ function TruckTransaction() {
     priority: '', remarks: '', freight: 'To Pay'
   });
   const [message, setMessage] = useState('');
-useEffect(() => {
-  if (!location?.state?.truck?.TruckNo) return;
 
-  const fetchTruckDetails = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/api/truck-transaction/${location.state.truck.TruckNo}`);
-      const { master, details } = res.data;
+  useEffect(() => {
+    const truckDetails = location?.state?.truckDetails;
+    if (!truckDetails) return;
 
-      setFormData({
-        truckNo: master.TruckNo || '',
-        transactionDate: master.TransactionDate?.split('T')[0] || '',
-        cityName: master.CityName || '',
-        transporter: master.Transporter || '',
-        amountPerTon: master.AmountPerTon || '',
-        truckWeight: master.TruckWeight || '',
-        deliverPoint: master.DeliverPoint || '',
-        remarks: master.Remarks || ''
-      });
+    const { master, details } = truckDetails;
 
-      setTableData(details.map(row => ({
-        detailId: row.TruckTransactionDetailsId,
-        plantName: row.PlantName,
-        loadingSlipNo: row.LoadingSlipNo,
-        qty: row.Qty,
-        priority: row.Priority,
-        remarks: row.Remarks,
-        freight: row.Freight
-      })));
-    } catch (err) {
-      console.error('Error loading truck details:', err);
-    }
-  };
+    setFormData({
+      truckNo: master.TruckNo || '',
+      transactionDate: master.TransactionDate?.split('T')[0] || '',
+      cityName: master.CityName || '',
+      transporter: master.Transporter || '',
+      amountPerTon: master.AmountPerTon || '',
+      truckWeight: master.TruckWeight || '',
+      deliverPoint: master.DeliverPoint || '',
+      remarks: master.Remarks || ''
+    });
 
-  fetchTruckDetails();
-}, [location?.state?.truck?.TruckNo]);
+    setTableData(details.map(row => ({
+      detailId: row.TruckTransactionDetailsId,
+      plantName: row.PlantName,
+      loadingSlipNo: row.LoadingSlipNo,
+      qty: row.Qty,
+      priority: row.Priority,
+      remarks: row.Remarks,
+      freight: row.Freight
+    })));
+  }, [location?.state?.truckDetails]);
 
   useEffect(() => {
     axios.get(`${API_URL}/api/plants`)
@@ -754,6 +745,3 @@ useEffect(() => {
 }
 
 export default TruckTransaction;
-
-
-

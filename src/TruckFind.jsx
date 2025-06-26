@@ -220,8 +220,17 @@ export default function TruckFind() {
                       </td>
                       <td className="px-3 py-2 border border-gray-300 text-center">
                         <button
-                          className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-1 px-3 rounded mr-2 transition-all duration-200"
-                          onClick={() => navigate('/truck', { replace: true, state: { truck } })}
+                         onClick={async () => {
+  try {
+    const response = await axios.get(`${API_URL}/api/truck-transaction/${truck.truckno}`);
+    navigate('/truck', {
+      replace: true,
+      state: { truckDetails: response.data }  // Full data send
+    });
+  } catch (err) {
+    console.error('Error fetching truck details:', err);
+  }
+}}
 
                         >
                           Edit
