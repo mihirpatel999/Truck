@@ -369,7 +369,7 @@ app.post("/api/truck-transaction", async (req, res) => {
   const { formData, tableData } = req.body;
 
   try {
-    const pool = await getPool();
+
     await pool.query("BEGIN");
 
     let transactionId;
