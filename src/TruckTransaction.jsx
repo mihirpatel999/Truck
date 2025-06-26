@@ -294,6 +294,7 @@ function TruckTransaction() {
   const truckNoFromFind = location.state?.truckNo || '';
 
   const [formData, setFormData] = useState({
+   transactionId: null,   // 👈 Added this
     truckNo: '',
     transactionDate: '',
     cityName: '',
@@ -338,6 +339,8 @@ function TruckTransaction() {
       const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
       if (res.data) {
         setFormData({
+
+           transactionId: res.data.master.transactionid || null,  // 👈 Added this
           truckNo: res.data.master.truckno || '',
           transactionDate: res.data.master.transactiondate?.split('T')[0] || '',
           cityName: res.data.master.cityname || '',

@@ -365,37 +365,146 @@ app.get('/api/plantmaster/:id', async (req, res) => {
 
 ////////////////////////////////////////////////
 
+// app.post("/api/truck-transaction", async (req, res) => {
+//   const { formData, tableData } = req.body;
+
+//   try {
+
+//     await pool.query("BEGIN");
+
+//     let transactionId;
+
+//     // Step 1: Check if truck exists (case-insensitive)
+//     const checkTruck = await pool.query(
+//       `SELECT transactionid FROM trucktransactionmaster WHERE TRIM(LOWER(truckno)) = TRIM(LOWER($1))`,
+//       [formData.truckNo]
+//     );
+
+//     if (checkTruck.rows.length > 0) {
+//       transactionId = checkTruck.rows[0].transactionid;
+
+//       await pool.query(
+//         `
+//         UPDATE trucktransactionmaster SET
+//           transactiondate = $1,
+//           cityname = $2,
+//           transporter = $3,
+//           amountperton = $4,
+//           truckweight = $5,
+//           deliverpoint = $6,
+//           remarks = $7
+//         WHERE transactionid = $8
+//       `,
+//         [
+//           formData.transactionDate,
+//           formData.cityName,
+//           formData.transporter,
+//           formData.amountPerTon,
+//           formData.truckWeight,
+//           formData.deliverPoint,
+//           formData.remarks,
+//           transactionId
+//         ]
+//       );
+//     } else {
+//       const insertResult = await pool.query(
+//         `
+//         INSERT INTO trucktransactionmaster
+//           (truckno, transactiondate, cityname, transporter, amountperton, truckweight, deliverpoint, remarks, createdat)
+//         VALUES
+//           ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+//         RETURNING transactionid
+//       `,
+//         [
+//           formData.truckNo,
+//           formData.transactionDate,
+//           formData.cityName,
+//           formData.transporter,
+//           formData.amountPerTon,
+//           formData.truckWeight,
+//           formData.deliverPoint,
+//           formData.remarks
+//         ]
+//       );
+
+//       transactionId = insertResult.rows[0].transactionid;
+//     }
+
+//     // Step 2: Handle details
+//     const filteredTableData = tableData.filter(row => row.plantName && row.plantName.trim() !== "");
+
+//     // Delete existing details
+//     await pool.query(
+//       `DELETE FROM trucktransactiondetails WHERE transactionid = $1`,
+//       [transactionId]
+//     );
+
+//     // Re-insert details
+//     for (const row of filteredTableData) {
+//       const plantResult = await pool.query(
+//         `SELECT plantid FROM plantmaster WHERE LOWER(TRIM(plantname)) = LOWER(TRIM($1))`,
+//         [row.plantName]
+//       );
+
+//       const plantId = plantResult.rows[0]?.plantid;
+//       if (!plantId) throw new Error(`Plant not found: ${row.plantName}`);
+
+//       await pool.query(
+//         `
+//         INSERT INTO trucktransactiondetails
+//           (transactionid, plantid, loadingslipno, qty, priority, remarks, freight)
+//         VALUES
+//           ($1, $2, $3, $4, $5, $6, $7)
+//       `,
+//         [
+//           transactionId,
+//           plantId,
+//           row.loadingSlipNo,
+//           row.qty,
+//           row.priority,
+//           row.remarks || "",
+//           row.freight
+//         ]
+//       );
+//     }
+
+//     await pool.query("COMMIT");
+//     res.json({ success: true, transactionId });
+
+//   } catch (err) {
+//     console.error("❌ Transaction failed:", err);
+//     await pool.query("ROLLBACK");
+//     res.status(500).json({ success: false, error: err.message });
+//   }
+// });/////////////////////////////////////////working code ///////////////////////////
+
 app.post("/api/truck-transaction", async (req, res) => {
   const { formData, tableData } = req.body;
 
+  const client = await pool.connect();
+
   try {
+    await client.query("BEGIN");
 
-    await pool.query("BEGIN");
+    let transactionId = formData.transactionId;
 
-    let transactionId;
-
-    // Step 1: Check if truck exists (case-insensitive)
-    const checkTruck = await pool.query(
-      `SELECT transactionid FROM trucktransactionmaster WHERE TRIM(LOWER(truckno)) = TRIM(LOWER($1))`,
-      [formData.truckNo]
-    );
-
-    if (checkTruck.rows.length > 0) {
-      transactionId = checkTruck.rows[0].transactionid;
-
-      await pool.query(
+    if (transactionId) {
+      // Existing record - Update everything including truck number
+      await client.query(
         `
         UPDATE trucktransactionmaster SET
-          transactiondate = $1,
-          cityname = $2,
-          transporter = $3,
-          amountperton = $4,
-          truckweight = $5,
-          deliverpoint = $6,
-          remarks = $7
-        WHERE transactionid = $8
+          truckno = $1,
+          transactiondate = $2,
+          cityname = $3,
+          transporter = $4,
+          amountperton = $5,
+          truckweight = $6,
+          deliverpoint = $7,
+          remarks = $8
+        WHERE transactionid = $9
       `,
         [
+          formData.truckNo,
           formData.transactionDate,
           formData.cityName,
           formData.transporter,
@@ -407,7 +516,8 @@ app.post("/api/truck-transaction", async (req, res) => {
         ]
       );
     } else {
-      const insertResult = await pool.query(
+      // New Record - Insert
+      const insertResult = await client.query(
         `
         INSERT INTO trucktransactionmaster
           (truckno, transactiondate, cityname, transporter, amountperton, truckweight, deliverpoint, remarks, createdat)
@@ -434,14 +544,14 @@ app.post("/api/truck-transaction", async (req, res) => {
     const filteredTableData = tableData.filter(row => row.plantName && row.plantName.trim() !== "");
 
     // Delete existing details
-    await pool.query(
+    await client.query(
       `DELETE FROM trucktransactiondetails WHERE transactionid = $1`,
       [transactionId]
     );
 
     // Re-insert details
     for (const row of filteredTableData) {
-      const plantResult = await pool.query(
+      const plantResult = await client.query(
         `SELECT plantid FROM plantmaster WHERE LOWER(TRIM(plantname)) = LOWER(TRIM($1))`,
         [row.plantName]
       );
@@ -449,7 +559,7 @@ app.post("/api/truck-transaction", async (req, res) => {
       const plantId = plantResult.rows[0]?.plantid;
       if (!plantId) throw new Error(`Plant not found: ${row.plantName}`);
 
-      await pool.query(
+      await client.query(
         `
         INSERT INTO trucktransactiondetails
           (transactionid, plantid, loadingslipno, qty, priority, remarks, freight)
@@ -468,15 +578,18 @@ app.post("/api/truck-transaction", async (req, res) => {
       );
     }
 
-    await pool.query("COMMIT");
+    await client.query("COMMIT");
     res.json({ success: true, transactionId });
 
   } catch (err) {
     console.error("❌ Transaction failed:", err);
-    await pool.query("ROLLBACK");
+    await client.query("ROLLBACK");
     res.status(500).json({ success: false, error: err.message });
+  } finally {
+    client.release();
   }
 });
+
 
 
 
