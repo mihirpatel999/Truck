@@ -400,13 +400,28 @@ function TruckTransaction() {
         tableData: dataToSubmit
       });
 
-      if (response.data.success) {
-        setMessage('✅ Transaction saved successfully!');
-        setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
-        setTableData([]);
-      } else {
-        setMessage('❌ Error saving transaction.');
-      }
+      // if (response.data.success) {
+      //   setMessage('✅ Transaction saved successfully!');
+      //   setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
+      //   setTableData([]);
+      // } else {
+      //   setMessage('❌ Error saving transaction.');
+      // }//////////////////my code final////////////////////
+        if (response.data.success) {
+         navigate('/truckfind', {
+        state: {
+        refresh: true,
+        justUpdatedTruckNo: formData.truckNo,
+    },
+  });
+}
+ else {
+  setMessage('❌ Error saving transaction.');
+}
+
+
+
+
     } catch (error) {
       console.error('Submit error:', error);
       setMessage('❌ Server error while submitting data.');

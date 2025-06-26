@@ -1117,7 +1117,7 @@
 // export default Navbar;///////////////////////////////my code ///////////////////////////////////////////////
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -1126,6 +1126,7 @@ function Navbar() {
   const [dispatcherOpen, setDispatcherOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     const role = localStorage.getItem('userRole');
@@ -1138,24 +1139,28 @@ function Navbar() {
     window.location.href = "/";
   };
 
+  // Match roles exactly as stored in DB/localStorage
   const roleAccess = {
-    owner: ['plantmaster', 'usermaster', 'truck', 'gate', 'loader', 'reports', 'truckfind'],
-    admin: ['plantmaster', 'usermaster', 'truck', 'gate', 'loader', 'reports', 'truckfind'],
-    dispatch: ['truck', 'truckfind'],
-    gatekeeper: ['gate'],
-    report: ['reports'],
-    loader: ['loader'],
+    Owner: ['plantmaster', 'usermaster', 'truck', 'gate', 'loader', 'reports', 'truckfind'],
+    Admin: ['plantmaster', 'usermaster', 'truck', 'gate', 'loader', 'reports', 'truckfind'],
+    Dispatch: ['truck', 'truckfind'],
+    GateKeeper: ['gate'],
+    Report: ['reports'],
+    Loader: ['loader'],
   };
 
   const canAccess = (route) => {
     if (!userRole) return false;
-    const roles = userRole.split(',').map(r => r.trim().toLowerCase());
+    const roles = userRole.split(',').map(r => r.trim()); // no toLowerCase()
     return roles.some(role => roleAccess[role]?.includes(route));
   };
 
   const NavLink = ({ to, routeKey, children, ...props }) => (
     <Link to={to} {...props}>{children}</Link>
   );
+
+  // Hide navbar on login page
+  if (location.pathname === '/') return null;
 
   return (
     <nav className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-xl">
@@ -1264,6 +1269,7 @@ function Navbar() {
           </div>
         </div>
 
+        {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-2 space-y-2 bg-gray-800 p-6 rounded-xl shadow-2xl text-white font-medium z-50 border border-gray-700">
             {(canAccess('plantmaster') || canAccess('usermaster')) && (
