@@ -843,19 +843,14 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
   try {
     // Master Data Query
     const masterQuery = `
-      SELECT 
-        "TransactionID", 
-        "TruckNo", 
-        TO_CHAR("TransactionDate", 'YYYY-MM-DD') AS "TransactionDate", 
-        "CityName", 
-        "Transporter", 
-        "AmountPerTon", 
-        "DeliverPoint", 
-        "TruckWeight", 
-        "Remarks"
-      FROM "TruckTransactionMaster"
-      WHERE LOWER(TRIM("TruckNo")) = $1
-    `;
+  SELECT 
+    "transactionid", "truckno", "transactiondate", "cityname", 
+    "transporter", "amountperton", "deliverpoint", 
+    "truckweight", "remarks"
+  FROM trucktransactionmaster
+  WHERE TRIM(LOWER("truckno")) = TRIM(LOWER($1))
+`;
+
 
     const masterResult = await pool.query(masterQuery, [truckNo]);
 
@@ -868,18 +863,16 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
 
     // Details Data Query
     const detailQuery = `
-      SELECT 
-        d."PlantId", 
-        p."PlantName",
-        d."LoadingSlipNo", 
-        d."Qty", 
-        d."Priority", 
-        d."Remarks", 
-        d."Freight"
-      FROM "TruckTransactionDetails" d
-      LEFT JOIN "PlantMaster" p ON d."PlantId" = p."PlantId"
-      WHERE d."TransactionID" = $1
-    `;
+  SELECT 
+    d."plantid", 
+    p."plantname",
+    d."loadingslipno", d."qty", d."priority", 
+    d."remarks", d."freight"
+  FROM trucktransactiondetails d
+  LEFT JOIN plantmaster p ON d."plantid" = p."plantid"
+  WHERE d."transactionid" = $1
+`;
+
 
     const detailResult = await pool.query(detailQuery, [masterData.TransactionID]);
 
