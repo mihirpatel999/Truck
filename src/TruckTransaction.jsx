@@ -1334,7 +1334,7 @@ function TruckTransaction() {
 
 export default TruckTransaction;///////////////////////////////////////full working code//////////////////////////////////////////
 
-// import React, { useEffect, useState } from 'react';
+
 // import axios from 'axios';
 // import { useNavigate, useLocation } from 'react-router-dom';
 
