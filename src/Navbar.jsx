@@ -739,9 +739,8 @@
 // export default Navbar;
 
 
-
-// ✅ Updated Navbar (with underline removed, text white, mobile = desktop view)
-// ✅ Logout button styled attractively
+// ✅ Final Navbar with ALL underlines removed and mobile/desktop match
+// ✅ White text, hover yellow, logout attractive, dropdowns preserved
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -782,7 +781,7 @@ function Navbar() {
   };
 
   const NavLink = ({ to, children }) => (
-    <Link to={to} className="no-underline text-white hover:text-yellow-400 transition-all">
+    <Link to={to} className="text-white hover:text-yellow-400 transition-all no-underline block w-full">
       {children}
     </Link>
   );
@@ -819,7 +818,7 @@ function Navbar() {
                   Admin Master <span className="ml-1 text-sm">▼</span>
                 </button>
                 {adminOpen && (
-                  <div className="absolute mt-2 w-56 bg-gray-800 rounded-xl z-50 py-2">
+                  <div className="absolute mt-2 w-56 bg-gray-800 rounded-xl z-50 py-2 space-y-2">
                     {canAccess('plantmaster') && (
                       <NavLink to="/plantmaster">🏭 Plant Master</NavLink>
                     )}
@@ -843,7 +842,7 @@ function Navbar() {
                   Dispatcher <span className="ml-1 text-sm">▼</span>
                 </button>
                 {dispatcherOpen && (
-                  <div className="absolute mt-2 w-56 bg-gray-800 rounded-xl z-50 py-2">
+                  <div className="absolute mt-2 w-56 bg-gray-800 rounded-xl z-50 py-2 space-y-2">
                     {canAccess('truck') && (
                       <NavLink to="/truck">🚛 Truck Transaction</NavLink>
                     )}
@@ -855,15 +854,9 @@ function Navbar() {
               </div>
             )}
 
-            {canAccess('gate') && (
-              <NavLink to="/gate">🪵 Gate Keeper</NavLink>
-            )}
-            {canAccess('loader') && (
-              <NavLink to="/loader">📦 Loader</NavLink>
-            )}
-            {canAccess('reports') && (
-              <NavLink to="/reports">📊 Reports</NavLink>
-            )}
+            {canAccess('gate') && <NavLink to="/gate">🪵 Gate Keeper</NavLink>}
+            {canAccess('loader') && <NavLink to="/loader">📦 Loader</NavLink>}
+            {canAccess('reports') && <NavLink to="/reports">📊 Reports</NavLink>}
 
             <button
               onClick={handleLogout}
