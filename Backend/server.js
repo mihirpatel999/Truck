@@ -1325,16 +1325,18 @@ app.delete('/api/users/:username', async (req, res) => {
   }
 });
 
+
+// PUT /api/users/:username
 app.put('/api/users/:username', async (req, res) => {
   const { username } = req.params;
-  const { Username, Password, Role } = req.body;
+  const { username: newUsername, password, role } = req.body; // <-- lowercase here
 
   try {
     const result = await pool.query(
       `UPDATE users 
        SET username = $1, password = $2, role = $3 
        WHERE username = $4`,
-      [Username, Password, Role, username]
+      [newUsername, password, role, username]
     );
 
     if (result.rowCount === 0) {
