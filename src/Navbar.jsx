@@ -472,3 +472,241 @@
 // export default Navbar;////////////////////////////////working navbar////////////
 
 
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+function Navbar() {
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [dispatcherOpen, setDispatcherOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    const role = localStorage.getItem('userRole');
+    setUserRole(role);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    alert("You have been logged out.");
+    window.location.href = "/";
+  };
+
+  const roleAccess = {
+    Owner: ['plantmaster', 'usermaster', 'truck', 'gate', 'loader', 'reports', 'truckfind'],
+    Admin: ['plantmaster', 'usermaster', 'truck', 'gate', 'loader', 'reports', 'truckfind'],
+    Dispatch: ['truck', 'truckfind'],
+    GateKeeper: ['gate'],
+    Report: ['reports'],
+    Loader: ['loader'],
+  };
+
+  const canAccess = (route) => {
+    if (!userRole) return false;
+    const roles = userRole.split(',').map(r => r.trim());
+    return roles.some(role => roleAccess[role]?.includes(route));
+  };
+
+  const NavLink = ({ to, routeKey, children, ...props }) => (
+    <Link to={to} {...props} className="no-underline">
+      {children}
+    </Link>
+  );
+
+  if (location.pathname === '/') return null;
+
+  return (
+    <nav className="bg-black shadow-xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-20 items-center">
+          <div className="font-bold text-2xl text-white">
+            Lemon Software Gate Pass
+          </div>
+
+          <div className="md:hidden">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-white hover:text-yellow-400 focus:outline-none text-2xl transition-all duration-300 hover:scale-110"
+            >
+              ☰
+            </button>
+          </div>
+
+          <div className="hidden md:flex space-x-8 items-center font-medium text-white">
+            {(canAccess('plantmaster') || canAccess('usermaster')) && (
+              <div className="relative group">
+                <button
+                  onClick={() => {
+                    setAdminOpen(!adminOpen);
+                    if (!adminOpen) setDispatcherOpen(false);
+                  }}
+                  className="hover:text-yellow-400 flex items-center"
+                >
+                  Admin Master <span className="ml-1 text-sm">▼</span>
+                </button>
+                <div className={`absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50 ${adminOpen ? 'block' : 'hidden'}`}>
+                  {canAccess('plantmaster') && (
+                    <NavLink to="/plantmaster" routeKey="plantmaster">
+                      <span className="block px-4 py-2 text-white hover:bg-blue-600 no-underline">
+                        🏭 Plant Master
+                      </span>
+                    </NavLink>
+                  )}
+                  {canAccess('usermaster') && (
+                    <NavLink to="/usermaster" routeKey="usermaster">
+                      <span className="block px-4 py-2 text-white hover:bg-blue-600 no-underline">
+                        👤 User Master
+                      </span>
+                    </NavLink>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {(canAccess('truck') || canAccess('truckfind')) && (
+              <div className="relative group">
+                <button
+                  onClick={() => {
+                    setDispatcherOpen(!dispatcherOpen);
+                    if (!dispatcherOpen) setAdminOpen(false);
+                  }}
+                  className="hover:text-yellow-400 flex items-center"
+                >
+                  Dispatcher <span className="ml-1 text-sm">▼</span>
+                </button>
+                <div className={`absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50 ${dispatcherOpen ? 'block' : 'hidden'}`}>
+                  {canAccess('truck') && (
+                    <NavLink to="/truck" routeKey="truck">
+                      <span className="block px-4 py-2 text-white hover:bg-blue-600 no-underline">
+                        🚛 Truck Transaction
+                      </span>
+                    </NavLink>
+                  )}
+                  {canAccess('truckfind') && (
+                    <NavLink to="/truckfind" routeKey="truckfind">
+                      <span className="block px-4 py-2 text-white hover:bg-blue-600 no-underline">
+                        🔍 Truck Find
+                      </span>
+                    </NavLink>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {canAccess('gate') && (
+              <NavLink to="/gate" routeKey="gate">
+                <span className="hover:text-yellow-400 transition-all flex items-center no-underline">🚪 Gate Keeper</span>
+              </NavLink>
+            )}
+            {canAccess('loader') && (
+              <NavLink to="/loader" routeKey="loader">
+                <span className="hover:text-yellow-400 transition-all flex items-center no-underline">📦 Loader</span>
+              </NavLink>
+            )}
+            {canAccess('reports') && (
+              <NavLink to="/reports" routeKey="reports">
+                <span className="hover:text-yellow-400 transition-all flex items-center no-underline">📊 Reports</span>
+              </NavLink>
+            )}
+
+            <button
+              onClick={handleLogout}
+              className="ml-4 px-3 py-1 rounded-lg bg-red-500 hover:bg-red-600 transition text-white text-sm font-semibold"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-2 space-y-2 bg-black p-6 rounded-xl shadow-2xl text-white font-medium z-50 border border-gray-700">
+            {(canAccess('plantmaster') || canAccess('usermaster')) && (
+              <div>
+                <button
+                  onClick={() => {
+                    setAdminOpen(!adminOpen);
+                    if (!adminOpen) setDispatcherOpen(false);
+                  }}
+                  className="w-full text-left hover:text-yellow-400"
+                >
+                  👨‍💼 Admin ▼
+                </button>
+                {adminOpen && (
+                  <div className="pl-6 space-y-2 mt-2">
+                    {canAccess('plantmaster') && (
+                      <NavLink to="/plantmaster" routeKey="plantmaster">
+                        <span className="block hover:text-yellow-400 no-underline">🏭 Plant Master</span>
+                      </NavLink>
+                    )}
+                    {canAccess('usermaster') && (
+                      <NavLink to="/usermaster" routeKey="usermaster">
+                        <span className="block hover:text-yellow-400 no-underline">👤 User Master</span>
+                      </NavLink>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {(canAccess('truck') || canAccess('truckfind')) && (
+              <div>
+                <button
+                  onClick={() => {
+                    setDispatcherOpen(!dispatcherOpen);
+                    if (!dispatcherOpen) setAdminOpen(false);
+                  }}
+                  className="w-full text-left hover:text-yellow-400"
+                >
+                  🚛 Dispatcher ▼
+                </button>
+                {dispatcherOpen && (
+                  <div className="pl-6 space-y-2 mt-2">
+                    {canAccess('truck') && (
+                      <NavLink to="/truck" routeKey="truck">
+                        <span className="block hover:text-yellow-400 no-underline">📝 Truck Transaction</span>
+                      </NavLink>
+                    )}
+                    {canAccess('truckfind') && (
+                      <NavLink to="/truckfind" routeKey="truckfind">
+                        <span className="block hover:text-yellow-400 no-underline">🔍 Truck Find</span>
+                      </NavLink>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {canAccess('gate') && (
+              <NavLink to="/gate" routeKey="gate" className="block hover:text-yellow-400 no-underline">
+                🚪 Gate Keeper
+              </NavLink>
+            )}
+            {canAccess('loader') && (
+              <NavLink to="/loader" routeKey="loader" className="block hover:text-yellow-400 no-underline">
+                📦 Loader
+              </NavLink>
+            )}
+            {canAccess('reports') && (
+              <NavLink to="/reports" routeKey="reports" className="block hover:text-yellow-400 no-underline">
+                📊 Reports
+              </NavLink>
+            )}
+
+            <button
+              onClick={handleLogout}
+              className="mt-4 block w-full text-left bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg text-white"
+            >
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+export default Navbar;
