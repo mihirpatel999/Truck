@@ -636,8 +636,8 @@ function Navbar() {
         </div>
 
         {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-2 space-y-2 bg-black p-6 rounded-xl shadow-2xl text-white font-medium z-50 border border-gray-700">
+         {mobileMenuOpen && (
+          <div className="md:hidden mt-2 space-y-2 bg-gray-800 p-6 rounded-xl shadow-2xl text-white font-medium z-50 border border-gray-700">
             {(canAccess('plantmaster') || canAccess('usermaster')) && (
               <div>
                 <button
@@ -652,17 +652,13 @@ function Navbar() {
                 {adminOpen && (
                   <div className="pl-6 space-y-2 mt-2">
                     {canAccess('plantmaster') && (
-                      <NavLink to="/plantmaster" routeKey="plantmaster">
-                        <span className="block hover:text-yellow-400 no-underline">
-                          🏭 Plant Master
-                        </span>
+                      <NavLink to="/plantmaster">
+                        <span className="block hover:text-yellow-400">🏭 Plant Master</span>
                       </NavLink>
                     )}
                     {canAccess('usermaster') && (
-                      <NavLink to="/usermaster" routeKey="usermaster">
-                        <span className="block hover:text-yellow-400 no-underline">
-                          👤 User Master
-                        </span>
+                      <NavLink to="/usermaster">
+                        <span className="block hover:text-yellow-400">👤 User Master</span>
                       </NavLink>
                     )}
                   </div>
@@ -684,17 +680,13 @@ function Navbar() {
                 {dispatcherOpen && (
                   <div className="pl-6 space-y-2 mt-2">
                     {canAccess('truck') && (
-                      <NavLink to="/truck" routeKey="truck">
-                        <span className="block hover:text-yellow-400 no-underline">
-                          📝 Truck Transaction
-                        </span>
+                      <NavLink to="/truck">
+                        <span className="block hover:text-yellow-400">📝 Truck Transaction</span>
                       </NavLink>
                     )}
                     {canAccess('truckfind') && (
-                      <NavLink to="/truckfind" routeKey="truckfind">
-                        <span className="block hover:text-yellow-400 no-underline">
-                          🔍 Truck Find
-                        </span>
+                      <NavLink to="/truckfind">
+                        <span className="block hover:text-yellow-400">🔍 Truck Find</span>
                       </NavLink>
                     )}
                   </div>
@@ -703,31 +695,20 @@ function Navbar() {
             )}
 
             {canAccess('gate') && (
-              <NavLink to="/gate" routeKey="gate" className="block hover:text-yellow-400 no-underline" onClick={() => {
-                setDispatcherOpen(false);
-                setAdminOpen(false);
-              }}>
-                🚪 Gate Keeper
-              </NavLink>
+              <NavLink to="/gate" className="block hover:text-yellow-400">🚪 Gate Keeper</NavLink>
             )}
-
             {canAccess('loader') && (
-              <NavLink to="/loader" routeKey="loader" className="block hover:text-yellow-400 no-underline">
-                📦 Loader
-              </NavLink>
+              <NavLink to="/loader" className="block hover:text-yellow-400">📦 Loader</NavLink>
             )}
-
             {canAccess('reports') && (
-              <NavLink to="/reports" routeKey="reports" className="block hover:text-yellow-400 no-underline">
-                📊 Reports
-              </NavLink>
+              <NavLink to="/reports" className="block hover:text-yellow-400">📊 Reports</NavLink>
             )}
 
             <button
               onClick={handleLogout}
-              className="mt-4 w-full text-left px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-lg border border-red-700 transition duration-300 ease-in-out hover:scale-105"
+              className="mt-4 block w-full text-left bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg text-white"
             >
-              🔓 Logout
+              Logout
             </button>
           </div>
         )}
@@ -735,5 +716,6 @@ function Navbar() {
     </nav>
   );
 }
+
 
 export default Navbar;
