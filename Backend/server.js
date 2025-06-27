@@ -1175,23 +1175,24 @@ app.get('/api/truck-find', async (req, res) => {
 //   }
 // });///////////////////////////////////working code plant name nai aa raha //////////////////////////
 
-
 app.get('/api/truck-transaction/:truckNo', async (req, res) => {
   let { truckNo } = req.params;
 
+  // Sanitize truckNo
   truckNo = truckNo.trim().toLowerCase();
 
   try {
+    // Master Data Query
     const masterQuery = `
       SELECT 
-        transactionid AS "transactionId", 
-        truckno AS "truckNo", 
-        transactiondate AS "transactionDate", 
-        cityname AS "cityName", 
+        transactionid, 
+        truckno, 
+        transactiondate, 
+        cityname, 
         transporter, 
-        amountperton AS "amountPerTon", 
-        deliverpoint AS "deliverPoint", 
-        truckweight AS "truckWeight", 
+        amountperton, 
+        deliverpoint, 
+        truckweight, 
         remarks
       FROM trucktransactionmaster
       WHERE TRIM(LOWER(truckno)) = TRIM(LOWER($1))
@@ -1206,9 +1207,10 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
 
     const masterData = masterResult.rows[0];
 
+    // Details Data Query with alias for frontend mapping
     const detailQuery = `
       SELECT 
-        d.plantid AS "plantId", 
+        d.plantid, 
         p.plantname AS "plantName",
         d.loadingslipno AS "loadingSlipNo", 
         d.qty, 
@@ -1220,7 +1222,7 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
       WHERE d.transactionid = $1
     `;
 
-    const detailResult = await pool.query(detailQuery, [masterData.transactionId]);
+    const detailResult = await pool.query(detailQuery, [masterData.transactionid]);
 
     const detailsData = detailResult.rows;
 
