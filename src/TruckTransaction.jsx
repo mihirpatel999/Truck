@@ -1420,7 +1420,16 @@ function TruckTransaction() {
   };
 
   const handleEditRow = (idx) => {
-    setNewRow({ ...tableData[idx] });
+    const rowToEdit = tableData[idx];
+    setNewRow({
+      detailId: rowToEdit.detailId,
+      plantName: rowToEdit.plantName,
+      loadingSlipNo: rowToEdit.loadingSlipNo,
+      qty: rowToEdit.qty,
+      priority: rowToEdit.priority,
+      remarks: rowToEdit.remarks,
+      freight: rowToEdit.freight
+    });
     setEditingIndex(idx);
   };
 
