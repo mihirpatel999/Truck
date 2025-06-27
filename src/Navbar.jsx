@@ -652,12 +652,12 @@ function Navbar() {
                 {adminOpen && (
                   <div className="pl-6 space-y-2 mt-2">
                     {canAccess('plantmaster') && (
-                      <NavLink to="/plantmaster">
+                      <NavLink to="/plantmaster" routeKey="plantmaster">
                         <span className="block hover:text-yellow-400">🏭 Plant Master</span>
                       </NavLink>
                     )}
                     {canAccess('usermaster') && (
-                      <NavLink to="/usermaster">
+                      <NavLink to="/usermaster" routeKey="usermaster">
                         <span className="block hover:text-yellow-400">👤 User Master</span>
                       </NavLink>
                     )}
@@ -680,12 +680,12 @@ function Navbar() {
                 {dispatcherOpen && (
                   <div className="pl-6 space-y-2 mt-2">
                     {canAccess('truck') && (
-                      <NavLink to="/truck">
+                      <NavLink to="/truck" routeKey="truck">
                         <span className="block hover:text-yellow-400">📝 Truck Transaction</span>
                       </NavLink>
                     )}
                     {canAccess('truckfind') && (
-                      <NavLink to="/truckfind">
+                      <NavLink to="/truckfind" routeKey="truckfind">
                         <span className="block hover:text-yellow-400">🔍 Truck Find</span>
                       </NavLink>
                     )}
@@ -695,13 +695,19 @@ function Navbar() {
             )}
 
             {canAccess('gate') && (
-              <NavLink to="/gate" className="block hover:text-yellow-400">🚪 Gate Keeper</NavLink>
+              <NavLink to="/gate" routeKey="gate" className="block hover:text-yellow-400">
+                🚪 Gate Keeper
+              </NavLink>
             )}
             {canAccess('loader') && (
-              <NavLink to="/loader" className="block hover:text-yellow-400">📦 Loader</NavLink>
+              <NavLink to="/loader" routeKey="loader" className="block hover:text-yellow-400">
+                📦 Loader
+              </NavLink>
             )}
             {canAccess('reports') && (
-              <NavLink to="/reports" className="block hover:text-yellow-400">📊 Reports</NavLink>
+              <NavLink to="/reports" routeKey="reports" className="block hover:text-yellow-400">
+                📊 Reports
+              </NavLink>
             )}
 
             <button
@@ -716,6 +722,5 @@ function Navbar() {
     </nav>
   );
 }
-
 
 export default Navbar;
