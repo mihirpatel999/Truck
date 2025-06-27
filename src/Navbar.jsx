@@ -561,8 +561,8 @@ function Navbar() {
                       </span>
                     </NavLink>
                   )}
-                      {canAccess('usermaster') && (
-                    <NavLink to="/usermaster" routeKey="usermaster">
+                      {canAccess('userregister') && (
+                    <NavLink to="/userregister" routeKey="userregister">
                       <span className="block px-4 py-2 text-white hover:bg-blue-600 no-underline">
                         👤 User Register
                       </span>
