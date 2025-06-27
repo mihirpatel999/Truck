@@ -854,9 +854,15 @@ function Navbar() {
               </div>
             )}
 
-            {canAccess('gate') && <NavLink to="/gate">🪵 Gate Keeper</NavLink>}
-            {canAccess('loader') && <NavLink to="/loader">📦 Loader</NavLink>}
-            {canAccess('reports') && <NavLink to="/reports">📊 Reports</NavLink>}
+            {canAccess('gate') && (
+              <NavLink to="/gate">🚪 Gate Keeper</NavLink>
+            )}
+            {canAccess('loader') && (
+              <NavLink to="/loader">📦 Loader</NavLink>
+            )}
+            {canAccess('reports') && (
+              <NavLink to="/reports">📊 Reports</NavLink>
+            )}
 
             <button
               onClick={handleLogout}
@@ -909,7 +915,7 @@ function Navbar() {
               </div>
             )}
 
-            {canAccess('gate') && <NavLink to="/gate">🪵 Gate Keeper</NavLink>}
+            {canAccess('gate') && <NavLink to="/gate">🚪 Gate Keeper</NavLink>}
             {canAccess('loader') && <NavLink to="/loader">📦 Loader</NavLink>}
             {canAccess('reports') && <NavLink to="/reports">📊 Reports</NavLink>}
 
