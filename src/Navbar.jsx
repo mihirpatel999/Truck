@@ -471,7 +471,6 @@
 
 // export default Navbar;////////////////////////////////working navbar////////////
 
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -597,26 +596,41 @@ function Navbar() {
             )}
 
             {canAccess('gate') && (
-              <NavLink to="/gate" routeKey="gate">
-                <span className="hover:text-yellow-400 transition-all flex items-center no-underline">🚪 Gate Keeper</span>
+              <NavLink
+                to="/gate"
+                routeKey="gate"
+                onClick={() => {
+                  setDispatcherOpen(false);
+                  setAdminOpen(false);
+                }}
+              >
+                <span className="text-white hover:text-yellow-400 transition-all flex items-center no-underline">
+                  🚪 Gate Keeper
+                </span>
               </NavLink>
             )}
+
             {canAccess('loader') && (
               <NavLink to="/loader" routeKey="loader">
-                <span className="hover:text-yellow-400 transition-all flex items-center no-underline">📦 Loader</span>
+                <span className="text-white hover:text-yellow-400 transition-all flex items-center no-underline">
+                  📦 Loader
+                </span>
               </NavLink>
             )}
+
             {canAccess('reports') && (
               <NavLink to="/reports" routeKey="reports">
-                <span className="hover:text-yellow-400 transition-all flex items-center no-underline">📊 Reports</span>
+                <span className="text-white hover:text-yellow-400 transition-all flex items-center no-underline">
+                  📊 Reports
+                </span>
               </NavLink>
             )}
 
             <button
               onClick={handleLogout}
-              className="ml-4 px-3 py-1 rounded-lg bg-red-500 hover:bg-red-600 transition text-white text-sm font-semibold"
+              className="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-lg border border-red-700 transition duration-300 ease-in-out hover:scale-105"
             >
-              Logout
+              🔓 Logout
             </button>
           </div>
         </div>
@@ -639,12 +653,16 @@ function Navbar() {
                   <div className="pl-6 space-y-2 mt-2">
                     {canAccess('plantmaster') && (
                       <NavLink to="/plantmaster" routeKey="plantmaster">
-                        <span className="block hover:text-yellow-400 no-underline">🏭 Plant Master</span>
+                        <span className="block hover:text-yellow-400 no-underline">
+                          🏭 Plant Master
+                        </span>
                       </NavLink>
                     )}
                     {canAccess('usermaster') && (
                       <NavLink to="/usermaster" routeKey="usermaster">
-                        <span className="block hover:text-yellow-400 no-underline">👤 User Master</span>
+                        <span className="block hover:text-yellow-400 no-underline">
+                          👤 User Master
+                        </span>
                       </NavLink>
                     )}
                   </div>
@@ -667,12 +685,16 @@ function Navbar() {
                   <div className="pl-6 space-y-2 mt-2">
                     {canAccess('truck') && (
                       <NavLink to="/truck" routeKey="truck">
-                        <span className="block hover:text-yellow-400 no-underline">📝 Truck Transaction</span>
+                        <span className="block hover:text-yellow-400 no-underline">
+                          📝 Truck Transaction
+                        </span>
                       </NavLink>
                     )}
                     {canAccess('truckfind') && (
                       <NavLink to="/truckfind" routeKey="truckfind">
-                        <span className="block hover:text-yellow-400 no-underline">🔍 Truck Find</span>
+                        <span className="block hover:text-yellow-400 no-underline">
+                          🔍 Truck Find
+                        </span>
                       </NavLink>
                     )}
                   </div>
@@ -681,15 +703,20 @@ function Navbar() {
             )}
 
             {canAccess('gate') && (
-              <NavLink to="/gate" routeKey="gate" className="block hover:text-yellow-400 no-underline">
+              <NavLink to="/gate" routeKey="gate" className="block hover:text-yellow-400 no-underline" onClick={() => {
+                setDispatcherOpen(false);
+                setAdminOpen(false);
+              }}>
                 🚪 Gate Keeper
               </NavLink>
             )}
+
             {canAccess('loader') && (
               <NavLink to="/loader" routeKey="loader" className="block hover:text-yellow-400 no-underline">
                 📦 Loader
               </NavLink>
             )}
+
             {canAccess('reports') && (
               <NavLink to="/reports" routeKey="reports" className="block hover:text-yellow-400 no-underline">
                 📊 Reports
@@ -698,9 +725,9 @@ function Navbar() {
 
             <button
               onClick={handleLogout}
-              className="mt-4 block w-full text-left bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg text-white"
+              className="mt-4 w-full text-left px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-lg border border-red-700 transition duration-300 ease-in-out hover:scale-105"
             >
-              Logout
+              🔓 Logout
             </button>
           </div>
         )}
