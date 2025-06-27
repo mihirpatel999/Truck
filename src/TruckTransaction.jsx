@@ -282,549 +282,305 @@
 
 
 
-// import React, { useEffect, useState } from 'react';
-// import axios from 'axios';
-// import { useLocation } from 'react-router-dom';
-// import CancelButton from './CancelButton';
-
-// const API_URL = import.meta.env.VITE_API_URL;
-
-// function TruckTransaction() {
-//   const location = useLocation();
-//   const truckNoFromFind = location.state?.truckNo || '';
-
-//   const [formData, setFormData] = useState({
-//    transactionId: null,   // 👈 Added this
-//     truckNo: '',
-//     transactionDate: '',
-//     cityName: '',
-//     transporter: '',
-//     amountPerTon: '',
-//     truckWeight: '',
-//     deliverPoint: '',
-//     remarks: ''
-//   });
-
-//   const [plantList, setPlantList] = useState([]);
-//   const [tableData, setTableData] = useState([]);
-//   const [newRow, setNewRow] = useState({
-//     plantName: '',
-//     loadingSlipNo: '',
-//     qty: '',
-//     priority: '',
-//     remarks: '',
-//     freight: 'To Pay'
-//   });
-
-//   const [message, setMessage] = useState('');
-
-//   useEffect(() => {
-//     axios.get(`${API_URL}/api/plants`)
-//       .then(res => setPlantList(res.data))
-//       .catch(err => {
-//         setPlantList([]);
-//         console.error('Error fetching plants:', err);
-//       });
-//   }, []);
-
-//   useEffect(() => {
-//     if (truckNoFromFind) {
-//       setFormData((prev) => ({ ...prev, truckNo: truckNoFromFind }));
-//       fetchTruckDetails(truckNoFromFind);
-//     }
-//   }, [truckNoFromFind]);
-
-//   const fetchTruckDetails = async (truckNo) => {
-//     try {
-//       const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
-//       if (res.data) {
-//         setFormData({
-
-//            transactionId: res.data.master.transactionid || null,  // 👈 Added this
-//           truckNo: res.data.master.truckno || '',
-//           transactionDate: res.data.master.transactiondate?.split('T')[0] || '',
-//           cityName: res.data.master.cityname || '',
-//           transporter: res.data.master.transporter || '',
-//           amountPerTon: res.data.master.amountperton || '',
-//           truckWeight: res.data.master.truckweight || '',
-//           deliverPoint: res.data.master.deliverpoint || '',
-//           remarks: res.data.master.remarks || ''
-//         });
-//         setTableData(res.data.details || []);
-//       }
-//     } catch (err) {
-//       console.error('Error loading truck details:', err);
-//       alert('Failed to load truck details.');
-//     }
-//   };
-
-//   const handleChange = (e) => {
-//     setFormData({ ...formData, [e.target.name]: e.target.value.trim() });
-//   };
-
-//   const handleNewRowChange = (e) => {
-//     const { name, value } = e.target;
-//     setNewRow((prev) => ({
-//       ...prev,
-//       [name]: value.trim(),
-//     }));
-//   };
-
-//   const addRow = () => {
-//     const { plantName, loadingSlipNo, qty } = newRow;
-
-//     if (!plantName || !loadingSlipNo || !qty) {
-//       alert("❌ Please fill in Plant Name, Loading Slip No, and Quantity.");
-//       return;
-//     }
-
-//     if (isNaN(qty) || Number(qty) <= 0) {
-//       alert("❌ Quantity must be a positive number.");
-//       return;
-//     }
-
-//     const isDuplicate = tableData.some(row =>
-//       row.plantName === plantName && row.loadingSlipNo === loadingSlipNo
-//     );
-
-//     if (isDuplicate) {
-//       alert("❌ Duplicate loading slip for this plant.");
-//       return;
-//     }
-
-//     setTableData((prevData) => [...prevData, newRow]);
-
-//     setNewRow({
-//       plantName: '',
-//       loadingSlipNo: '',
-//       qty: '',
-//       priority: '',
-//       remarks: '',
-//       freight: 'To Pay',
-//     });
-//   };
-
-//   const handleDeleteRow = (index) => {
-//     setTableData(prev => prev.filter((_, i) => i !== index));
-//   };
-
-//   const handleSubmit = async () => {
-//     let finalTableData = [...tableData];
-
-//     const isNewRowFilled =
-//       newRow.plantName || newRow.loadingSlipNo || newRow.qty || newRow.priority || newRow.remarks;
-
-//     if (isNewRowFilled) {
-//       finalTableData.push(newRow);
-//     }
-
-//     if (!formData.truckNo || !formData.transactionDate) {
-//       return setMessage("❌ Truck No and Transaction Date are required.");
-//     }
-
-//     try {
-//       const response = await axios.post(`${API_URL}/api/truck-transaction`, {
-//         formData,
-//         tableData: finalTableData,
-//       });
-
-//       if (response.data.success) {
-//         setMessage("✅ Transaction saved successfully!");
-//         setFormData({
-//           truckNo: '',
-//           transactionDate: '',
-//           cityName: '',
-//           transporter: '',
-//           amountPerTon: '',
-//           truckWeight: '',
-//           deliverPoint: '',
-//           remarks: ''
-//         });
-//         setTableData([]);
-//         setNewRow({
-//           plantName: '',
-//           loadingSlipNo: '',
-//           qty: '',
-//           priority: '',
-//           remarks: '',
-//           freight: 'To Pay'
-//         });
-//       }
-//     } catch (error) {
-//       console.error("Submit error:", error);
-//       alert(error.response?.data?.message || "Failed to submit data.");
-//     }
-//   };
-
-//   const getPlantName = (plant) => plant.PlantName || plant.plantname || plant.plant_name || plant || '';
-
-//   return (
-//     <div className="p-4 md:p-10 bg-gray-100 min-h-screen">
-//       <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6">
-//         <CancelButton />
-//         <h1 className="text-2xl font-bold text-center mb-6">Truck Transaction</h1>
-
-//         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-//           <div>
-//             <label className="block font-medium">Truck No</label>
-//             <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border rounded px-2 py-1" />
-//           </div>
-//           <div>
-//             <label className="block font-medium">Transaction Date</label>
-//             <input type="date" name="transactionDate" value={formData.transactionDate} onChange={handleChange} className="w-full border rounded px-2 py-1" />
-//           </div>
-//           <div>
-//             <label className="block font-medium">City Name</label>
-//             <input name="cityName" value={formData.cityName} onChange={handleChange} className="w-full border rounded px-2 py-1" />
-//           </div>
-//           <div>
-//             <label className="block font-medium">Transporter</label>
-//             <input name="transporter" value={formData.transporter} onChange={handleChange} className="w-full border rounded px-2 py-1" />
-//           </div>
-//         </div>
-
-//         <h3 className="text-lg font-semibold mt-6 mb-2">Loading Details</h3>
-//         <div className="overflow-x-auto">
-//           <table className="w-full border text-sm text-left">
-//             <thead className="bg-yellow-200">
-//               <tr>
-//                 <th className="border px-2 py-1">Plant</th>
-//                 <th className="border px-2 py-1">Slip No</th>
-//                 <th className="border px-2 py-1">Qty</th>
-//                 <th className="border px-2 py-1">Priority</th>
-//                 <th className="border px-2 py-1">Remarks</th>
-//                 <th className="border px-2 py-1">Freight</th>
-//                 <th className="border px-2 py-1">Action</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {tableData.map((row, i) => (
-//                 <tr key={i}>
-//                   <td className="border px-2 py-1">{row.plantName}</td>
-//                   <td className="border px-2 py-1">{row.loadingSlipNo}</td>
-//                   <td className="border px-2 py-1">{row.qty}</td>
-//                   <td className="border px-2 py-1">{row.priority}</td>
-//                   <td className="border px-2 py-1">{row.remarks}</td>
-//                   <td className="border px-2 py-1">{row.freight}</td>
-//                   <td className="border px-2 py-1 text-center">
-//                     <button onClick={() => handleDeleteRow(i)} className="text-red-600 hover:underline">Delete</button>
-//                   </td>
-//                 </tr>
-//               ))}
-//               <tr>
-//                 <td className="border px-2 py-1">
-//                   <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange} className="w-full border rounded px-1">
-//                     <option value="">Select</option>
-//                     {plantList.length === 0 ? (
-//                       <option value="" disabled>No plants found</option>
-//                     ) : (
-//                       [...new Set(plantList.map(getPlantName))]
-//                         .filter(name => !!name)
-//                         .map((name, i) => (
-//                           <option key={i} value={name}>{name}</option>
-//                         ))
-//                     )}
-//                   </select>
-//                 </td>
-//                 <td className="border px-2 py-1">
-//                   <input name="loadingSlipNo" value={newRow.loadingSlipNo} onChange={handleNewRowChange} className="w-full border rounded px-1" />
-//                 </td>
-//                 <td className="border px-2 py-1">
-//                   <input type="number" name="qty" value={newRow.qty} onChange={handleNewRowChange} className="w-full border rounded px-1" />
-//                 </td>
-//                 <td className="border px-2 py-1">
-//                   <input name="priority" value={newRow.priority} onChange={handleNewRowChange} className="w-full border rounded px-1" />
-//                 </td>
-//                 <td className="border px-2 py-1">
-//                   <input name="remarks" value={newRow.remarks} onChange={handleNewRowChange} className="w-full border rounded px-1" />
-//                 </td>
-//                 <td className="border px-2 py-1">
-//                   <select name="freight" value={newRow.freight} onChange={handleNewRowChange} className="w-full border rounded px-1">
-//                     <option value="To Pay">To Pay</option>
-//                     <option value="Paid">Paid</option>
-//                   </select>
-//                 </td>
-//                 <td className="border px-2 py-1 text-center text-gray-400">---</td>
-//               </tr>
-//             </tbody>
-//           </table>
-//         </div>
-
-//         <div className="mt-2">
-//           <button type="button" onClick={addRow} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Add Row</button>
-//         </div>
-
-//         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-//           <div>
-//             <label className="block font-medium">Amount Per Ton</label>
-//             <input type="number" name="amountPerTon" value={formData.amountPerTon} onChange={handleChange} className="w-full border rounded px-2 py-1" />
-//           </div>
-//           <div>
-//             <label className="block font-medium">Deliver Point</label>
-//             <input name="deliverPoint" value={formData.deliverPoint} onChange={handleChange} className="w-full border rounded px-2 py-1" />
-//           </div>
-//           <div>
-//             <label className="block font-medium">Truck Weight (In Ton)</label>
-//             <input type="number" name="truckWeight" value={formData.truckWeight} onChange={handleChange} className="w-full border rounded px-2 py-1" />
-//           </div>
-//         </div>
-
-//         <div className="mt-4">
-//           <label className="block font-medium">Remarks</label>
-//           <textarea name="remarks" value={formData.remarks} onChange={handleChange} className="w-full border rounded px-2 py-1" rows="4"></textarea>
-//         </div>
-
-//         <div className="text-center mt-6">
-//           <button type="button" onClick={handleSubmit} className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">Submit</button>
-//         </div>
-
-//         {message && (
-//           <p className="mt-4 text-center text-lg text-blue-600">{message}</p>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default TruckTransaction;
-
-
-
-
-// *********************************
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
-import './TruckTransaction.css';
+import { useLocation } from 'react-router-dom';
+import CancelButton from './CancelButton';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 function TruckTransaction() {
-  const navigate = useNavigate();
   const location = useLocation();
+  const truckNoFromFind = location.state?.truckNo || '';
 
   const [formData, setFormData] = useState({
-    truckNo: '', transactionDate: '', cityName: '', transporter: '',
-    amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: ''
+   transactionId: null,   // 👈 Added this
+    truckNo: '',
+    transactionDate: '',
+    cityName: '',
+    transporter: '',
+    amountPerTon: '',
+    truckWeight: '',
+    deliverPoint: '',
+    remarks: ''
   });
 
   const [plantList, setPlantList] = useState([]);
   const [tableData, setTableData] = useState([]);
-  const [editingIndex, setEditingIndex] = useState(null);
   const [newRow, setNewRow] = useState({
-    detailId: null, plantName: '', loadingSlipNo: '', qty: '',
-    priority: '', remarks: '', freight: 'To Pay'
+    plantName: '',
+    loadingSlipNo: '',
+    qty: '',
+    priority: '',
+    remarks: '',
+    freight: 'To Pay'
   });
+
   const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    const truckNo = location?.state?.truck?.TruckNo;
-    if (!truckNo) return;
-
-    const fetchTruckDetails = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
-        const { master, details } = res.data;
-
-        setFormData({
-          truckNo: master.TruckNo || '',
-          transactionDate: master.TransactionDate?.split('T')[0] || '',
-          cityName: master.CityName || '',
-          transporter: master.Transporter || '',
-          amountPerTon: master.AmountPerTon || '',
-          truckWeight: master.TruckWeight || '',
-          deliverPoint: master.DeliverPoint || '',
-          remarks: master.Remarks || ''
-        });
-
-        setTableData(details.map(row => ({
-          detailId: row.TruckTransactionDetailsId,
-          plantName: row.PlantName,
-          loadingSlipNo: row.LoadingSlipNo,
-          qty: row.Qty,
-          priority: row.Priority,
-          remarks: row.Remarks,
-          freight: row.Freight
-        })));
-      } catch (err) {
-        console.error('Error loading truck details:', err);
-      }
-    };
-
-    fetchTruckDetails();
-  }, [location?.state?.truck]);
 
   useEffect(() => {
     axios.get(`${API_URL}/api/plants`)
       .then(res => setPlantList(res.data))
-      .catch(err => console.error('Error fetching plants:', err));
+      .catch(err => {
+        setPlantList([]);
+        console.error('Error fetching plants:', err);
+      });
   }, []);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-  const handleNewRowChange = (e) => setNewRow({ ...newRow, [e.target.name]: e.target.value });
+  useEffect(() => {
+    if (truckNoFromFind) {
+      setFormData((prev) => ({ ...prev, truckNo: truckNoFromFind }));
+      fetchTruckDetails(truckNoFromFind);
+    }
+  }, [truckNoFromFind]);
 
-  const addOrUpdateRow = () => {
-    if (!newRow.plantName || !newRow.loadingSlipNo || !newRow.qty) return;
+  const fetchTruckDetails = async (truckNo) => {
+    try {
+      const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
+      if (res.data) {
+        setFormData({
 
-    if (editingIndex !== null) {
-      const updated = [...tableData];
-      updated[editingIndex] = { ...newRow };
-      setTableData(updated);
-      setEditingIndex(null);
-    } else {
-      setTableData([...tableData, { ...newRow, detailId: null }]);
+           transactionId: res.data.master.transactionid || null,  // 👈 Added this
+          truckNo: res.data.master.truckno || '',
+          transactionDate: res.data.master.transactiondate?.split('T')[0] || '',
+          cityName: res.data.master.cityname || '',
+          transporter: res.data.master.transporter || '',
+          amountPerTon: res.data.master.amountperton || '',
+          truckWeight: res.data.master.truckweight || '',
+          deliverPoint: res.data.master.deliverpoint || '',
+          remarks: res.data.master.remarks || ''
+        });
+        setTableData(res.data.details || []);
+      }
+    } catch (err) {
+      console.error('Error loading truck details:', err);
+      alert('Failed to load truck details.');
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value.trim() });
+  };
+
+  const handleNewRowChange = (e) => {
+    const { name, value } = e.target;
+    setNewRow((prev) => ({
+      ...prev,
+      [name]: value.trim(),
+    }));
+  };
+
+  const addRow = () => {
+    const { plantName, loadingSlipNo, qty } = newRow;
+
+    if (!plantName || !loadingSlipNo || !qty) {
+      alert("❌ Please fill in Plant Name, Loading Slip No, and Quantity.");
+      return;
     }
 
+    if (isNaN(qty) || Number(qty) <= 0) {
+      alert("❌ Quantity must be a positive number.");
+      return;
+    }
+
+    const isDuplicate = tableData.some(row =>
+      row.plantName === plantName && row.loadingSlipNo === loadingSlipNo
+    );
+
+    if (isDuplicate) {
+      alert("❌ Duplicate loading slip for this plant.");
+      return;
+    }
+
+    setTableData((prevData) => [...prevData, newRow]);
+
     setNewRow({
-      detailId: null, plantName: '', loadingSlipNo: '', qty: '',
-      priority: '', remarks: '', freight: 'To Pay'
+      plantName: '',
+      loadingSlipNo: '',
+      qty: '',
+      priority: '',
+      remarks: '',
+      freight: 'To Pay',
     });
   };
 
-  const handleEditRow = (idx) => {
-    setNewRow({ ...tableData[idx] });
-    setEditingIndex(idx);
-  };
-
-  const handleDeleteRow = (idx) => {
-    const updated = tableData.filter((_, i) => i !== idx);
-    setTableData(updated);
-    setEditingIndex(null);
-    setNewRow({
-      detailId: null, plantName: '', loadingSlipNo: '', qty: '',
-      priority: '', remarks: '', freight: 'To Pay'
-    });
+  const handleDeleteRow = (index) => {
+    setTableData(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async () => {
+    let finalTableData = [...tableData];
+
+    const isNewRowFilled =
+      newRow.plantName || newRow.loadingSlipNo || newRow.qty || newRow.priority || newRow.remarks;
+
+    if (isNewRowFilled) {
+      finalTableData.push(newRow);
+    }
+
+    if (!formData.truckNo || !formData.transactionDate) {
+      return setMessage("❌ Truck No and Transaction Date are required.");
+    }
+
     try {
-      let dataToSubmit = [...tableData];
-      const isNewRowFilled = Object.values(newRow).some(val => val && val.trim?.() !== '');
-
-      if (isNewRowFilled) {
-        dataToSubmit.push({ ...newRow, detailId: null });
-      }
-
       const response = await axios.post(`${API_URL}/api/truck-transaction`, {
         formData,
-        tableData: dataToSubmit
+        tableData: finalTableData,
       });
 
-      // if (response.data.success) {
-      //   setMessage('✅ Transaction saved successfully!');
-      //   setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
-      //   setTableData([]);
-      // } else {
-      //   setMessage('❌ Error saving transaction.');
-      // }//////////////////my code final////////////////////
-        if (response.data.success) {
-         navigate('/truckfind', {
-        state: {
-        refresh: true,
-        justUpdatedTruckNo: formData.truckNo,
-    },
-  });
-}
- else {
-  setMessage('❌ Error saving transaction.');
-}
-
-
-
-
+      if (response.data.success) {
+        setMessage("✅ Transaction saved successfully!");
+        setFormData({
+          truckNo: '',
+          transactionDate: '',
+          cityName: '',
+          transporter: '',
+          amountPerTon: '',
+          truckWeight: '',
+          deliverPoint: '',
+          remarks: ''
+        });
+        setTableData([]);
+        setNewRow({
+          plantName: '',
+          loadingSlipNo: '',
+          qty: '',
+          priority: '',
+          remarks: '',
+          freight: 'To Pay'
+        });
+      }
     } catch (error) {
-      console.error('Submit error:', error);
-      setMessage('❌ Server error while submitting data.');
+      console.error("Submit error:", error);
+      alert(error.response?.data?.message || "Failed to submit data.");
     }
   };
 
+  const getPlantName = (plant) => plant.PlantName || plant.plantname || plant.plant_name || plant || '';
+
   return (
-    <div className="truck-transaction-container">
-      <div className="truck-transaction-card">
-        <h1 className="truck-transaction-title">Truck Transaction</h1>
+    <div className="p-4 md:p-10 bg-gray-100 min-h-screen">
+      <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6">
+        <CancelButton />
+        <h1 className="text-2xl font-bold text-center mb-6">Truck Transaction</h1>
 
-        <div className="truck-transaction-form-grid">
-          {[{ label: 'Truck No', name: 'truckNo' },
-            { label: 'Transaction Date', name: 'transactionDate', type: 'date' },
-            { label: 'City Name', name: 'cityName' },
-            { label: 'Transporter', name: 'transporter' }
-          ].map(({ label, name, type = 'text' }) => (
-            <div key={name}>
-              <label className="truck-transaction-label">{label}</label>
-              <input type={type} name={name} value={formData[name]} onChange={handleChange} className="truck-transaction-input" />
-            </div>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label className="block font-medium">Truck No</label>
+            <input name="truckNo" value={formData.truckNo} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+          <div>
+            <label className="block font-medium">Transaction Date</label>
+            <input type="date" name="transactionDate" value={formData.transactionDate} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+          <div>
+            <label className="block font-medium">City Name</label>
+            <input name="cityName" value={formData.cityName} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+          <div>
+            <label className="block font-medium">Transporter</label>
+            <input name="transporter" value={formData.transporter} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
         </div>
 
-        <table className="truck-transaction-table">
-          <thead>
-            <tr>
-              <th>Plant</th><th>Slip No</th><th>Qty</th><th>Priority</th><th>Remarks</th><th>Freight</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tableData.map((row, idx) => (
-              <tr key={idx}>
-                <td>{row.plantName}</td>
-                <td>{row.loadingSlipNo}</td>
-                <td>{row.qty}</td>
-                <td>{row.priority}</td>
-                <td>{row.remarks}</td>
-                <td>{row.freight}</td>
-                <td>
-                  <div className="truck-transaction-action-group">
-                    <button className="truck-transaction-btn edit" onClick={() => handleEditRow(idx)}>Edit</button>
-                    <button className="truck-transaction-btn delete" onClick={() => handleDeleteRow(idx)}>Delete</button>
-                  </div>
-                </td>
+        <h3 className="text-lg font-semibold mt-6 mb-2">Loading Details</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full border text-sm text-left">
+            <thead className="bg-yellow-200">
+              <tr>
+                <th className="border px-2 py-1">Plant</th>
+                <th className="border px-2 py-1">Slip No</th>
+                <th className="border px-2 py-1">Qty</th>
+                <th className="border px-2 py-1">Priority</th>
+                <th className="border px-2 py-1">Remarks</th>
+                <th className="border px-2 py-1">Freight</th>
+                <th className="border px-2 py-1">Action</th>
               </tr>
-            ))}
-            <tr>
-              <td>
-                <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange} className="truck-transaction-select">
-                  <option value="">Select</option>
-                  {plantList.map((p, i) => (
-                    <option key={i} value={p.PlantName}>{p.PlantName}</option>
-                  ))}
-                </select>
-              </td>
-              {["loadingSlipNo", "qty", "priority", "remarks"].map((name) => (
-                <td key={name}>
-                  <input name={name} value={newRow[name]} onChange={handleNewRowChange} className="truck-transaction-input" />
-                </td>
+            </thead>
+            <tbody>
+              {tableData.map((row, i) => (
+                <tr key={i}>
+                  <td className="border px-2 py-1">{row.plantName}</td>
+                  <td className="border px-2 py-1">{row.loadingSlipNo}</td>
+                  <td className="border px-2 py-1">{row.qty}</td>
+                  <td className="border px-2 py-1">{row.priority}</td>
+                  <td className="border px-2 py-1">{row.remarks}</td>
+                  <td className="border px-2 py-1">{row.freight}</td>
+                  <td className="border px-2 py-1 text-center">
+                    <button onClick={() => handleDeleteRow(i)} className="text-red-600 hover:underline">Delete</button>
+                  </td>
+                </tr>
               ))}
-              <td>
-                <select name="freight" value={newRow.freight} onChange={handleNewRowChange} className="truck-transaction-select">
-                  <option value="To Pay">To Pay</option>
-                  <option value="Paid">Paid</option>
-                </select>
-              </td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
-
-        <button className="truck-transaction-btn edit" onClick={addOrUpdateRow}>
-          {editingIndex !== null ? 'Update Row' : 'Add Row'}
-        </button>
-
-        <div className="truck-transaction-form-grid">
-          {[{ label: 'Amount Per Ton', name: 'amountPerTon' },
-            { label: 'Deliver Point', name: 'deliverPoint' },
-            { label: 'Truck Weight (In Ton)', name: 'truckWeight' }
-          ].map(({ label, name }) => (
-            <div key={name}>
-              <label className="truck-transaction-label">{label}</label>
-              <input name={name} value={formData[name]} onChange={handleChange} className="truck-transaction-input" />
-            </div>
-          ))}
+              <tr>
+                <td className="border px-2 py-1">
+                  <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange} className="w-full border rounded px-1">
+                    <option value="">Select</option>
+                    {plantList.length === 0 ? (
+                      <option value="" disabled>No plants found</option>
+                    ) : (
+                      [...new Set(plantList.map(getPlantName))]
+                        .filter(name => !!name)
+                        .map((name, i) => (
+                          <option key={i} value={name}>{name}</option>
+                        ))
+                    )}
+                  </select>
+                </td>
+                <td className="border px-2 py-1">
+                  <input name="loadingSlipNo" value={newRow.loadingSlipNo} onChange={handleNewRowChange} className="w-full border rounded px-1" />
+                </td>
+                <td className="border px-2 py-1">
+                  <input type="number" name="qty" value={newRow.qty} onChange={handleNewRowChange} className="w-full border rounded px-1" />
+                </td>
+                <td className="border px-2 py-1">
+                  <input name="priority" value={newRow.priority} onChange={handleNewRowChange} className="w-full border rounded px-1" />
+                </td>
+                <td className="border px-2 py-1">
+                  <input name="remarks" value={newRow.remarks} onChange={handleNewRowChange} className="w-full border rounded px-1" />
+                </td>
+                <td className="border px-2 py-1">
+                  <select name="freight" value={newRow.freight} onChange={handleNewRowChange} className="w-full border rounded px-1">
+                    <option value="To Pay">To Pay</option>
+                    <option value="Paid">Paid</option>
+                  </select>
+                </td>
+                <td className="border px-2 py-1 text-center text-gray-400">---</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <label className="truck-transaction-label">Remarks</label>
-        <textarea name="remarks" value={formData.remarks} onChange={handleChange} rows="3" className="truck-transaction-textarea" />
+        <div className="mt-2">
+          <button type="button" onClick={addRow} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Add Row</button>
+        </div>
 
-        <button className="truck-transaction-btn edit" onClick={handleSubmit}>Submit</button>
-        {message && <p className="truck-transaction-message">{message}</p>}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div>
+            <label className="block font-medium">Amount Per Ton</label>
+            <input type="number" name="amountPerTon" value={formData.amountPerTon} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+          <div>
+            <label className="block font-medium">Deliver Point</label>
+            <input name="deliverPoint" value={formData.deliverPoint} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+          <div>
+            <label className="block font-medium">Truck Weight (In Ton)</label>
+            <input type="number" name="truckWeight" value={formData.truckWeight} onChange={handleChange} className="w-full border rounded px-2 py-1" />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <label className="block font-medium">Remarks</label>
+          <textarea name="remarks" value={formData.remarks} onChange={handleChange} className="w-full border rounded px-2 py-1" rows="4"></textarea>
+        </div>
+
+        <div className="text-center mt-6">
+          <button type="button" onClick={handleSubmit} className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">Submit</button>
+        </div>
+
+        {message && (
+          <p className="mt-4 text-center text-lg text-blue-600">{message}</p>
+        )}
       </div>
     </div>
   );
@@ -832,7 +588,251 @@ function TruckTransaction() {
 
 export default TruckTransaction;
 
-///////////////////  final code //////////////////////
+
+
+
+// *********************************
+// import React, { useEffect, useState } from 'react';
+// import axios from 'axios';
+// import { useNavigate, useLocation } from 'react-router-dom';
+// import './TruckTransaction.css';
+
+// const API_URL = import.meta.env.VITE_API_URL;
+
+// function TruckTransaction() {
+//   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   const [formData, setFormData] = useState({
+//     truckNo: '', transactionDate: '', cityName: '', transporter: '',
+//     amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: ''
+//   });
+
+//   const [plantList, setPlantList] = useState([]);
+//   const [tableData, setTableData] = useState([]);
+//   const [editingIndex, setEditingIndex] = useState(null);
+//   const [newRow, setNewRow] = useState({
+//     detailId: null, plantName: '', loadingSlipNo: '', qty: '',
+//     priority: '', remarks: '', freight: 'To Pay'
+//   });
+//   const [message, setMessage] = useState('');
+
+//   useEffect(() => {
+//     const truckNo = location?.state?.truck?.TruckNo;
+//     if (!truckNo) return;
+
+//     const fetchTruckDetails = async () => {
+//       try {
+//         const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
+//         const { master, details } = res.data;
+
+//         setFormData({
+//           truckNo: master.TruckNo || '',
+//           transactionDate: master.TransactionDate?.split('T')[0] || '',
+//           cityName: master.CityName || '',
+//           transporter: master.Transporter || '',
+//           amountPerTon: master.AmountPerTon || '',
+//           truckWeight: master.TruckWeight || '',
+//           deliverPoint: master.DeliverPoint || '',
+//           remarks: master.Remarks || ''
+//         });
+
+//         setTableData(details.map(row => ({
+//           detailId: row.TruckTransactionDetailsId,
+//           plantName: row.PlantName,
+//           loadingSlipNo: row.LoadingSlipNo,
+//           qty: row.Qty,
+//           priority: row.Priority,
+//           remarks: row.Remarks,
+//           freight: row.Freight
+//         })));
+//       } catch (err) {
+//         console.error('Error loading truck details:', err);
+//       }
+//     };
+
+//     fetchTruckDetails();
+//   }, [location?.state?.truck]);
+
+//   useEffect(() => {
+//     axios.get(`${API_URL}/api/plants`)
+//       .then(res => setPlantList(res.data))
+//       .catch(err => console.error('Error fetching plants:', err));
+//   }, []);
+
+//   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+//   const handleNewRowChange = (e) => setNewRow({ ...newRow, [e.target.name]: e.target.value });
+
+//   const addOrUpdateRow = () => {
+//     if (!newRow.plantName || !newRow.loadingSlipNo || !newRow.qty) return;
+
+//     if (editingIndex !== null) {
+//       const updated = [...tableData];
+//       updated[editingIndex] = { ...newRow };
+//       setTableData(updated);
+//       setEditingIndex(null);
+//     } else {
+//       setTableData([...tableData, { ...newRow, detailId: null }]);
+//     }
+
+//     setNewRow({
+//       detailId: null, plantName: '', loadingSlipNo: '', qty: '',
+//       priority: '', remarks: '', freight: 'To Pay'
+//     });
+//   };
+
+//   const handleEditRow = (idx) => {
+//     setNewRow({ ...tableData[idx] });
+//     setEditingIndex(idx);
+//   };
+
+//   const handleDeleteRow = (idx) => {
+//     const updated = tableData.filter((_, i) => i !== idx);
+//     setTableData(updated);
+//     setEditingIndex(null);
+//     setNewRow({
+//       detailId: null, plantName: '', loadingSlipNo: '', qty: '',
+//       priority: '', remarks: '', freight: 'To Pay'
+//     });
+//   };
+
+//   const handleSubmit = async () => {
+//     try {
+//       let dataToSubmit = [...tableData];
+//       const isNewRowFilled = Object.values(newRow).some(val => val && val.trim?.() !== '');
+
+//       if (isNewRowFilled) {
+//         dataToSubmit.push({ ...newRow, detailId: null });
+//       }
+
+//       const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+//         formData,
+//         tableData: dataToSubmit
+//       });
+
+//       // if (response.data.success) {
+//       //   setMessage('✅ Transaction saved successfully!');
+//       //   setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
+//       //   setTableData([]);
+//       // } else {
+//       //   setMessage('❌ Error saving transaction.');
+//       // }//////////////////my code final////////////////////
+//         if (response.data.success) {
+//          navigate('/truckfind', {
+//         state: {
+//         refresh: true,
+//         justUpdatedTruckNo: formData.truckNo,
+//     },
+//   });
+// }
+//  else {
+//   setMessage('❌ Error saving transaction.');
+// }
+
+
+
+
+//     } catch (error) {
+//       console.error('Submit error:', error);
+//       setMessage('❌ Server error while submitting data.');
+//     }
+//   };
+
+//   return (
+//     <div className="truck-transaction-container">
+//       <div className="truck-transaction-card">
+//         <h1 className="truck-transaction-title">Truck Transaction</h1>
+
+//         <div className="truck-transaction-form-grid">
+//           {[{ label: 'Truck No', name: 'truckNo' },
+//             { label: 'Transaction Date', name: 'transactionDate', type: 'date' },
+//             { label: 'City Name', name: 'cityName' },
+//             { label: 'Transporter', name: 'transporter' }
+//           ].map(({ label, name, type = 'text' }) => (
+//             <div key={name}>
+//               <label className="truck-transaction-label">{label}</label>
+//               <input type={type} name={name} value={formData[name]} onChange={handleChange} className="truck-transaction-input" />
+//             </div>
+//           ))}
+//         </div>
+
+//         <table className="truck-transaction-table">
+//           <thead>
+//             <tr>
+//               <th>Plant</th><th>Slip No</th><th>Qty</th><th>Priority</th><th>Remarks</th><th>Freight</th><th>Actions</th>
+//             </tr>
+//           </thead>
+//           <tbody>
+//             {tableData.map((row, idx) => (
+//               <tr key={idx}>
+//                 <td>{row.plantName}</td>
+//                 <td>{row.loadingSlipNo}</td>
+//                 <td>{row.qty}</td>
+//                 <td>{row.priority}</td>
+//                 <td>{row.remarks}</td>
+//                 <td>{row.freight}</td>
+//                 <td>
+//                   <div className="truck-transaction-action-group">
+//                     <button className="truck-transaction-btn edit" onClick={() => handleEditRow(idx)}>Edit</button>
+//                     <button className="truck-transaction-btn delete" onClick={() => handleDeleteRow(idx)}>Delete</button>
+//                   </div>
+//                 </td>
+//               </tr>
+//             ))}
+//             <tr>
+//               <td>
+//                 <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange} className="truck-transaction-select">
+//                   <option value="">Select</option>
+//                   {plantList.map((p, i) => (
+//                     <option key={i} value={p.PlantName}>{p.PlantName}</option>
+//                   ))}
+//                 </select>
+//               </td>
+//               {["loadingSlipNo", "qty", "priority", "remarks"].map((name) => (
+//                 <td key={name}>
+//                   <input name={name} value={newRow[name]} onChange={handleNewRowChange} className="truck-transaction-input" />
+//                 </td>
+//               ))}
+//               <td>
+//                 <select name="freight" value={newRow.freight} onChange={handleNewRowChange} className="truck-transaction-select">
+//                   <option value="To Pay">To Pay</option>
+//                   <option value="Paid">Paid</option>
+//                 </select>
+//               </td>
+//               <td></td>
+//             </tr>
+//           </tbody>
+//         </table>
+
+//         <button className="truck-transaction-btn edit" onClick={addOrUpdateRow}>
+//           {editingIndex !== null ? 'Update Row' : 'Add Row'}
+//         </button>
+
+//         <div className="truck-transaction-form-grid">
+//           {[{ label: 'Amount Per Ton', name: 'amountPerTon' },
+//             { label: 'Deliver Point', name: 'deliverPoint' },
+//             { label: 'Truck Weight (In Ton)', name: 'truckWeight' }
+//           ].map(({ label, name }) => (
+//             <div key={name}>
+//               <label className="truck-transaction-label">{label}</label>
+//               <input name={name} value={formData[name]} onChange={handleChange} className="truck-transaction-input" />
+//             </div>
+//           ))}
+//         </div>
+
+//         <label className="truck-transaction-label">Remarks</label>
+//         <textarea name="remarks" value={formData.remarks} onChange={handleChange} rows="3" className="truck-transaction-textarea" />
+
+//         <button className="truck-transaction-btn edit" onClick={handleSubmit}>Submit</button>
+//         {message && <p className="truck-transaction-message">{message}</p>}
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default TruckTransaction;
+
+// ///////////////////  final code //////////////////////
 
 
 // import React, { useEffect, useState } from 'react';
