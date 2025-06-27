@@ -470,9 +470,7 @@
 // }
 
 // export default Navbar;////////////////////////////////working navbar////////////
-
-// ✅ Final Navbar with ALL underlines removed and mobile/desktop match
-// ✅ Admin dropdown preserved, other items fixed visually only
+// ✅ Final Navbar with correct hover and no underlines, dropdown hover restored
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -539,7 +537,7 @@ function Navbar() {
 
           <div className="hidden md:flex space-x-6 items-center">
             {(canAccess('plantmaster') || canAccess('usermaster')) && (
-              <div className="relative">
+              <div className="relative group">
                 <button
                   onClick={() => {
                     setAdminOpen(!adminOpen);
@@ -549,21 +547,19 @@ function Navbar() {
                 >
                   Admin Master <span className="ml-1 text-sm">▼</span>
                 </button>
-                {adminOpen && (
-                  <div className="absolute mt-2 w-56 bg-gray-800 rounded-xl z-50 py-2 space-y-2">
-                    {canAccess('plantmaster') && (
-                      <NavLink to="/plantmaster">🏭 Plant Master</NavLink>
-                    )}
-                    {canAccess('usermaster') && (
-                      <NavLink to="/usermaster">👤 User Master</NavLink>
-                    )}
-                  </div>
-                )}
+                <div className={`absolute mt-2 w-56 bg-gray-800 rounded-xl z-50 py-2 space-y-2 ${adminOpen ? 'block' : 'hidden'}`}>
+                  {canAccess('plantmaster') && (
+                    <NavLink to="/plantmaster">🏭 Plant Master</NavLink>
+                  )}
+                  {canAccess('usermaster') && (
+                    <NavLink to="/usermaster">👤 User Master</NavLink>
+                  )}
+                </div>
               </div>
             )}
 
             {(canAccess('truck') || canAccess('truckfind')) && (
-              <div className="relative">
+              <div className="relative group">
                 <button
                   onClick={() => {
                     setDispatcherOpen(!dispatcherOpen);
@@ -573,16 +569,14 @@ function Navbar() {
                 >
                   Dispatcher <span className="ml-1 text-sm">▼</span>
                 </button>
-                {dispatcherOpen && (
-                  <div className="absolute mt-2 w-56 bg-gray-800 rounded-xl z-50 py-2 space-y-2">
-                    {canAccess('truck') && (
-                      <NavLink to="/truck">🚛 Truck Transaction</NavLink>
-                    )}
-                    {canAccess('truckfind') && (
-                      <NavLink to="/truckfind">🔍 Truck Find</NavLink>
-                    )}
-                  </div>
-                )}
+                <div className={`absolute mt-2 w-56 bg-gray-800 rounded-xl z-50 py-2 space-y-2 ${dispatcherOpen ? 'block' : 'hidden'}`}>
+                  {canAccess('truck') && (
+                    <NavLink to="/truck">🚛 Truck Transaction</NavLink>
+                  )}
+                  {canAccess('truckfind') && (
+                    <NavLink to="/truckfind">🔍 Truck Find</NavLink>
+                  )}
+                </div>
               </div>
             )}
 
