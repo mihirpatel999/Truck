@@ -1175,7 +1175,7 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
     console.error('❌ Error fetching truck details:', err);
     res.status(500).json({ message: 'Server Error' });
   }
-});///////////////////////////////////working code plant name nai aa raha //////////////////////////
+});///////////////////////////////////working code plant name aa raha hai //////////////////////////
 
 
 // app.get('/api/truck-transaction/:truckNo', async (req, res) => {
@@ -1296,7 +1296,57 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
 //   }
 // });
 
+app.get('/api/users', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT username, password, role FROM users');
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ message: 'Error fetching users.' });
+  }
+});
 
+app.delete('/api/users/:username', async (req, res) => {
+  const { username } = req.params;
+  try {
+    const result = await pool.query(
+      'DELETE FROM users WHERE username = $1',
+      [username]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.json({ message: 'User deleted successfully.' });
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    res.status(500).json({ message: 'Error deleting user.' });
+  }
+});
+
+app.put('/api/users/:username', async (req, res) => {
+  const { username } = req.params;
+  const { Username, Password, Role } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE users 
+       SET username = $1, password = $2, role = $3 
+       WHERE username = $4`,
+      [Username, Password, Role, username]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.json({ message: 'User updated successfully.' });
+  } catch (err) {
+    console.error('Error updating user:', err);
+    res.status(500).json({ message: 'Error updating user.' });
+  }
+});
 
 
 // 🚀 Start the server
