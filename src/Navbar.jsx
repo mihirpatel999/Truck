@@ -472,7 +472,7 @@
 // export default Navbar;////////////////////////////////working navbar////////////
 
 // ✅ Final Navbar with ALL underlines removed and mobile/desktop match
-// ✅ White text, hover yellow, logout attractive, dropdowns preserved
+// ✅ Admin dropdown preserved, other items fixed visually only
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -513,7 +513,7 @@ function Navbar() {
   };
 
   const NavLink = ({ to, children }) => (
-    <Link to={to} className="text-white hover:text-yellow-400 transition-all no-underline block w-full">
+    <Link to={to} className="block text-white hover:text-yellow-400 transition-all no-underline">
       {children}
     </Link>
   );
@@ -586,15 +586,9 @@ function Navbar() {
               </div>
             )}
 
-            {canAccess('gate') && (
-              <NavLink to="/gate">🚪 Gate Keeper</NavLink>
-            )}
-            {canAccess('loader') && (
-              <NavLink to="/loader">📦 Loader</NavLink>
-            )}
-            {canAccess('reports') && (
-              <NavLink to="/reports">📊 Reports</NavLink>
-            )}
+            {canAccess('gate') && <NavLink to="/gate">🚪 Gate Keeper</NavLink>}
+            {canAccess('loader') && <NavLink to="/loader">📦 Loader</NavLink>}
+            {canAccess('reports') && <NavLink to="/reports">📊 Reports</NavLink>}
 
             <button
               onClick={handleLogout}
@@ -665,4 +659,3 @@ function Navbar() {
 }
 
 export default Navbar;
-
