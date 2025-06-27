@@ -470,6 +470,8 @@
 // }
 
 // export default Navbar;////////////////////////////////working navbar////////////
+
+
 // ✅ Final Navbar with correct hover and no underlines, dropdown hover restored
 
 import React, { useState, useEffect } from 'react';
@@ -537,7 +539,7 @@ function Navbar() {
 
           <div className="hidden md:flex space-x-6 items-center">
             {(canAccess('plantmaster') || canAccess('usermaster')) && (
-              <div className="relative group">
+              <div className="relative">
                 <button
                   onClick={() => {
                     setAdminOpen(!adminOpen);
@@ -547,19 +549,25 @@ function Navbar() {
                 >
                   Admin Master <span className="ml-1 text-sm">▼</span>
                 </button>
-                <div className={`absolute mt-2 w-56 bg-gray-800 rounded-xl z-50 py-2 space-y-2 ${adminOpen ? 'block' : 'hidden'}`}>
-                  {canAccess('plantmaster') && (
-                    <NavLink to="/plantmaster">🏭 Plant Master</NavLink>
-                  )}
-                  {canAccess('usermaster') && (
-                    <NavLink to="/usermaster">👤 User Master</NavLink>
-                  )}
-                </div>
+                {adminOpen && (
+                  <div className="absolute mt-2 w-56 bg-gray-800 rounded-xl shadow-2xl z-50 py-2 border border-gray-700">
+                    {canAccess('plantmaster') && (
+                      <NavLink to="/plantmaster">
+                        <span className="block px-6 py-3 text-white hover:bg-yellow-400 hover:text-gray-900">🏭 Plant Master</span>
+                      </NavLink>
+                    )}
+                    {canAccess('usermaster') && (
+                      <NavLink to="/usermaster">
+                        <span className="block px-6 py-3 text-white hover:bg-yellow-400 hover:text-gray-900">👤 User Master</span>
+                      </NavLink>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
             {(canAccess('truck') || canAccess('truckfind')) && (
-              <div className="relative group">
+              <div className="relative">
                 <button
                   onClick={() => {
                     setDispatcherOpen(!dispatcherOpen);
@@ -569,14 +577,20 @@ function Navbar() {
                 >
                   Dispatcher <span className="ml-1 text-sm">▼</span>
                 </button>
-                <div className={`absolute mt-2 w-56 bg-gray-800 rounded-xl z-50 py-2 space-y-2 ${dispatcherOpen ? 'block' : 'hidden'}`}>
-                  {canAccess('truck') && (
-                    <NavLink to="/truck">🚛 Truck Transaction</NavLink>
-                  )}
-                  {canAccess('truckfind') && (
-                    <NavLink to="/truckfind">🔍 Truck Find</NavLink>
-                  )}
-                </div>
+                {dispatcherOpen && (
+                  <div className="absolute mt-2 w-56 bg-gray-800 rounded-xl shadow-2xl z-50 py-2 border border-gray-700">
+                    {canAccess('truck') && (
+                      <NavLink to="/truck">
+                        <span className="block px-6 py-3 text-white hover:bg-yellow-400 hover:text-gray-900">🚛 Truck Transaction</span>
+                      </NavLink>
+                    )}
+                    {canAccess('truckfind') && (
+                      <NavLink to="/truckfind">
+                        <span className="block px-6 py-3 text-white hover:bg-yellow-400 hover:text-gray-900">🔍 Truck Find</span>
+                      </NavLink>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -594,7 +608,7 @@ function Navbar() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden mt-4 space-y-4 text-white text-left">
+          <div className="md:hidden mt-2 space-y-2 bg-gray-800 p-6 rounded-xl shadow-2xl text-white font-medium z-50 border border-gray-700">
             {(canAccess('plantmaster') || canAccess('usermaster')) && (
               <div>
                 <button
@@ -602,14 +616,22 @@ function Navbar() {
                     setAdminOpen(!adminOpen);
                     if (!adminOpen) setDispatcherOpen(false);
                   }}
-                  className="text-white hover:text-yellow-400 w-full text-left"
+                  className="w-full text-left hover:text-yellow-400"
                 >
-                  👤 Admin ▼
+                  👨‍💼 Admin ▼
                 </button>
                 {adminOpen && (
-                  <div className="ml-6 space-y-2">
-                    {canAccess('plantmaster') && <NavLink to="/plantmaster">🏭 Plant Master</NavLink>}
-                    {canAccess('usermaster') && <NavLink to="/usermaster">👤 User Master</NavLink>}
+                  <div className="pl-6 space-y-2 mt-2">
+                    {canAccess('plantmaster') && (
+                      <NavLink to="/plantmaster">
+                        <span className="block hover:text-yellow-400">🏭 Plant Master</span>
+                      </NavLink>
+                    )}
+                    {canAccess('usermaster') && (
+                      <NavLink to="/usermaster">
+                        <span className="block hover:text-yellow-400">👤 User Master</span>
+                      </NavLink>
+                    )}
                   </div>
                 )}
               </div>
@@ -622,28 +644,42 @@ function Navbar() {
                     setDispatcherOpen(!dispatcherOpen);
                     if (!dispatcherOpen) setAdminOpen(false);
                   }}
-                  className="text-white hover:text-yellow-400 w-full text-left"
+                  className="w-full text-left hover:text-yellow-400"
                 >
                   🚛 Dispatcher ▼
                 </button>
                 {dispatcherOpen && (
-                  <div className="ml-6 space-y-2">
-                    {canAccess('truck') && <NavLink to="/truck">🚛 Truck Transaction</NavLink>}
-                    {canAccess('truckfind') && <NavLink to="/truckfind">🔍 Truck Find</NavLink>}
+                  <div className="pl-6 space-y-2 mt-2">
+                    {canAccess('truck') && (
+                      <NavLink to="/truck">
+                        <span className="block hover:text-yellow-400">📝 Truck Transaction</span>
+                      </NavLink>
+                    )}
+                    {canAccess('truckfind') && (
+                      <NavLink to="/truckfind">
+                        <span className="block hover:text-yellow-400">🔍 Truck Find</span>
+                      </NavLink>
+                    )}
                   </div>
                 )}
               </div>
             )}
 
-            {canAccess('gate') && <NavLink to="/gate">🚪 Gate Keeper</NavLink>}
-            {canAccess('loader') && <NavLink to="/loader">📦 Loader</NavLink>}
-            {canAccess('reports') && <NavLink to="/reports">📊 Reports</NavLink>}
+            {canAccess('gate') && (
+              <NavLink to="/gate" className="block hover:text-yellow-400">🚪 Gate Keeper</NavLink>
+            )}
+            {canAccess('loader') && (
+              <NavLink to="/loader" className="block hover:text-yellow-400">📦 Loader</NavLink>
+            )}
+            {canAccess('reports') && (
+              <NavLink to="/reports" className="block hover:text-yellow-400">📊 Reports</NavLink>
+            )}
 
             <button
               onClick={handleLogout}
-              className="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold py-2 px-4 rounded-lg w-full"
+              className="mt-4 block w-full text-left bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg text-white"
             >
-              🔒 Logout
+              Logout
             </button>
           </div>
         )}
