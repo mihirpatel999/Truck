@@ -1206,27 +1206,63 @@ function TruckTransaction() {
     setNewRow({ plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
   };
 
+  // const handleSubmit = async () => {
+  //   try {
+  //     let dataToSubmit = [...tableData];
+  //     if (Object.values(newRow).some(val => val && val.trim?.() !== '')) {
+  //       dataToSubmit.push({ ...newRow });
+  //     }
+  //     const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+  //       formData,
+  //       tableData: dataToSubmit
+  //     });
+  //     if (response.data.success) {
+  //       // navigate('/truckfind', 
+  //        { state: { refresh: true} };
+  //       setMessage('✅ Transaction saved successfully!');
+  //     } else {
+  //       setMessage('❌ Error saving transaction.');
+  //     }
+  //   } catch {
+  //     setMessage('❌ Server error while submitting data.');
+  //   }
+  // };////////////////////////////////////////////////////////////data fill ho raha hai but working code /////////////////////////
   const handleSubmit = async () => {
-    try {
-      let dataToSubmit = [...tableData];
-      if (Object.values(newRow).some(val => val && val.trim?.() !== '')) {
-        dataToSubmit.push({ ...newRow });
-      }
-      const response = await axios.post(`${API_URL}/api/truck-transaction`, {
-        formData,
-        tableData: dataToSubmit
-      });
-      if (response.data.success) {
-        // navigate('/truckfind', 
-         { state: { refresh: true} };
-        setMessage('✅ Transaction saved successfully!');
-      } else {
-        setMessage('❌ Error saving transaction.');
-      }
-    } catch {
-      setMessage('❌ Server error while submitting data.');
+  try {
+    let dataToSubmit = [...tableData];
+    const isNewRowFilled = Object.values(newRow).some(val => val && val.trim?.() !== '');
+
+    if (isNewRowFilled) {
+      dataToSubmit.push({ ...newRow, detailId: null });
     }
-  };
+
+    const response = await axios.post(`${API_URL}/api/truck-transaction`, { formData, tableData: dataToSubmit });
+
+    if (response.data.success) {
+      setMessage('✅ Transaction saved successfully!');
+
+      // Form Clear
+      setFormData({
+        truckNo: '', transactionDate: '', cityName: '', transporter: '',
+        amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: ''
+      });
+
+      // Table Clear
+      setTableData([]);
+
+      // New Row Clear
+      setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
+
+      setEditingIndex(null);
+    } else {
+      setMessage('❌ Error saving transaction.');
+    }
+  } catch (error) {
+    console.error('Submit error:', error);
+    setMessage('❌ Server error while submitting data.');
+  }
+};
+
 
   return (
     <div className="p-6 md:p-10 bg-gray-100 min-h-screen">
