@@ -1217,7 +1217,8 @@ function TruckTransaction() {
         tableData: dataToSubmit
       });
       if (response.data.success) {
-        navigate('/truckfind', { state: { refresh: true, justUpdatedTruckNo: formData.truckNo } });
+        // navigate('/truckfind', { state: { refresh: true, justUpdatedTruckNo: formData.truckNo } });
+        setMessage('✅ Transaction saved successfully!');
       } else {
         setMessage('❌ Error saving transaction.');
       }
