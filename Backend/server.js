@@ -1120,19 +1120,79 @@ app.get('/api/truck-find', async (req, res) => {
 // });
 
 
+// app.get('/api/truck-transaction/:truckNo', async (req, res) => {
+//   let { truckNo } = req.params;
+
+//   // Sanitize truckNo
+//   truckNo = truckNo.trim().toLowerCase();
+
+//   try {
+//     // Master Data Query
+//     const masterQuery = `
+//       SELECT 
+//         transactionid, truckno, transactiondate, cityname, 
+//         transporter, amountperton, deliverpoint, 
+//         truckweight, remarks
+//       FROM trucktransactionmaster
+//       WHERE TRIM(LOWER(truckno)) = TRIM(LOWER($1))
+//     `;
+
+//     const masterResult = await pool.query(masterQuery, [truckNo]);
+
+//     if (masterResult.rows.length === 0) {
+//       console.log(`⚠️ Truck not found for: ${truckNo}`);
+//       return res.status(404).json({ message: 'Truck not found' });
+//     }
+
+//     const masterData = masterResult.rows[0];
+
+//     // Details Data Query
+//     const detailQuery = `
+//       SELECT 
+//         d.plantid, 
+//         p.plantname,
+//         d.loadingslipno, d.qty, d.priority, 
+//         d.remarks, d.freight
+//       FROM trucktransactiondetails d
+//       LEFT JOIN plantmaster p ON d.plantid = p.plantid
+//       WHERE d.transactionid = $1
+//     `;
+
+//     const detailResult = await pool.query(detailQuery, [masterData.transactionid]);
+
+//     const detailsData = detailResult.rows;
+
+//     console.log(`✅ Found truck: ${truckNo}, Details count: ${detailsData.length}`);
+
+//     res.json({
+//       master: masterData,
+//       details: detailsData
+//     });
+
+//   } catch (err) {
+//     console.error('❌ Error fetching truck details:', err);
+//     res.status(500).json({ message: 'Server Error' });
+//   }
+// });///////////////////////////////////working code plant name nai aa raha //////////////////////////
+
+
 app.get('/api/truck-transaction/:truckNo', async (req, res) => {
   let { truckNo } = req.params;
 
-  // Sanitize truckNo
   truckNo = truckNo.trim().toLowerCase();
 
   try {
-    // Master Data Query
     const masterQuery = `
       SELECT 
-        transactionid, truckno, transactiondate, cityname, 
-        transporter, amountperton, deliverpoint, 
-        truckweight, remarks
+        transactionid AS "transactionId", 
+        truckno AS "truckNo", 
+        transactiondate AS "transactionDate", 
+        cityname AS "cityName", 
+        transporter, 
+        amountperton AS "amountPerTon", 
+        deliverpoint AS "deliverPoint", 
+        truckweight AS "truckWeight", 
+        remarks
       FROM trucktransactionmaster
       WHERE TRIM(LOWER(truckno)) = TRIM(LOWER($1))
     `;
@@ -1146,19 +1206,21 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
 
     const masterData = masterResult.rows[0];
 
-    // Details Data Query
     const detailQuery = `
       SELECT 
-        d.plantid, 
-        p.plantname,
-        d.loadingslipno, d.qty, d.priority, 
-        d.remarks, d.freight
+        d.plantid AS "plantId", 
+        p.plantname AS "plantName",
+        d.loadingslipno AS "loadingSlipNo", 
+        d.qty, 
+        d.priority, 
+        d.remarks, 
+        d.freight
       FROM trucktransactiondetails d
       LEFT JOIN plantmaster p ON d.plantid = p.plantid
       WHERE d.transactionid = $1
     `;
 
-    const detailResult = await pool.query(detailQuery, [masterData.transactionid]);
+    const detailResult = await pool.query(detailQuery, [masterData.transactionId]);
 
     const detailsData = detailResult.rows;
 
@@ -1174,6 +1236,7 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 });
+
 
 
 // 🚀 Start the server
