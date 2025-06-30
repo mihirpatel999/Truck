@@ -806,7 +806,7 @@ function Navbar() {
     Report: ['reports', 'truckshedule'],
     GateKeeper: ['gate'],
     UserMaster: ['usermaster'],
-    UserRegister: ['userregister']
+    UserRegister: ['userregister'],
     Loader: ['loader'],
   };
 

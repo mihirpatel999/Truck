@@ -249,7 +249,7 @@ const roleAccess = {
   dispatch: ['truck', 'truckfind'],
   gatekeeper: ['gate'],
   usermaster: ['usermaster'],
-  userregister: ['userregister']
+  userregister: ['userregister'],
   report: ['reports','truckshedule'],
   loader: ['loader'],
 };
