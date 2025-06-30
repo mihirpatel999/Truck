@@ -4557,7 +4557,6 @@
 // export default GateKeeper;/////////////////////////////////////////////FULLY FINAL VERSION BY NIL CODE /////////////////////////////////////////
 
 
-
 // GateKeeper.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -4586,7 +4585,8 @@ export default function GateKeeper() {
     const allowed = (localStorage.getItem('allowedPlants') || '')
       .split(',').map(x => x.trim()).filter(Boolean);
 
-    axios.get(`${API_URL}/api/plants`, { headers: { userid: userId, role } })
+    axios
+      .get(`${API_URL}/api/plants`, { headers: { userid: userId, role } })
       .then(res => {
         const filtered = res.data.filter(p => {
           const pid = String(p.plantid || p.PlantID || p.PlantId);
@@ -4599,23 +4599,32 @@ export default function GateKeeper() {
 
   useEffect(() => {
     if (!selectedPlant) return;
-    axios.get(`${API_URL}/api/trucks?plantName=${selectedPlant}`)
+    axios
+      .get(`${API_URL}/api/trucks?plantName=${selectedPlant}`)
       .then(res => setTrucks(res.data))
       .catch(() => {});
-    axios.get(`${API_URL}/api/checked-in-trucks?plantName=${selectedPlant}`)
+    axios
+      .get(`${API_URL}/api/checked-in-trucks?plantName=${selectedPlant}`)
       .then(res => setCheckedIn(res.data))
       .catch(() => {});
   }, [selectedPlant]);
 
-  const handleTruckClick = async truckNo => {
+  const handleTruckClick = async ('truckNo') => {
+    console.log('Clicked truckNo:', truckNo);
     setFormData(prev => ({ ...prev, truckNo }));
+
     try {
       const [qRes, rRes] = await Promise.all([
         axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`),
-        axios.get(`${API_URL}/api/fetch-remarks`, { params: { plantName: selectedPlant, truckNo } }),
+        axios.get(`${API_URL}/api/fetch-remarks`, {
+          params: { plantName: selectedPlant, truckNo },
+        }),
       ]);
       setPanels(qRes.data);
-      setFormData(prev => ({ ...prev, remarks: rRes.data.remarks || 'No remarks' }));
+      setFormData(prev => ({
+        ...prev,
+        remarks: rRes.data.remarks || 'No remarks',
+      }));
     } catch {
       setPanels([]);
       setFormData(prev => ({ ...prev, remarks: 'No remarks available' }));
@@ -4628,7 +4637,7 @@ export default function GateKeeper() {
     <div className="p-6 bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen">
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
         
-        {/* Left Column */}
+        {/* Left Column: Plant & Truck List */}
         <div className="space-y-4">
           <select
             className="w-full border rounded px-4 py-2"
@@ -4643,9 +4652,12 @@ export default function GateKeeper() {
           >
             <option value="">Select Plant</option>
             {plants.map(p => (
-              <option key={p.plantid} value={p.plantid}>{p.plantname}</option>
+              <option key={p.plantid} value={p.plantid}>
+                {p.plantname}
+              </option>
             ))}
           </select>
+
           <div className="bg-blue-100 rounded p-4 h-64 overflow-y-auto">
             <h3 className="font-bold text-blue-700 mb-2">Truck List</h3>
             {trucks.length === 0 ? (
@@ -4655,7 +4667,8 @@ export default function GateKeeper() {
                 {trucks.map(t => {
                   const no = t.TruckNo || t.truckno;
                   return (
-                    <li key={no}
+                    <li
+                      key={no}
                       onClick={() => handleTruckClick(no)}
                       className="cursor-pointer hover:text-blue-600"
                     >
@@ -4668,16 +4681,14 @@ export default function GateKeeper() {
           </div>
         </div>
 
-        {/* Center Column */}
+        {/* Center Column: Chart + Input Form */}
         <div className="space-y-6">
           <div className="relative w-full h-56 md:h-72 bg-blue-200 rounded-lg overflow-hidden">
-            
-            {/* Chart Bars */}
-            {panels.length > 0 ? (
+            {panels.length ? (
               <div className="absolute top-2 inset-x-0 z-20 flex items-end justify-evenly space-x-1 px-2 pb-2">
-                {panels.map((pl, i) => (
+                {panels.map((pl, index) => (
                   <div
-                    key={i}
+                    key={index}
                     className="flex flex-col items-center justify-end bg-green-500 text-white rounded-t shadow-lg"
                     style={{
                       width: `${100 / panels.length}%`,
@@ -4695,7 +4706,6 @@ export default function GateKeeper() {
               </p>
             )}
 
-            {/* Truck Image */}
             <img
               src={truckImage}
               alt="Truck"
@@ -4704,35 +4714,41 @@ export default function GateKeeper() {
             />
           </div>
 
-          {/* Form Fields */}
-          <div className="space-y-4">
-            <input
-              className="w-full border rounded px-4 py-2"
-              placeholder="Truck No"
-              value={formData.truckNo}
-              readOnly
-            />
-            <input
-              type="date"
-              className="w-full border rounded px-4 py-2"
-              value={formData.dispatchDate}
-              onChange={e => setFormData(prev => ({ ...prev, dispatchDate: e.target.value }))}
-            />
-            <input
-              className="w-full border rounded px-4 py-2"
-              placeholder="Invoice No"
-              value={formData.invoiceNo}
-              onChange={e => setFormData(prev => ({ ...prev, invoiceNo: e.target.value }))}
-            />
-            <textarea
-              className="w-full border rounded px-4 py-2 bg-gray-100"
-              rows={3}
-              value={formData.remarks}
-              readOnly
-            />
-          </div>
+          {/* Show truck number confirmation */}
+          <p className="text-indigo-700 font-semibold">
+            Selected Truck No: {formData.truckNo || 'None'}
+          </p>
 
-          {/* Action Buttons */}
+          {/* Input Fields */}
+          <input
+            className="w-full border rounded px-4 py-2"
+            placeholder="Truck No"
+            value={formData.truckNo}
+            readOnly
+          />
+          <input
+            type="date"
+            className="w-full border rounded px-4 py-2"
+            value={formData.dispatchDate}
+            onChange={e =>
+              setFormData(prev => ({ ...prev, dispatchDate: e.target.value }))
+            }
+          />
+          <input
+            className="w-full border rounded px-4 py-2"
+            placeholder="Invoice No"
+            value={formData.invoiceNo}
+            onChange={e =>
+              setFormData(prev => ({ ...prev, invoiceNo: e.target.value }))
+            }
+          />
+          <textarea
+            className="w-full border rounded px-4 py-2 bg-gray-100"
+            rows={3}
+            value={formData.remarks}
+            readOnly
+          />
+
           <div className="flex flex-col md:flex-row gap-4">
             <button
               className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded"
@@ -4749,16 +4765,20 @@ export default function GateKeeper() {
           </div>
         </div>
 
-        {/* Right Column */}
+        {/* Right Column: Checked-in Trucks */}
         <div className="bg-green-100 rounded p-4 h-64 overflow-y-auto">
           <h3 className="font-bold text-green-700 mb-2">Checked In Trucks</h3>
           {checkedIn.length === 0 ? (
-            <p className="text-gray-500 italic">No checked-in trucks</p>
+            <p className="text-gray-500 italic">No trucks</p>
           ) : (
             <ul className="space-y-1">
               {checkedIn.map(t => {
                 const no = t.TruckNo || t.truckno;
-                return <li key={no} className="cursor-pointer hover:text-green-600">✓ {no}</li>;
+                return (
+                  <li key={no} className="cursor-pointer hover:text-green-600">
+                    ✓ {no}
+                  </li>
+                );
               })}
             </ul>
           )}
@@ -4769,3 +4789,4 @@ export default function GateKeeper() {
     </div>
   );
 }
+
