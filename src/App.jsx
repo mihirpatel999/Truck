@@ -240,6 +240,7 @@ import Reports from './Report';
 import UserMaster from './UserMaster';
 import TruckFind from './TruckFind.jsx';
 import UserRegister from './UserRegister.jsx';
+import  TruckSchedule from "./TruckSchedule.jsx";
 
 // Role-based access control
 const roleAccess = {

@@ -1487,6 +1487,60 @@ app.put('/api/users/:username', async (req, res) => {
   }
 });
 
+
+app.get('/api/truck-schedule', async (req, res) => {
+  const { fromDate, toDate, status } = req.query;
+
+  if (!fromDate || !toDate || !status) {
+    return res.status(400).json({ error: 'Missing required filters' });
+  }
+
+  try {
+    let statusCondition = '';
+
+    if (status === 'Dispatched') {
+      statusCondition = 'ttd.checkinstatus = 1 AND ttd.checkoutstatus = 1';
+    } else if (status === 'InTransit') {
+      statusCondition = 'ttd.checkinstatus = 1 AND (ttd.checkoutstatus = 0 OR ttd.checkoutstatus IS NULL)';
+    } else if (status === 'CheckedOut') {
+      statusCondition = 'ttd.checkinstatus = 1';
+    } else if (status === 'All') {
+      statusCondition = '1=1';
+    } else {
+      return res.status(400).json({ error: 'Invalid status filter' });
+    }
+
+    const query = `
+      SELECT 
+        ttm.truckno AS "truckNo",
+        ttm.transactiondate AS "transactionDate",
+        p.plantname AS "plantName",
+        ttd.checkintime AS "checkInTime",
+        ttd.checkouttime AS "checkOutTime",
+        ttd.loadingslipno AS "loadingSlipNo",
+        ttd.qty AS "qty",
+        ttd.freight AS "freight",
+        ttd.priority AS "priority",
+        ttd.remarks AS "remarks"
+      FROM trucktransactiondetails ttd
+      JOIN plantmaster p ON ttd.plantid = p.plantid
+      JOIN trucktransactionmaster ttm ON ttd.transactionid = ttm.transactionid
+      WHERE DATE(ttm.transactiondate) BETWEEN $1 AND $2
+      AND ${statusCondition}
+      ORDER BY ttm.transactiondate DESC
+    `;
+
+    const result = await pool.query(query, [fromDate, toDate]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching truck schedule:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+
+
 // 🚀 Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
