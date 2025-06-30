@@ -1412,6 +1412,7 @@
 //////////////
 
 import React, { useEffect, useState } from 'react';
+import CancelButton from './CancelButton';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const ALL_ROLES = ['Admin', 'GateKeeper', 'Report', 'Dispatch', 'Loader', 'UserMaster', 'UserRegister'];
@@ -1494,6 +1495,7 @@ export default function UserRegister() {
 
   return (
     <div className="max-w-7xl mx-auto p-4">
+       <CancelButton />
       <h1 className="text-2xl sm:text-3xl font-bold text-indigo-800 mb-6 text-center">
         User Register
       </h1>

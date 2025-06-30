@@ -4331,6 +4331,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import truckImage from './assets/Truck.png.png';
 import { useNavigate } from 'react-router-dom';
+import CancelButton from './CancelButton';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -4476,6 +4477,7 @@ function GateKeeper() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+         <CancelButton />
         <div className="space-y-4">
           <select value={selectedPlant} onChange={handlePlantChange} className="w-full border rounded px-4 py-2">
             <option value="">Select Plant</option>

@@ -1171,6 +1171,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import truckImg from './assets/Truck.png.png'; // example illustration
+import CancelButton from './CancelButton';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -1231,6 +1232,7 @@ export default function Report() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex flex-col items-center">
+       <CancelButton />
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-lg p-6 md:p-10">
         <h2 className="text-2xl md:text-3xl font-bold text-center text-indigo-700 mb-8">
           🚚 Truck Movement Report

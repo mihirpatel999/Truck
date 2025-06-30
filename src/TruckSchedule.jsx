@@ -1109,6 +1109,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import truckImage from './assets/Truck.png.png'; 
+import CancelButton from './CancelButton';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -1182,6 +1183,7 @@ export default function TruckSchedule() {
 
   return (
     <div className="p-4 bg-gradient-to-br from-gray-100 to-blue-100 min-h-screen flex flex-col items-center w-full">
+      <CancelButton />
       <h1 className="text-2xl sm:text-3xl font-bold text-indigo-700 mb-4 text-center">🚚 Truck Schedule</h1>
 
       {/* Filters */}
