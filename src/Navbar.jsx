@@ -625,7 +625,7 @@ function Navbar() {
               </NavLink>
             )}
 
-            {canAccess('reports')  || canAccess('truckshedule')) && (
+            {(canAccess('reports')  || canAccess('truckshedule')) && (
               <NavLink to="/truckshedule" routeKey="truckshedule">
                 <span className="text-white hover:text-yellow-400 transition-all flex items-center no-underline">
                   📊 Reports
