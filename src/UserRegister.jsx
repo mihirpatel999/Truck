@@ -992,6 +992,7 @@
 //   );
 // }///////////////////////////////////final working code //////////////////
 
+
 import React, { useEffect, useState } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -1084,169 +1085,138 @@ export default function UserRegister() {
 
   return (
     <div className="max-w-5xl mx-auto p-4">
-      <h1 className="text-2xl sm:text-3xl font-bold text-indigo-800 mb-4 text-center">
+      <h1 className="text-2xl sm:text-3xl font-bold text-indigo-800 mb-6 text-center">
         User Register
       </h1>
 
-      {/* Desktop Table */}
-      <div className="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
-        <table className="w-full text-left text-sm">
+      <div className="w-full overflow-x-auto md:overflow-visible bg-white rounded-lg shadow">
+        <table className="min-w-[600px] w-full text-left text-sm table-fixed md:table-auto">
           <thead className="bg-blue-600 text-white">
             <tr>
               {['Username', 'Password', 'Role', 'Allowed Plants', 'Actions'].map(c => (
-                <th key={c} className="px-4 py-3">{c}</th>
+                <th key={c} className="px-3 py-2 md:px-6 md:py-3 break-words">{c}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {users.map((u, i) => (
-              editIdx === i ? (
-                <tr key={u.username} className="bg-yellow-50">
-                  <td className="p-2">
-                    <input name="username" value={editUser.username} disabled className="w-full border p-1 bg-gray-100" />
-                  </td>
-                  <td className="p-2">
-                    <input name="password" value={editUser.password} onChange={handleChange} className="w-full border p-1" />
-                  </td>
-                  <td className="p-2 role-dropdown relative">
-                    <div onClick={() => setShowRoleDropdown(!showRoleDropdown)} className="border p-1 cursor-pointer bg-white">
-                      {editUser.role.split(',').filter(Boolean).join(', ') || 'Select Roles'}
-                    </div>
-                    {showRoleDropdown && (
-                      <div className="absolute bg-white border shadow mt-1 w-full max-h-40 overflow-y-auto z-10">
-                        {ALL_ROLES.map(r => (
-                          <label key={r} className="block p-1 hover:bg-gray-100">
-                            <input
-                              type="checkbox"
-                              checked={editUser.role.split(',').includes(r)}
-                              onChange={() => toggleListValue('role', r)}
-                              className="mr-1"
-                            />
-                            {r}
-                          </label>
-                        ))}
+              <tr key={u.username} className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
+                {editIdx === i ? (
+                  <>
+                    <td className="p-2 md:p-4">
+                      <input
+                        name="username"
+                        value={editUser.username}
+                        disabled
+                        className="w-full border-gray-300 rounded px-2 py-1 bg-gray-100"
+                      />
+                    </td>
+                    <td className="p-2 md:p-4">
+                      <input
+                        name="password"
+                        value={editUser.password}
+                        onChange={handleChange}
+                        className="w-full border-gray-300 rounded px-2 py-1"
+                      />
+                    </td>
+
+                    {/* Role Dropdown */}
+                    <td className="p-2 md:p-4 role-dropdown relative">
+                      <div
+                        onClick={() => setShowRoleDropdown(show => !show)}
+                        className="border rounded px-2 py-1 bg-white cursor-pointer text-xs md:text-sm"
+                      >
+                        {editUser.role.split(',').filter(Boolean).join(', ') || 'Select Roles'}
                       </div>
-                    )}
-                  </td>
-                  <td className="p-2 plant-dropdown relative">
-                    <div onClick={() => setShowPlantDropdown(!showPlantDropdown)} className="border p-1 cursor-pointer bg-white">
-                      {getNames(editUser.allowedplants, plants, 'plantid', 'plantname') || 'Select Plants'}
-                    </div>
-                    {showPlantDropdown && (
-                      <div className="absolute bg-white border shadow mt-1 w-full max-h-40 overflow-y-auto z-10">
-                        {plants.map(p => (
-                          <label key={p.plantid} className="block p-1 hover:bg-gray-100">
-                            <input
-                              type="checkbox"
-                              checked={editUser.allowedplants.split(',').includes(String(p.plantid))}
-                              onChange={() => toggleListValue('allowedplants', String(p.plantid))}
-                              className="mr-1"
-                            />
-                            {p.plantname}
-                          </label>
-                        ))}
+                      {showRoleDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
+                          {ALL_ROLES.map(r => (
+                            <label key={r} className="flex items-center px-3 py-1 hover:bg-gray-100 text-xs">
+                              <input
+                                type="checkbox"
+                                checked={editUser.role.split(',').includes(r)}
+                                onChange={() => toggleListValue('role', r)}
+                                className="mr-2"
+                              />
+                              {r}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+
+                    {/* Plant Dropdown */}
+                    <td className="p-2 md:p-4 plant-dropdown relative">
+                      <div
+                        onClick={() => setShowPlantDropdown(show => !show)}
+                        className="border rounded px-2 py-1 bg-white cursor-pointer text-xs md:text-sm"
+                      >
+                        {getNames(editUser.allowedplants, plants, 'plantid', 'plantname') || 'Select Plants'}
                       </div>
-                    )}
-                  </td>
-                  <td className="p-2 space-x-1">
-                    <button onClick={handleSave} className="bg-green-600 text-white px-3 py-1 rounded">Save</button>
-                    <button onClick={handleCancel} className="bg-gray-500 text-white px-3 py-1 rounded">Cancel</button>
-                  </td>
-                </tr>
-              ) : (
-                <tr key={u.username} className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
-                  <td className="p-3">{u.username}</td>
-                  <td className="p-3">{'*'.repeat(u.password.length)}</td>
-                  <td className="p-3">{u.role}</td>
-                  <td className="p-3">{getNames(u.allowedplants, plants, 'plantid', 'plantname')}</td>
-                  <td className="p-3 space-x-2">
-                    <button onClick={() => handleEdit(u, i)} className="bg-yellow-500 text-white px-3 py-1 rounded">Edit</button>
-                    <button onClick={() => handleDelete(u.username)} className="bg-red-600 text-white px-3 py-1 rounded">Delete</button>
-                  </td>
-                </tr>
-              )
+                      {showPlantDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
+                          {plants.length === 0 && (
+                            <div className="p-3 text-gray-500">No plants</div>
+                          )}
+                          {plants.map(p => {
+                            const arr = editUser.allowedplants ? editUser.allowedplants.split(',') : [];
+                            return (
+                              <label key={p.plantid} className="flex items-center px-3 py-1 hover:bg-gray-100 text-xs">
+                                <input
+                                  type="checkbox"
+                                  checked={arr.includes(String(p.plantid))}
+                                  onChange={() => toggleListValue('allowedplants', String(p.plantid))}
+                                  className="mr-2"
+                                />
+                                {p.plantname}
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </td>
+
+                    <td className="p-2 md:p-4 space-y-1 md:space-x-2 flex flex-col md:flex-row">
+                      <button onClick={handleSave} className="w-full md:w-auto px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs md:text-sm">
+                        Save
+                      </button>
+                      <button onClick={handleCancel} className="w-full md:w-auto px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500 text-xs md:text-sm">
+                        Cancel
+                      </button>
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td className="px-3 py-2 md:px-6 md:py-3 break-words">{u.username}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 break-words">{'*'.repeat(u.password.length)}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 break-words">{u.role}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 break-words">
+                      {getNames(u.allowedplants, plants, 'plantid', 'plantname')}
+                    </td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 space-y-1 md:space-x-2 flex flex-col md:flex-row">
+                      <button onClick={() => handleEdit(u, i)} className="w-full md:w-auto px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-xs md:text-sm">
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(u.username)} className="w-full md:w-auto px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs md:text-sm">
+                        Delete
+                      </button>
+                    </td>
+                  </>
+                )}
+              </tr>
             ))}
+            {users.length === 0 && (
+              <tr>
+                <td colSpan="5" className="text-center py-6 text-gray-500">
+                  No users found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
-      </div>
-
-      {/* Mobile Card View */}
-      <div className="block md:hidden space-y-3">
-        {users.map((u, i) => (
-          <div key={u.username} className="border rounded-lg p-3 shadow bg-white">
-            {editIdx === i ? (
-              <>
-                <div className="mb-2">
-                  <label className="block text-sm">Username</label>
-                  <input name="username" value={editUser.username} disabled className="w-full border p-1 bg-gray-100" />
-                </div>
-                <div className="mb-2">
-                  <label className="block text-sm">Password</label>
-                  <input name="password" value={editUser.password} onChange={handleChange} className="w-full border p-1" />
-                </div>
-                <div className="mb-2">
-                  <label className="block text-sm">Roles</label>
-                  <div onClick={() => setShowRoleDropdown(!showRoleDropdown)} className="border p-1 cursor-pointer bg-white">
-                    {editUser.role.split(',').filter(Boolean).join(', ') || 'Select Roles'}
-                  </div>
-                  {showRoleDropdown && (
-                    <div className="border mt-1 bg-white shadow max-h-40 overflow-y-auto">
-                      {ALL_ROLES.map(r => (
-                        <label key={r} className="block p-1 hover:bg-gray-100">
-                          <input
-                            type="checkbox"
-                            checked={editUser.role.split(',').includes(r)}
-                            onChange={() => toggleListValue('role', r)}
-                            className="mr-1"
-                          />
-                          {r}
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="mb-2">
-                  <label className="block text-sm">Allowed Plants</label>
-                  <div onClick={() => setShowPlantDropdown(!showPlantDropdown)} className="border p-1 cursor-pointer bg-white">
-                    {getNames(editUser.allowedplants, plants, 'plantid', 'plantname') || 'Select Plants'}
-                  </div>
-                  {showPlantDropdown && (
-                    <div className="border mt-1 bg-white shadow max-h-40 overflow-y-auto">
-                      {plants.map(p => (
-                        <label key={p.plantid} className="block p-1 hover:bg-gray-100">
-                          <input
-                            type="checkbox"
-                            checked={editUser.allowedplants.split(',').includes(String(p.plantid))}
-                            onChange={() => toggleListValue('allowedplants', String(p.plantid))}
-                            className="mr-1"
-                          />
-                          {p.plantname}
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <button onClick={handleSave} className="flex-1 bg-green-600 text-white py-1 rounded">Save</button>
-                  <button onClick={handleCancel} className="flex-1 bg-gray-500 text-white py-1 rounded">Cancel</button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="text-sm"><span className="font-semibold">Username:</span> {u.username}</p>
-                <p className="text-sm"><span className="font-semibold">Password:</span> {'*'.repeat(u.password.length)}</p>
-                <p className="text-sm"><span className="font-semibold">Role:</span> {u.role}</p>
-                <p className="text-sm"><span className="font-semibold">Allowed Plants:</span> {getNames(u.allowedplants, plants, 'plantid', 'plantname')}</p>
-                <div className="flex gap-2 mt-2">
-                  <button onClick={() => handleEdit(u, i)} className="flex-1 bg-yellow-500 text-white py-1 rounded">Edit</button>
-                  <button onClick={() => handleDelete(u.username)} className="flex-1 bg-red-600 text-white py-1 rounded">Delete</button>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
       </div>
     </div>
   );
 }
+
 
