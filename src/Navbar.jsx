@@ -624,14 +624,35 @@ function Navbar() {
                 </span>
               </NavLink>
             )}
-
-            {(canAccess('reports')  || canAccess('truckshedule')) && (
-              <NavLink to="/truckshedule" routeKey="truckshedule">
-                <span className="text-white hover:text-yellow-400 transition-all flex items-center no-underline">
-                  📊 Reports
-                </span>
-              </NavLink>
-            )}
+          {(canAccess('reports') || canAccess('truckshedule')) && (
+  <div className="relative group">
+    <button
+      onClick={() => {
+        setAdminOpen(false);
+        setDispatcherOpen(false);
+      }}
+      className="hover:text-yellow-400 flex items-center"
+    >
+      📊 Reports <span className="ml-1 text-sm">▼</span>
+    </button>
+    <div className="absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50">
+      {canAccess('reports') && (
+        <NavLink to="/reports" routeKey="reports">
+          <span className="block px-4 py-2 text-white hover:bg-blue-600 no-underline">
+            📈 Reports
+          </span>
+        </NavLink>
+      )}
+      {canAccess('truckshedule') && (
+        <NavLink to="/truckshedule" routeKey="truckshedule">
+          <span className="block px-4 py-2 text-white hover:bg-blue-600 no-underline">
+            🚛 Truck Schedule
+          </span>
+        </NavLink>
+      )}
+    </div>
+  </div>
+)}
 
             <button
               onClick={handleLogout}
