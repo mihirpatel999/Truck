@@ -720,20 +720,21 @@ function Navbar() {
                 </NavLink>
               </div>
             )}
-            {canAccess('reports') && (
-              <div>
-                <NavLink to="/reports">
-                  <span className="block hover:text-yellow-400">📊 Reports</span>
-                </NavLink>
-              </div>
+      {(canAccess('reports') || canAccess('truckshedule')) && (
+  <div>
+    {canAccess('reports') && (
+      <NavLink to="/reports">
+        <span className="block hover:text-yellow-400">📊 Reports</span>
+      </NavLink>
+    )}
 
-              <div className="pl-6 space-y-2 mt-2">
-                    {canAccess('truckshedule') && (
-                      <NavLink to="/truckshedule">
-                        <span className="block hover:text-yellow-400">🏭 Plant Master</span>
-                      </NavLink>
-                    )}
-            )}
+    {canAccess('truckshedule') && (
+      <NavLink to="/truckshedule">
+        <span className="block hover:text-yellow-400">🚛 Truck Schedule</span>
+      </NavLink>
+    )}
+  </div>
+)}
 
             <button
               onClick={handleLogout}
