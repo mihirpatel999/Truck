@@ -526,176 +526,211 @@
 
 // export default UserRegister;///final code
 
+//////////////////
+
+
 import React, { useEffect, useState } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const ALL_ROLES = ['Admin','User','Dispatcher','GateKeeper','Report','Loader'];
 
-const UserRegister = () => {
+export default function UserRegister() {
   const [users, setUsers] = useState([]);
   const [plants, setPlants] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
+  const [editIdx, setEditIdx] = useState(null);
   const [editUser, setEditUser] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const [showPlantDropdown, setShowPlantDropdown] = useState(false);
 
   useEffect(() => {
-    fetchAllData();
+    fetchAll();
+    // click‐outside to close dropdowns
+    const handler = e => {
+      if (!e.target.closest('.role-dropdown'))  setShowRoleDropdown(false);
+      if (!e.target.closest('.plant-dropdown')) setShowPlantDropdown(false);
+    };
+    window.addEventListener('click', handler);
+    return () => window.removeEventListener('click', handler);
   }, []);
 
-  const fetchAllData = async () => {
-    setLoading(true);
-    try {
-      const [userRes, plantRes] = await Promise.all([
-        fetch(`${API_URL}/api/users`),
-        fetch(`${API_URL}/api/plantmaster`)
-      ]);
-      if (!userRes.ok || !plantRes.ok) throw new Error('Fetch failed');
-      setUsers(await userRes.json());
-      setPlants(await plantRes.json());
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  async function fetchAll() {
+    const [uRes,pRes] = await Promise.all([
+      fetch(`${API_URL}/api/users`),
+      fetch(`${API_URL}/api/plantmaster`)
+    ]);
+    setUsers(await uRes.json());
+    setPlants(await pRes.json());
+  }
 
-  const getPlantNamesFromIds = (str) => {
-    if (!str) return '';
-    return str.split(',')
-      .map(id => plants.find(p => p.plantid === +id)?.plantname || id)
-      .join(', ');
+  const handleEdit = (u, i) => {
+    setEditIdx(i);
+    setEditUser({ ...u });
   };
+  const handleCancel = () => setEditIdx(null);
 
-  const handleEdit = (i) => {
-    setEditIndex(i);
-    setEditUser({ ...users[i] });
-  };
-  const handleCancel = () => setEditIndex(null);
   const handleChange = e => {
     setEditUser(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
-  const handlePlantChange = e => {
-    const opts = Array.from(e.target.selectedOptions).map(o => o.value);
-    setEditUser(prev => ({ ...prev, allowedplants: opts.join(',') }));
+
+  const toggleListValue = (field, value) => {
+    const arr = (editUser[field]||'').split(',').filter(Boolean);
+    const next = arr.includes(value)
+      ? arr.filter(x=>x!==value)
+      : [...arr,value];
+    setEditUser(prev => ({ ...prev, [field]: next.join(',') }));
   };
+
   const handleSave = async () => {
     await fetch(`${API_URL}/api/users/${editUser.username}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify(editUser)
     });
-    await fetchAllData();
-    setEditIndex(null);
+    await fetchAll();
+    setEditIdx(null);
   };
-  const handleDelete = async (u) => {
-    if (!confirm(`Delete ${u}?`)) return;
-    await fetch(`${API_URL}/api/users/${u}`, { method: 'DELETE' });
-    await fetchAllData();
+  const handleDelete = async u => {
+    if(!confirm(`Delete ${u}?`))return;
+    await fetch(`${API_URL}/api/users/${u}`,{method:'DELETE'});
+    await fetchAll();
+  };
+
+  const getNames = (str,list,idKey,nameKey) => {
+    if(!str) return '';
+    return str.split(',').map(id=>{
+      const m = list.find(x=>String(x[idKey])===id);
+      return m? m[nameKey] : id;
+    }).join(', ');
   };
 
   return (
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-3xl font-bold text-indigo-800 mb-6">User Register</h1>
-
-      {loading ? (
-        <div className="text-center py-10">Loading...</div>
-      ) : error ? (
-        <div className="text-center text-red-600">{error}</div>
-      ) : (
-        <div className="overflow-x-auto bg-white rounded-lg shadow">
-          <table className="w-full text-left">
-            <thead className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
-              <tr>
-                {['Username','Password','Role','Allowed Plants','Actions'].map(col => (
-                  <th key={col} className="px-6 py-3">{col}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {users.length === 0 && (
-                <tr>
-                  <td colSpan="5" className="text-center py-8 text-gray-500">No users found.</td>
-                </tr>
-              )}
-              {users.map((u,i) => (
-                <tr key={u.username} className={i%2===0?'bg-gray-50':'bg-white'}>
-                  {editIndex === i ? (
-                    <>
-                      <td className="p-4">
-                        <input
-                          name="username"
-                          value={editUser.username}
-                          disabled
-                          className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100"
-                        />
-                      </td>
-                      <td className="p-4">
-                        <input
-                          name="password"
-                          value={editUser.password}
-                          onChange={handleChange}
-                          className="w-full border border-gray-300 rounded px-3 py-2"
-                        />
-                      </td>
-                      <td className="p-4">
-                        <input
-                          name="role"
-                          value={editUser.role}
-                          onChange={handleChange}
-                          className="w-full border border-gray-300 rounded px-3 py-2"
-                        />
-                      </td>
-                      <td className="p-4">
-                        <select
-                          multiple
-                          value={editUser.allowedplants?.split(',')||[]}
-                          onChange={handlePlantChange}
-                          className="w-full border border-gray-300 rounded px-3 py-2 h-32 overflow-y-auto"
-                        >
-                          {plants.map(p => (
-                            <option key={p.plantid} value={p.plantid}>
-                              {p.plantname}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="p-4 space-x-2">
-                        <button
-                          onClick={handleSave}
-                          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-                        >Save</button>
-                        <button
-                          onClick={handleCancel}
-                          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
-                        >Cancel</button>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td className="px-6 py-4 font-medium">{u.username}</td>
-                      <td className="px-6 py-4">{'*'.repeat(u.password.length)}</td>
-                      <td className="px-6 py-4">{u.role}</td>
-                      <td className="px-6 py-4">{getPlantNamesFromIds(u.allowedplants)}</td>
-                      <td className="px-6 py-4 space-x-2">
-                        <button
-                          onClick={() => handleEdit(i)}
-                          className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
-                        >Edit</button>
-                        <button
-                          onClick={() => handleDelete(u.username)}
-                          className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
-                        >Delete</button>
-                      </td>
-                    </>
-                  )}
-                </tr>
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="w-full text-left">
+          <thead className="bg-blue-600 text-white">
+            <tr>
+              {['Username','Password','Role','Allowed Plants','Actions'].map(c=>(
+                <th key={c} className="px-6 py-3">{c}</th>
               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u,i)=>(
+              <tr key={u.username} className={i%2?'bg-gray-50':'bg-white'}>
+                {editIdx===i ? (
+                  <>
+                    <td className="p-4">
+                      <input
+                        name="username"
+                        value={editUser.username}
+                        disabled
+                        className="w-full border-gray-300 rounded px-3 py-2 bg-gray-100"
+                      />
+                    </td>
+                    <td className="p-4">
+                      <input
+                        name="password"
+                        value={editUser.password}
+                        onChange={handleChange}
+                        className="w-full border-gray-300 rounded px-3 py-2"
+                      />
+                    </td>
+
+                    {/* Role Dropdown */}
+                    <td className="p-4 role-dropdown relative">
+                      <div
+                        onClick={()=>setShowRoleDropdown(show=>!show)}
+                        className="border rounded px-3 py-2 bg-white cursor-pointer"
+                      >
+                        {editUser.role
+                          .split(',')
+                          .filter(Boolean)
+                          .join(', ') || 'Select Roles'}
+                      </div>
+                      {showRoleDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-40 overflow-y-auto">
+                          {ALL_ROLES.map(r=>(
+                            <label key={r} className="flex items-center px-3 py-1 hover:bg-gray-100">
+                              <input
+                                type="checkbox"
+                                checked={editUser.role.split(',').includes(r)}
+                                onChange={()=>toggleListValue('role',r)}
+                                className="mr-2"
+                              />
+                              {r}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+
+                    {/* Plant Dropdown */}
+                    <td className="p-4 plant-dropdown relative">
+                      <div
+                        onClick={()=>setShowPlantDropdown(show=>!show)}
+                        className="border rounded px-3 py-2 bg-white cursor-pointer"
+                      >
+                        {getNames(editUser.allowedplants,plants,'plantid','plantname') || 'Select Plants'}
+                      </div>
+                      {showPlantDropdown && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow-lg max-h-40 overflow-y-auto">
+                          {plants.map(p=>(
+                            <label key={p.plantid} className="flex items-center px-3 py-1 hover:bg-gray-100">
+                              <input
+                                type="checkbox"
+                                checked={editUser.allowedplants.split(',').includes(String(p.plantid))}
+                                onChange={()=>toggleListValue('allowedplants',String(p.plantid))}
+                                className="mr-2"
+                              />
+                              {p.plantname}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+
+                    <td className="p-4 space-x-2">
+                      <button
+                        onClick={handleSave}
+                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                      >Save</button>
+                      <button
+                        onClick={handleCancel}
+                        className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+                      >Cancel</button>
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td className="px-6 py-4 font-medium">{u.username}</td>
+                    <td className="px-6 py-4">{'*'.repeat(u.password.length)}</td>
+                    <td className="px-6 py-4">{u.role}</td>
+                    <td className="px-6 py-4">{getNames(u.allowedplants,plants,'plantid','plantname')}</td>
+                    <td className="px-6 py-4 space-x-2">
+                      <button
+                        onClick={()=>handleEdit(u,i)}
+                        className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                      >Edit</button>
+                      <button
+                        onClick={()=>handleDelete(u.username)}
+                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                      >Delete</button>
+                    </td>
+                  </>
+                )}
+              </tr>
+            ))}
+            {users.length===0 && (
+              <tr>
+                <td colSpan="5" className="text-center py-8 text-gray-500">
+                  No users found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
-};
-
-export default UserRegister;
+}
