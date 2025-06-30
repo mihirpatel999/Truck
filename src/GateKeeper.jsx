@@ -4558,6 +4558,7 @@
 
 
 
+// GateKeeper.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4575,20 +4576,19 @@ export default function GateKeeper() {
     invoiceNo: '',
     remarks: 'System-generated remark.',
   });
-
   const [plantList, setPlantList] = useState([]);
   const [selectedPlant, setSelectedPlant] = useState('');
   const [truckNumbers, setTruckNumbers] = useState([]);
   const [checkedInTrucks, setCheckedInTrucks] = useState([]);
   const [quantityPanels, setQuantityPanels] = useState([]);
 
-  // Load plants with user permission
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     const role = localStorage.getItem('role');
     const allowed = (localStorage.getItem('allowedPlants') || '')
-      .split(',').map(p => p.trim()).filter(Boolean);
-
+      .split(',')
+      .map(x => x.trim())
+      .filter(Boolean);
     axios
       .get(`${API_URL}/api/plants`, { headers: { userid: userId, role } })
       .then(res => {
@@ -4601,7 +4601,6 @@ export default function GateKeeper() {
       .catch(() => toast.error('Failed to load plants'));
   }, []);
 
-  // Load trucks and checked-in trucks when plant changes
   useEffect(() => {
     if (!selectedPlant) return;
     axios
@@ -4620,7 +4619,6 @@ export default function GateKeeper() {
 
   const handleChange = e =>
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-
   const handlePlantChange = e => {
     setSelectedPlant(e.target.value);
     setTruckNumbers([]);
@@ -4629,7 +4627,6 @@ export default function GateKeeper() {
     setFormData(prev => ({
       ...prev,
       truckNo: '',
-      dispatchDate: new Date().toISOString().split('T')[0],
       invoiceNo: '',
       remarks: 'System-generated remark.',
     }));
@@ -4645,12 +4642,8 @@ export default function GateKeeper() {
         axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truck}`),
       ]);
       setQuantityPanels(qtyRes.data);
-      console.log('quantityPanels:', qtyRes.data);
-      setFormData(prev => ({
-        ...prev,
-        remarks: remarksRes.data.remarks || '',
-      }));
-    } catch (err) {
+      setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || '' }));
+    } catch {
       setFormData(prev => ({ ...prev, remarks: 'No remarks/quantities' }));
     }
   };
@@ -4677,15 +4670,11 @@ export default function GateKeeper() {
       toast[res.data.message.includes('✅') ? 'success' : 'error'](
         res.data.message
       );
-
       if (res.data.message.includes('✅')) {
-        setTruckNumbers(prev =>
-          prev.filter(t => getTruckNo(t) !== truckNo)
-        );
+        setTruckNumbers(prev => prev.filter(t => getTruckNo(t) !== truckNo));
         if (type === 'Check In')
           setCheckedInTrucks(prev => [...prev, { TruckNo: truckNo }]);
       }
-
       setFormData(prev => ({
         ...prev,
         truckNo: '',
@@ -4704,7 +4693,7 @@ export default function GateKeeper() {
     <div className="p-6 bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen">
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
 
-        {/* LEFT: Plant & Truck List */}
+        {/* Left: Plants & Truck List */}
         <div className="space-y-4">
           <select
             value={selectedPlant}
@@ -4718,12 +4707,9 @@ export default function GateKeeper() {
               </option>
             ))}
           </select>
-
           <div className="bg-blue-100 rounded p-4 h-64 overflow-y-auto">
             <h3 className="font-bold text-blue-700 mb-2">Truck List</h3>
-            {truckNumbers.length === 0 && (
-              <p className="italic text-gray-500">No trucks</p>
-            )}
+            {truckNumbers.length === 0 && <p className="italic text-gray-500">No trucks</p>}
             <ul className="space-y-1">
               {truckNumbers.map((t, i) => (
                 <li
@@ -4738,24 +4724,22 @@ export default function GateKeeper() {
           </div>
         </div>
 
-        {/* CENTER: Chart & Form */}
+        {/* Center: Chart + Form */}
         <div className="space-y-6">
           <div className="relative w-full h-56 md:h-72 bg-blue-200 rounded-lg overflow-hidden">
             {quantityPanels.length > 0 ? (
-              <div className="absolute bottom-0 left-0 right-0 flex items-end space-x-1 p-2">
-                {quantityPanels.map((panel, idx) => (
+              <div className="absolute bottom-0 inset-x-0 z-10 flex items-end justify-evenly space-x-1 p-2">
+                {quantityPanels.map((panel, i) => (
                   <div
-                    key={idx}
-                    className="flex flex-col items-center justify-end bg-green-500 text-white rounded-t transition transform hover:scale-105"
+                    key={i}
+                    className="flex flex-col items-center justify-end bg-green-500 text-white rounded-t transition-transform hover:scale-105"
                     style={{
-                      height: `${maxQty ? (panel.quantity / maxQty) * 100 : 0}%`,
                       width: `${100 / quantityPanels.length}%`,
+                      height: `${maxQty ? (panel.quantity / maxQty) * 100 : 0}%`,
                     }}
                   >
                     <span className="text-xs">📦{panel.quantity}</span>
-                    <span className="text-[9px] whitespace-nowrap">
-                      {panel.plantname}
-                    </span>
+                    <span className="text-[9px] whitespace-nowrap">{panel.plantname}</span>
                   </div>
                 ))}
               </div>
@@ -4767,66 +4751,38 @@ export default function GateKeeper() {
             <img
               src={truckImage}
               alt="Truck"
-              className="absolute bottom-0 left-0 w-full h-auto object-contain"
+              className="absolute bottom-0 left-0 w-full object-contain"
               style={{ height: '65%' }}
             />
           </div>
 
           <div className="space-y-4">
-            <input
-              name="truckNo"
-              value={formData.truckNo}
-              onChange={handleChange}
-              placeholder="Truck No"
-              className="w-full border rounded px-4 py-2"
-            />
-            <input
-              name="dispatchDate"
-              type="date"
-              value={formData.dispatchDate}
-              onChange={handleChange}
-              className="w-full border rounded px-4 py-2"
-            />
-            <input
-              name="invoiceNo"
-              value={formData.invoiceNo}
-              onChange={handleChange}
-              placeholder="Invoice No"
-              className="w-full border rounded px-4 py-2"
-            />
-            <textarea
-              name="remarks"
-              value={formData.remarks}
-              readOnly
-              className="w-full border rounded px-4 py-2 bg-gray-100"
-              rows={3}
-            />
+            <input name="truckNo" value={formData.truckNo} onChange={handleChange}
+              placeholder="Truck No" className="w-full border rounded px-4 py-2" />
+            <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange}
+              className="w-full border rounded px-4 py-2" />
+            <input name="invoiceNo" value={formData.invoiceNo} onChange={handleChange}
+              placeholder="Invoice No" className="w-full border rounded px-4 py-2" />
+            <textarea name="remarks" value={formData.remarks} readOnly
+              className="w-full border rounded px-4 py-2 bg-gray-100" rows={3} />
           </div>
 
           <div className="flex flex-col md:flex-row gap-4">
-            <button
-              onClick={() => handleSubmit('Check In')}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded"
-            >
+            <button onClick={() => handleSubmit('Check In')}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded">
               Check In
             </button>
-            <button
-              onClick={() => handleSubmit('Check Out')}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded"
-            >
+            <button onClick={() => handleSubmit('Check Out')}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded">
               Check Out
             </button>
           </div>
         </div>
 
-        {/* RIGHT: Checked‑In Trucks */}
+        {/* Right: Checked-In Trucks */}
         <div className="bg-green-100 rounded p-4 h-64 overflow-y-auto">
-          <h3 className="font-bold text-green-700 mb-2">
-            Checked-In Trucks
-          </h3>
-          {checkedInTrucks.length === 0 && (
-            <p className="italic text-gray-500">No trucks</p>
-          )}
+          <h3 className="font-bold text-green-700 mb-2">Checked In Trucks</h3>
+          {checkedInTrucks.length === 0 && <p className="italic text-gray-500">No trucks</p>}
           <ul className="space-y-1">
             {checkedInTrucks.map((t, i) => (
               <li
@@ -4839,8 +4795,8 @@ export default function GateKeeper() {
             ))}
           </ul>
         </div>
-      </div>
 
+      </div>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
     </div>
   );
