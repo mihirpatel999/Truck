@@ -1411,7 +1411,6 @@
 // }////////////////////////////////final ka bi final working code
 //////////////
 
-
 import React, { useEffect, useState } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -1562,7 +1561,7 @@ export default function UserRegister() {
       {/* Edit Form View */}
       {editIdx !== null && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4">Edit User</h2>
             <div className="space-y-3">
               <div>
@@ -1576,21 +1575,38 @@ export default function UserRegister() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Role</label>
-                <input
-                  name="role"
-                  value={editUser.role}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                />
+                <div className="border border-gray-300 rounded px-3 py-2 cursor-pointer" onClick={() => toggleListValue('role', '')}>
+                  {editUser.role ? editUser.role : 'Select Roles'}
+                </div>
+                <div className="mt-2 border rounded max-h-40 overflow-y-auto">
+                  {ALL_ROLES.map(r => (
+                    <label key={r} className="flex items-center px-3 py-1 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={editUser.role.split(',').includes(r)}
+                        onChange={() => toggleListValue('role', r)}
+                        className="mr-2"
+                      />
+                      {r}
+                    </label>
+                  ))}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Allowed Plants</label>
-                <input
-                  name="allowedplants"
-                  value={editUser.allowedplants}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                />
+                <div className="mt-2 border rounded max-h-40 overflow-y-auto">
+                  {plants.map(p => (
+                    <label key={p.plantid} className="flex items-center px-3 py-1 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={(editUser.allowedplants || '').split(',').includes(String(p.plantid))}
+                        onChange={() => toggleListValue('allowedplants', String(p.plantid))}
+                        className="mr-2"
+                      />
+                      {p.plantname}
+                    </label>
+                  ))}
+                </div>
               </div>
               <div className="flex justify-between mt-4">
                 <button onClick={handleSave} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
@@ -1607,4 +1623,3 @@ export default function UserRegister() {
     </div>
   );
 }
-
