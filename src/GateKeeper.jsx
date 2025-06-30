@@ -4557,6 +4557,7 @@
 // export default GateKeeper;/////////////////////////////////////////////FULLY FINAL VERSION BY NIL CODE /////////////////////////////////////////
 
 
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4581,102 +4582,129 @@ export default function GateKeeper() {
   const [checkedInTrucks, setCheckedInTrucks] = useState([]);
   const [quantityPanels, setQuantityPanels] = useState([]);
 
-  // Load plants
+  // Load plants with user permission
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     const role = localStorage.getItem('role');
     const allowed = (localStorage.getItem('allowedPlants') || '')
-      .split(',').map(p=>p.trim()).filter(Boolean);
+      .split(',').map(p => p.trim()).filter(Boolean);
 
-    axios.get(`${API_URL}/api/plants`, { headers:{ userid:userId,role } })
-      .then(res=>{
-        const filtered = res.data.filter(p=>{
+    axios
+      .get(`${API_URL}/api/plants`, { headers: { userid: userId, role } })
+      .then(res => {
+        const filtered = res.data.filter(p => {
           const pid = String(p.plantid || p.PlantID || p.PlantId);
           return role === 'Admin' || allowed.includes(pid);
         });
         setPlantList(filtered);
       })
-      .catch(()=>toast.error('Failed to load plants'));
+      .catch(() => toast.error('Failed to load plants'));
   }, []);
 
-  // Load trucks and checked-ins on plant selection
+  // Load trucks and checked-in trucks when plant changes
   useEffect(() => {
     if (!selectedPlant) return;
-    axios.get(`${API_URL}/api/trucks?plantName=${selectedPlant}`)
-      .then(res=>setTruckNumbers(res.data))
-      .catch(()=>{});
-    axios.get(`${API_URL}/api/checked-in-trucks?plantName=${selectedPlant}`)
-      .then(res=>setCheckedInTrucks(res.data))
-      .catch(()=>{});
+    axios
+      .get(`${API_URL}/api/trucks?plantName=${selectedPlant}`)
+      .then(res => setTruckNumbers(res.data))
+      .catch(() => {});
+    axios
+      .get(`${API_URL}/api/checked-in-trucks?plantName=${selectedPlant}`)
+      .then(res => setCheckedInTrucks(res.data))
+      .catch(() => {});
   }, [selectedPlant]);
 
   const getTruckNo = t => t.TruckNo || t.truckno || t.truck_no || '';
-  const getPlantName = p => typeof p === 'string' ? p : (p.PlantName || p.plantname || '');
+  const getPlantName = p =>
+    typeof p === 'string' ? p : p.PlantName || p.plantname || '';
 
-  const handleChange = e => setFormData(prev=>({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = e =>
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+
   const handlePlantChange = e => {
     setSelectedPlant(e.target.value);
     setTruckNumbers([]);
     setCheckedInTrucks([]);
     setQuantityPanels([]);
-    setFormData(prev=>({
+    setFormData(prev => ({
       ...prev,
       truckNo: '',
       dispatchDate: new Date().toISOString().split('T')[0],
-      invoiceNo:'',
+      invoiceNo: '',
+      remarks: 'System-generated remark.',
     }));
   };
 
-  // on selecting a truck
   const handleTruckSelect = async truck => {
-    setFormData(prev=>({ ...prev, truckNo: truck }));
+    setFormData(prev => ({ ...prev, truckNo: truck }));
     try {
-      const [{data:ro}, {data:qp}] = await Promise.all([
-        axios.get(`${API_URL}/api/fetch-remarks`, { params:{ plantName:selectedPlant, truckNo:truck } }),
-        axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truck}`)
+      const [remarksRes, qtyRes] = await Promise.all([
+        axios.get(`${API_URL}/api/fetch-remarks`, {
+          params: { plantName: selectedPlant, truckNo: truck },
+        }),
+        axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truck}`),
       ]);
-      setQuantityPanels(qp);
-      setFormData(prev=>({ ...prev, remarks: ro.remarks || '' }));
-    } catch {
-      setFormData(prev=>({ ...prev, remarks:'No remarks/quantities' }));
+      setQuantityPanels(qtyRes.data);
+      console.log('quantityPanels:', qtyRes.data);
+      setFormData(prev => ({
+        ...prev,
+        remarks: remarksRes.data.remarks || '',
+      }));
+    } catch (err) {
+      setFormData(prev => ({ ...prev, remarks: 'No remarks/quantities' }));
     }
   };
 
-  // check-in/out submit
   const handleSubmit = async type => {
     const { truckNo, dispatchDate, invoiceNo } = formData;
-    if (!selectedPlant) return toast.warn('Select plant');
+    if (!selectedPlant) return toast.warn('Select plant first');
     if (!truckNo) return toast.warn('Select truck');
-    if (type === 'Check In' &&
-        checkedInTrucks.some(t=>getTruckNo(t) === truckNo))
+    if (
+      type === 'Check In' &&
+      checkedInTrucks.some(t => getTruckNo(t) === truckNo)
+    )
       return toast.error('Already checked in');
 
     try {
       const res = await axios.post(`${API_URL}/api/update-truck-status`, {
-        truckNo, plantName:selectedPlant, type, dispatchDate, invoiceNo,
-        quantity: quantityPanels.reduce((a,p)=>a+(p.quantity||0),0)
+        truckNo,
+        plantName: selectedPlant,
+        type,
+        dispatchDate,
+        invoiceNo,
+        quantity: quantityPanels.reduce((sum, p) => sum + (p.quantity || 0), 0),
       });
-      toast[res.data.message.includes('✅')?'success':'error'](res.data.message);
-      
+      toast[res.data.message.includes('✅') ? 'success' : 'error'](
+        res.data.message
+      );
+
       if (res.data.message.includes('✅')) {
-        setTruckNumbers(prev => prev.filter(t => getTruckNo(t) !== truckNo));
-        if (type==='Check In')
-          setCheckedInTrucks(prev=>[...prev, { TruckNo:truckNo }]);
+        setTruckNumbers(prev =>
+          prev.filter(t => getTruckNo(t) !== truckNo)
+        );
+        if (type === 'Check In')
+          setCheckedInTrucks(prev => [...prev, { TruckNo: truckNo }]);
       }
-      setFormData(prev=>({ ...prev, truckNo:'', invoiceNo:'', remarks:'System-generated remark.' }));
+
+      setFormData(prev => ({
+        ...prev,
+        truckNo: '',
+        invoiceNo: '',
+        remarks: 'System-generated remark.',
+      }));
       setQuantityPanels([]);
     } catch {
       toast.error('Something went wrong');
     }
   };
 
-  const maxQty = Math.max(...quantityPanels.map(p=>p.quantity||0),0);
+  const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0), 0);
 
   return (
     <div className="p-6 bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen">
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
 
-        {/* 1. Plant & Truck List */}
+        {/* LEFT: Plant & Truck List */}
         <div className="space-y-4">
           <select
             value={selectedPlant}
@@ -4684,43 +4712,58 @@ export default function GateKeeper() {
             className="w-full border rounded px-4 py-2"
           >
             <option value="">Select plant</option>
-            {plantList.map((p,i)=>(
-              <option key={i} value={getPlantName(p)}>{getPlantName(p)}</option>
+            {plantList.map((p, i) => (
+              <option key={i} value={getPlantName(p)}>
+                {getPlantName(p)}
+              </option>
             ))}
           </select>
+
           <div className="bg-blue-100 rounded p-4 h-64 overflow-y-auto">
             <h3 className="font-bold text-blue-700 mb-2">Truck List</h3>
-            {truckNumbers.length===0 && <p className="italic text-gray-500">No trucks</p>}
+            {truckNumbers.length === 0 && (
+              <p className="italic text-gray-500">No trucks</p>
+            )}
             <ul className="space-y-1">
-              {truckNumbers.map((t,i)=>(
+              {truckNumbers.map((t, i) => (
                 <li
                   key={i}
-                  onClick={()=>handleTruckSelect(getTruckNo(t))}
+                  onClick={() => handleTruckSelect(getTruckNo(t))}
                   className="cursor-pointer hover:text-blue-600"
-                >🚛 {getTruckNo(t)}</li>
+                >
+                  🚛 {getTruckNo(t)}
+                </li>
               ))}
             </ul>
           </div>
         </div>
 
-        {/* 2. Chart + Form */}
+        {/* CENTER: Chart & Form */}
         <div className="space-y-6">
-          <div className="relative w-full md:w-full h-56 md:h-72 bg-blue-200 rounded-lg overflow-hidden">
-            <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between px-4 pb-2">
-              {quantityPanels.map((panel,i)=>(
-                <div
-                  key={i}
-                  className={`flex flex-col items-center justify-end text-white rounded-t-md transform hover:scale-105 transition`}
-                  style={{
-                    height: `${maxQty? (panel.quantity/maxQty)*100 : 0}%`,
-                    width: `${100/quantityPanels.length}%`
-                  }}
-                >
-                  <span className="text-xs">📦{panel.quantity}</span>
-                  <span className="text-[9px] whitespace-nowrap">{panel.plantname}</span>
-                </div>
-              ))}
-            </div>
+          <div className="relative w-full h-56 md:h-72 bg-blue-200 rounded-lg overflow-hidden">
+            {quantityPanels.length > 0 ? (
+              <div className="absolute bottom-0 left-0 right-0 flex items-end space-x-1 p-2">
+                {quantityPanels.map((panel, idx) => (
+                  <div
+                    key={idx}
+                    className="flex flex-col items-center justify-end bg-green-500 text-white rounded-t transition transform hover:scale-105"
+                    style={{
+                      height: `${maxQty ? (panel.quantity / maxQty) * 100 : 0}%`,
+                      width: `${100 / quantityPanels.length}%`,
+                    }}
+                  >
+                    <span className="text-xs">📦{panel.quantity}</span>
+                    <span className="text-[9px] whitespace-nowrap">
+                      {panel.plantname}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="absolute inset-0 flex items-center justify-center text-gray-500">
+                No chart data
+              </p>
+            )}
             <img
               src={truckImage}
               alt="Truck"
@@ -4729,44 +4772,46 @@ export default function GateKeeper() {
             />
           </div>
 
-          {/* Form Inputs */}
-          <input
-            name="truckNo"
-            value={formData.truckNo}
-            onChange={handleChange}
-            placeholder="Truck No"
-            className="w-full border rounded px-4 py-2"
-          />
-          <input
-            name="dispatchDate"
-            type="date"
-            value={formData.dispatchDate}
-            onChange={handleChange}
-            className="w-full border rounded px-4 py-2"
-          />
-          <input
-            name="invoiceNo"
-            value={formData.invoiceNo}
-            onChange={handleChange}
-            placeholder="Invoice No"
-            className="w-full border rounded px-4 py-2"
-          />
-          <textarea
-            name="remarks"
-            value={formData.remarks}
-            readOnly
-            className="w-full border rounded px-4 py-2 bg-gray-100"
-            rows={3}
-          />
+          <div className="space-y-4">
+            <input
+              name="truckNo"
+              value={formData.truckNo}
+              onChange={handleChange}
+              placeholder="Truck No"
+              className="w-full border rounded px-4 py-2"
+            />
+            <input
+              name="dispatchDate"
+              type="date"
+              value={formData.dispatchDate}
+              onChange={handleChange}
+              className="w-full border rounded px-4 py-2"
+            />
+            <input
+              name="invoiceNo"
+              value={formData.invoiceNo}
+              onChange={handleChange}
+              placeholder="Invoice No"
+              className="w-full border rounded px-4 py-2"
+            />
+            <textarea
+              name="remarks"
+              value={formData.remarks}
+              readOnly
+              className="w-full border rounded px-4 py-2 bg-gray-100"
+              rows={3}
+            />
+          </div>
+
           <div className="flex flex-col md:flex-row gap-4">
             <button
-              onClick={()=>handleSubmit('Check In')}
+              onClick={() => handleSubmit('Check In')}
               className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded"
             >
               Check In
             </button>
             <button
-              onClick={()=>handleSubmit('Check Out')}
+              onClick={() => handleSubmit('Check Out')}
               className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded"
             >
               Check Out
@@ -4774,17 +4819,23 @@ export default function GateKeeper() {
           </div>
         </div>
 
-        {/* 3. Checked-in Trucks */}
+        {/* RIGHT: Checked‑In Trucks */}
         <div className="bg-green-100 rounded p-4 h-64 overflow-y-auto">
-          <h3 className="font-bold text-green-700 mb-2">Checked-In Trucks</h3>
-          {checkedInTrucks.length===0 && <p className="italic text-gray-500">No trucks</p>}
+          <h3 className="font-bold text-green-700 mb-2">
+            Checked-In Trucks
+          </h3>
+          {checkedInTrucks.length === 0 && (
+            <p className="italic text-gray-500">No trucks</p>
+          )}
           <ul className="space-y-1">
-            {checkedInTrucks.map((t,i)=>(
+            {checkedInTrucks.map((t, i) => (
               <li
                 key={i}
-                onClick={()=>handleTruckSelect(getTruckNo(t))}
+                onClick={() => handleTruckSelect(getTruckNo(t))}
                 className="cursor-pointer hover:text-green-600"
-              >✓ {getTruckNo(t)}</li>
+              >
+                ✓ {getTruckNo(t)}
+              </li>
             ))}
           </ul>
         </div>
@@ -4794,4 +4845,3 @@ export default function GateKeeper() {
     </div>
   );
 }
-
