@@ -80,7 +80,8 @@ export default function TruckSchedule() {
       </div>
 
       <div className="relative bg-white shadow-xl rounded-2xl p-6 w-full max-w-5xl text-center">
-        <img src={truckImg} alt="Truck" className="mx-auto h-40 mb-4" />
+      <img src={truckImage} alt="Truck" className="mx-auto h-40 mb-4" />
+
 
         {loading && <p className="text-indigo-600 font-medium">Loading...</p>}
         {error && <p className="text-red-500 font-medium">{error}</p>}
