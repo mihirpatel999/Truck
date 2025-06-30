@@ -244,8 +244,8 @@ import  TruckSchedule from "./TruckSchedule.jsx";
 
 // Role-based access control
 const roleAccess = {
-  owner: ['plantmaster', 'usermaster', 'truck', 'gate', 'loader', 'reports', 'staff','userregister'],
-  admin: ['plantmaster', 'usermaster', 'truck', 'gate', 'loader', 'reports', 'staff','userregister'],
+  owner: ['plantmaster', 'usermaster', 'truck', 'gate', 'loader', 'reports', 'staff','userregister','truckshedule'],
+  admin: ['plantmaster', 'usermaster', 'truck', 'gate', 'loader', 'reports', 'staff','userregister','truckshedule'],
   dispatch: ['truck', 'truckfind'],
   gatekeeper: ['gate'],
   report: ['reports'],
