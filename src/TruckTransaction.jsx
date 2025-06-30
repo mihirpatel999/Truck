@@ -1443,12 +1443,7 @@ export default function TruckTransaction() {
   const { name, value } = e.target;
 
   if (name === 'truckNo') {
-    const pattern = /^[A-Z]{2}-[0-9]{2}-[A-Z]{1,2}-[0-9]{1,4}$/;
-
-    if (value === '' || pattern.test(value.toUpperCase())) {
-      setFormData({ ...formData, [name]: value.toUpperCase() });
-    }
-    // Else में कुछ नहीं करेंगे, गलत फॉर्मेट है तो ignore
+    setFormData({ ...formData, [name]: value.toUpperCase() });
   } else {
     setFormData({ ...formData, [name]: value });
   }
