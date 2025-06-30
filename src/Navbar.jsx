@@ -770,7 +770,7 @@
 //   );
 // }
 
-// export default Navbar;
+// export default Navbar;////////////////////////////////
 
 
 
@@ -1014,5 +1014,5 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default Navbar;///////////////////////////////////full working navbar//////////////
 
