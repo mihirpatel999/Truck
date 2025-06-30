@@ -1398,41 +1398,45 @@ export default function TruckTransaction() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const truckNo = location?.state?.truck?.TruckNo;
-    if (!truckNo) return;
-
-    axios.get(`${API_URL}/api/truck-transaction/${truckNo}`)
-      .then(res => {
-        const { master, details } = res.data;
-        setFormData({
-          transactionId: master.transactionid || null,
-          truckNo: master.truckno || '',
-          transactionDate: master.transactiondate?.split('T')[0] || '',
-          cityName: master.cityname || '',
-          transporter: master.transporter || '',
-          amountPerTon: master.amountperton || '',
-          truckWeight: master.truckweight || '',
-          deliverPoint: master.deliverpoint || '',
-          remarks: master.remarks || ''
-        });
-        setTableData(details.map(row => ({
-          detailId: row.plantid,
-          plantName: row.plantname,
-          loadingSlipNo: row.loadingslipno,
-          qty: row.qty,
-          priority: row.priority,
-          remarks: row.remarks,
-          freight: row.freight
-        })));
-      })
-      .catch(err => console.error('Error loading truck details:', err));
-  }, [location?.state?.truck]);
+    const truckNo = location?.state?.truckNo;
+    if (truckNo) fetchTruckDetails(truckNo);
+  }, [location?.state?.truckNo]);
 
   useEffect(() => {
     axios.get(`${API_URL}/api/plants`)
       .then(res => setPlantList(res.data))
       .catch(err => console.error('Error fetching plants:', err));
   }, []);
+
+  const fetchTruckDetails = async (truckNo) => {
+    try {
+      const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
+      const { master, details } = res.data;
+      setFormData({
+        transactionId: master.transactionid,
+        truckNo: master.truckno,
+        transactionDate: master.transactiondate?.split('T')[0] || '',
+        cityName: master.cityname,
+        transporter: master.transporter,
+        amountPerTon: master.amountperton,
+        truckWeight: master.truckweight,
+        deliverPoint: master.deliverpoint,
+        remarks: master.remarks
+      });
+      setTableData(details.map(row => ({
+        detailId: row.detailid,
+        plantName: row.plantname,
+        loadingSlipNo: row.loadingslipno,
+        qty: row.qty,
+        priority: row.priority,
+        remarks: row.remarks,
+        freight: row.freight
+      })));
+    } catch (err) {
+      console.error('Error loading truck details:', err);
+      setMessage('❌ Failed to load truck details.');
+    }
+  };
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleNewRowChange = (e) => setNewRow({ ...newRow, [e.target.name]: e.target.value });
@@ -1475,7 +1479,8 @@ export default function TruckTransaction() {
       const response = await axios.post(`${API_URL}/api/truck-transaction`, { formData, tableData: dataToSubmit });
 
       if (response.data.success) {
-        navigate('/truckfind', { state: { refresh: true, justUpdatedTruckNo: formData.truckNo } });
+        setMessage('✅ Transaction saved successfully!');
+        navigate('/truckfind', { state: { refresh: true } });
       } else {
         setMessage('❌ Error saving transaction.');
       }
@@ -1531,7 +1536,7 @@ export default function TruckTransaction() {
                 <td className="p-2">
                   <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange} className="w-full p-2 border border-slate-300 rounded-lg">
                     <option value="">Select</option>
-                    {plantList.map((p, i) => (<option key={i} value={p.PlantName}>{p.PlantName}</option>))}
+                    {plantList.map((p, i) => (<option key={i} value={p.plantname}>{p.plantname}</option>))}
                   </select>
                 </td>
                 {['loadingSlipNo', 'qty', 'priority', 'remarks'].map((name) => (
