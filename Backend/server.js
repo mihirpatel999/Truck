@@ -1296,23 +1296,102 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
 //   }
 // });
 
+// app.get('/api/users', async (req, res) => {
+//   try {
+//     const result = await pool.query('SELECT username, password, role FROM users');
+//     res.json(result.rows);
+//   } catch (err) {
+//     console.error('Error fetching users:', err);
+//     res.status(500).json({ message: 'Error fetching users.' });
+//   }
+// });
+
+// app.delete('/api/users/:username', async (req, res) => {
+//   const { username } = req.params;
+//   try {
+//     const result = await pool.query(
+//       'DELETE FROM users WHERE username = $1',
+//       [username]
+//     );
+
+//     if (result.rowCount === 0) {
+//       return res.status(404).json({ message: 'User not found.' });
+//     }
+
+//     res.json({ message: 'User deleted successfully.' });
+//   } catch (err) {
+//     console.error('Error deleting user:', err);
+//     res.status(500).json({ message: 'Error deleting user.' });
+//   }
+// });
+
+
+// // PUT /api/users/:username
+// app.put('/api/users/:username', async (req, res) => {
+//   const { username } = req.params;
+//   const { username: newUsername, password, role } = req.body; // <-- lowercase here
+
+//   try {
+//     const result = await pool.query(
+//       `UPDATE users 
+//        SET username = $1, password = $2, role = $3 
+//        WHERE username = $4`,
+//       [newUsername, password, role, username]
+//     );
+
+//     if (result.rowCount === 0) {
+//       return res.status(404).json({ message: 'User not found.' });
+//     }
+
+//     res.json({ message: 'User updated successfully.' });
+//   } catch (err) {
+//     console.error('Error updating user:', err);
+//     res.status(500).json({ message: 'Error updating user.' });
+//   }
+// });////////////////////working apis
+
+
 app.get('/api/users', async (req, res) => {
   try {
-    const result = await pool.query('SELECT username, password, role FROM users');
-    res.json(result.rows);
+    // Fetch all users
+    const usersResult = await pool.query('SELECT username, password, role, allowedplants FROM users');
+
+    // Fetch all plants
+    const plantsResult = await pool.query('SELECT plantid, plantname FROM plantmaster');
+
+    // Map plant ID -> plant name
+    const plantsMap = {};
+    plantsResult.rows.forEach(plant => {
+      plantsMap[plant.plantid] = plant.plantname;
+    });
+
+    // Map plant IDs to names
+    const processedUsers = usersResult.rows.map(user => {
+      let allowedPlantNames = '';
+      if (user.allowedplants && user.allowedplants.trim() !== '') {
+        const plantIds = user.allowedplants.split(',').map(id => id.trim());
+        const plantNames = plantIds.map(id => plantsMap[id]).filter(Boolean);
+        allowedPlantNames = plantNames.join(', ');
+      }
+
+      return {
+        ...user,
+        allowedPlantNames,
+      };
+    });
+
+    res.json(processedUsers);
   } catch (err) {
     console.error('Error fetching users:', err);
     res.status(500).json({ message: 'Error fetching users.' });
   }
 });
 
+// DELETE /api/users/:username - Delete user
 app.delete('/api/users/:username', async (req, res) => {
   const { username } = req.params;
   try {
-    const result = await pool.query(
-      'DELETE FROM users WHERE username = $1',
-      [username]
-    );
+    const result = await pool.query('DELETE FROM users WHERE username = $1', [username]);
 
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'User not found.' });
@@ -1325,18 +1404,20 @@ app.delete('/api/users/:username', async (req, res) => {
   }
 });
 
-
-// PUT /api/users/:username
+// PUT /api/users/:username - Update user
 app.put('/api/users/:username', async (req, res) => {
   const { username } = req.params;
-  const { username: newUsername, password, role } = req.body; // <-- lowercase here
+  const { username: newUsername, password, role, allowedplants } = req.body;
 
   try {
     const result = await pool.query(
-      `UPDATE users 
-       SET username = $1, password = $2, role = $3 
-       WHERE username = $4`,
-      [newUsername, password, role, username]
+      `UPDATE users
+       SET username = $1,
+           password = $2,
+           role = $3,
+           allowedplants = $4
+       WHERE username = $5`,
+      [newUsername, password, role, allowedplants, username]
     );
 
     if (result.rowCount === 0) {
@@ -1349,7 +1430,6 @@ app.put('/api/users/:username', async (req, res) => {
     res.status(500).json({ message: 'Error updating user.' });
   }
 });
-
 
 // 🚀 Start the server
 app.listen(PORT, () => {
