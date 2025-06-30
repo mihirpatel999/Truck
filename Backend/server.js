@@ -1539,29 +1539,39 @@ app.put('/api/users/:username', async (req, res) => {
 // });
 
 app.get('/api/truck-schedule', async (req, res) => {
-  const { fromDate, toDate, status, plants } = req.query;
+  const { fromDate, toDate, status, plant } = req.query;
 
-  if (!fromDate || !toDate || !status || !plants) {
+  if (!fromDate || !toDate || !status || !plant) {
     return res.status(400).json({ error: 'Missing required filters' });
   }
 
+  let plantArray = [];
   try {
-    const plantIds = JSON.parse(plants); // e.g. [1, 2, 3]
-    const placeholders = plantIds.map((_, i) => `$${i + 3}`).join(', ');
+    plantArray = JSON.parse(plant);
+  } catch (err) {
+    return res.status(400).json({ error: 'Invalid plant format' });
+  }
 
-    let statusCondition = '';
+  if (!Array.isArray(plantArray) || plantArray.length === 0) {
+    return res.status(400).json({ error: 'No plants selected' });
+  }
 
-    if (status === 'Dispatched') {
-      statusCondition = 'ttd.checkinstatus = 1 AND ttd.checkoutstatus = 1';
-    } else if (status === 'InTransit') {
-      statusCondition = 'ttd.checkinstatus = 1 AND (ttd.checkoutstatus = 0 OR ttd.checkoutstatus IS NULL)';
-    } else if (status === 'CheckedOut') {
-      statusCondition = 'ttd.checkinstatus = 1';
-    } else if (status === 'All') {
-      statusCondition = '1=1';
-    } else {
-      return res.status(400).json({ error: 'Invalid status filter' });
-    }
+  let statusCondition = '';
+  if (status === 'Dispatched') {
+    statusCondition = 'ttd.checkinstatus = 1 AND ttd.checkoutstatus = 1';
+  } else if (status === 'InTransit') {
+    statusCondition = 'ttd.checkinstatus = 1 AND (ttd.checkoutstatus = 0 OR ttd.checkoutstatus IS NULL)';
+  } else if (status === 'CheckedOut') {
+    statusCondition = 'ttd.checkinstatus = 1';
+  } else if (status === 'All') {
+    statusCondition = '1=1';
+  } else {
+    return res.status(400).json({ error: 'Invalid status filter' });
+  }
+
+  try {
+    const placeholders = plantArray.map((_, i) => `$${i + 1}`).join(',');
+    const dateStartIndex = plantArray.length + 1;
 
     const query = `
       SELECT 
@@ -1578,13 +1588,15 @@ app.get('/api/truck-schedule', async (req, res) => {
       FROM trucktransactiondetails ttd
       JOIN plantmaster p ON ttd.plantid = p.plantid
       JOIN trucktransactionmaster ttm ON ttd.transactionid = ttm.transactionid
-      WHERE DATE(ttm.transactiondate) BETWEEN $1 AND $2
-      AND ${statusCondition}
-      AND ttd.plantid IN (${placeholders})
+      WHERE ttd.plantid IN (${placeholders})
+        AND DATE(ttm.transactiondate) BETWEEN $${dateStartIndex} AND $${dateStartIndex + 1}
+        AND ${statusCondition}
       ORDER BY ttm.transactiondate DESC
     `;
 
-    const result = await pool.query(query, [fromDate, toDate, ...plantIds]);
+    const values = [...plantArray, fromDate, toDate];
+
+    const result = await pool.query(query, values);
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching truck schedule:', err);
