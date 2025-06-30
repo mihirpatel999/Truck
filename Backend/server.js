@@ -1501,36 +1501,7 @@ app.get('/api/users', async (req, res) => {
 });
 
 
-// Example in Express (Node.js)
-app.put('/api/users/:username', async (req, res) => {
-  const { username } = req.params;
-  let { password, role, contactnumber, allowedplants } = req.body;
-
-  try {
-    // Handle arrays coming from frontend
-    if (Array.isArray(role)) {
-      role = role.join(','); // convert ['admin','gatekeeper'] → 'admin,gatekeeper'
-    }
-    if (Array.isArray(allowedplants)) {
-      allowedplants = allowedplants.join(','); // convert [1,2] → '1,2'
-    }
-
-    const pool = await getPool();
-    await pool.query(
-      `UPDATE Users 
-       SET password = $1, role = $2, contactnumber = $3, allowedplants = $4 
-       WHERE username = $5`,
-      [password, role, contactnumber || '', allowedplants, username]
-    );
-
-    res.status(200).json({ message: 'User updated' });
-  } catch (err) {
-    console.error('Error updating user:', err);
-    res.status(500).json({ message: 'Server error updating user' });
-  }
-});
-
-
+//
 app.delete('/api/users/:username', async (req, res) => {
   const { username } = req.params;
   try {
@@ -1583,19 +1554,26 @@ app.put('/api/users/:username', async (req, res) => {
   }
 });
 
+// BEFORE:
+// app.get('/api/plants', async (req, res) => { … });
 
-
+// AFTER:
 app.get('/api/plantmaster', async (req, res) => {
   try {
-    const result = await pool.query(
-      'SELECT "plantid", "plantname" FROM plantmaster'
+    // Exactly the same logic you had under /api/plants
+    const result = await pool.query('SELECT plantid, plantname FROM plantmaster');
+    res.json(
+      result.rows.map(r => ({
+        plantid: r.plantid,
+        plantname: r.plantname
+      }))
     );
-    res.json(result.rows);
   } catch (err) {
-    console.error('Error fetching plantmaster:', err);
-    res.status(500).json({ message: 'Error fetching plantmaster.' });
+    console.error('Error fetching plant master:', err);
+    res.status(500).json({ message: 'Error fetching plant master.' });
   }
 });
+
 
 
 
