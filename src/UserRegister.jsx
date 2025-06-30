@@ -1219,6 +1219,199 @@
 //   );
 // }
 
+// import React, { useEffect, useState } from 'react';
+
+// const API_URL = import.meta.env.VITE_API_URL;
+// const ALL_ROLES = ['Admin', 'GateKeeper', 'Report', 'Dispatch', 'Loader', 'UserMaster', 'UserRegister'];
+
+// export default function UserRegister() {
+//   const [users, setUsers] = useState([]);
+//   const [plants, setPlants] = useState([]);
+//   const [editIdx, setEditIdx] = useState(null);
+//   const [editUser, setEditUser] = useState({});
+//   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+//   const [showPlantDropdown, setShowPlantDropdown] = useState(false);
+
+//   useEffect(() => {
+//     fetchAll();
+
+//     const handler = e => {
+//       if (!e.target.closest('.role-dropdown')) setShowRoleDropdown(false);
+//       if (!e.target.closest('.plant-dropdown')) setShowPlantDropdown(false);
+//     };
+//     window.addEventListener('click', handler);
+//     return () => window.removeEventListener('click', handler);
+//   }, []);
+
+//   async function fetchAll() {
+//     const [uRes, pRes] = await Promise.all([
+//       fetch(`${API_URL}/api/users`),
+//       fetch(`${API_URL}/api/plantmaster`)
+//     ]);
+//     setUsers(await uRes.json());
+//     setPlants(await pRes.json());
+//   }
+
+//   const handleEdit = (u, i) => {
+//     setEditIdx(i);
+//     setEditUser({
+//       ...u,
+//       allowedplants: u.allowedplants || '',
+//       role: u.role || ''
+//     });
+//   };
+
+//   const handleCancel = () => {
+//     setEditIdx(null);
+//     setEditUser({});
+//   };
+
+//   const handleChange = e => {
+//     setEditUser(prev => ({ ...prev, [e.target.name]: e.target.value }));
+//   };
+
+//   const toggleListValue = (field, value) => {
+//     setEditUser(prev => {
+//       const cur = prev[field] || '';
+//       const arr = cur.split(',').filter(Boolean);
+//       const nextArr = arr.includes(value)
+//         ? arr.filter(x => x !== value)
+//         : [...arr, value];
+//       return { ...prev, [field]: nextArr.join(',') };
+//     });
+//   };
+
+//   const handleSave = async () => {
+//     await fetch(`${API_URL}/api/users/${editUser.username}`, {
+//       method: 'PUT',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(editUser)
+//     });
+//     await fetchAll();
+//     setEditIdx(null);
+//     setEditUser({});
+//   };
+
+//   const handleDelete = async username => {
+//     if (!confirm(`Delete ${username}?`)) return;
+//     await fetch(`${API_URL}/api/users/${username}`, { method: 'DELETE' });
+//     await fetchAll();
+//   };
+
+//   const getNames = (str, list, idKey, nameKey) => {
+//     if (!str) return '';
+//     return str
+//       .split(',')
+//       .map(id => {
+//         const m = list.find(x => String(x[idKey]) === id);
+//         return m ? m[nameKey] : id;
+//       })
+//       .join(', ');
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-gray-100 p-4">
+//       <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-4 sm:p-6">
+//         <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-center text-indigo-800">User Register</h1>
+
+//         {/* Desktop Table */}
+//         <div className="hidden md:block overflow-auto">
+//           <table className="min-w-full border text-center text-sm">
+//             <thead className="bg-blue-700 text-white">
+//               <tr>
+//                 <th className="px-3 py-2">Username</th>
+//                 <th className="px-3 py-2">Password</th>
+//                 <th className="px-3 py-2">Role</th>
+//                 <th className="px-3 py-2">Allowed Plants</th>
+//                 <th className="px-3 py-2">Actions</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {users.map((u, i) => (
+//                 <tr key={u.username} className="border-b hover:bg-gray-50">
+//                   {editIdx === i ? (
+//                     <>
+//                       <td className="p-2">
+//                         <input name="username" value={editUser.username} disabled className="w-full border-gray-300 rounded px-2 py-1 bg-gray-100" />
+//                       </td>
+//                       <td className="p-2">
+//                         <input name="password" value={editUser.password} onChange={handleChange} className="w-full border-gray-300 rounded px-2 py-1" />
+//                       </td>
+//                       <td className="p-2 relative role-dropdown">
+//                         <div onClick={() => setShowRoleDropdown(s => !s)} className="border rounded px-2 py-1 bg-white cursor-pointer text-xs">
+//                           {editUser.role.split(',').filter(Boolean).join(', ') || 'Select Roles'}
+//                         </div>
+//                         {showRoleDropdown && (
+//                           <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
+//                             {ALL_ROLES.map(r => (
+//                               <label key={r} className="flex items-center px-3 py-1 hover:bg-gray-100 text-xs">
+//                                 <input type="checkbox" checked={editUser.role.split(',').includes(r)} onChange={() => toggleListValue('role', r)} className="mr-2" />
+//                                 {r}
+//                               </label>
+//                             ))}
+//                           </div>
+//                         )}
+//                       </td>
+//                       <td className="p-2 relative plant-dropdown">
+//                         <div onClick={() => setShowPlantDropdown(s => !s)} className="border rounded px-2 py-1 bg-white cursor-pointer text-xs">
+//                           {getNames(editUser.allowedplants, plants, 'plantid', 'plantname') || 'Select Plants'}
+//                         </div>
+//                         {showPlantDropdown && (
+//                           <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
+//                             {plants.map(p => (
+//                               <label key={p.plantid} className="flex items-center px-3 py-1 hover:bg-gray-100 text-xs">
+//                                 <input type="checkbox" checked={(editUser.allowedplants || '').split(',').includes(String(p.plantid))} onChange={() => toggleListValue('allowedplants', String(p.plantid))} className="mr-2" />
+//                                 {p.plantname}
+//                               </label>
+//                             ))}
+//                           </div>
+//                         )}
+//                       </td>
+//                       <td className="p-2 space-y-1 flex flex-col">
+//                         <button onClick={handleSave} className="w-full bg-green-600 text-white py-1 rounded hover:bg-green-700 text-xs">Save</button>
+//                         <button onClick={handleCancel} className="w-full bg-gray-500 text-white py-1 rounded hover:bg-gray-600 text-xs">Cancel</button>
+//                       </td>
+//                     </>
+//                   ) : (
+//                     <>
+//                       <td className="px-3 py-2 break-words">{u.username}</td>
+//                       <td className="px-3 py-2 break-words">{'*'.repeat(u.password.length)}</td>
+//                       <td className="px-3 py-2 break-words">{u.role}</td>
+//                       <td className="px-3 py-2 break-words">{getNames(u.allowedplants, plants, 'plantid', 'plantname')}</td>
+//                       <td className="px-3 py-2 space-y-1 flex flex-col">
+//                         <button onClick={() => handleEdit(u, i)} className="w-full bg-yellow-500 text-white py-1 rounded hover:bg-yellow-600 text-xs">Edit</button>
+//                         <button onClick={() => handleDelete(u.username)} className="w-full bg-red-600 text-white py-1 rounded hover:bg-red-700 text-xs">Delete</button>
+//                       </td>
+//                     </>
+//                   )}
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         </div>
+
+//         {/* Mobile Card View */}
+//         <div className="block md:hidden space-y-3">
+//           {users.map(u => (
+//             <div key={u.username} className="border border-gray-300 rounded p-3 shadow-sm bg-white">
+//               <p className="text-sm"><span className="font-semibold">Username:</span> {u.username}</p>
+//               <p className="text-sm"><span className="font-semibold">Password:</span> {'*'.repeat(u.password.length)}</p>
+//               <p className="text-sm"><span className="font-semibold">Role:</span> {u.role}</p>
+//               <p className="text-sm"><span className="font-semibold">Allowed Plants:</span> {getNames(u.allowedplants, plants, 'plantid', 'plantname')}</p>
+//               <div className="flex gap-2 mt-2">
+//                 <button onClick={() => handleEdit(u, users.indexOf(u))} className="flex-1 bg-yellow-500 text-white py-1 rounded hover:bg-yellow-600">Edit</button>
+//                 <button onClick={() => handleDelete(u.username)} className="flex-1 bg-red-600 text-white py-1 rounded hover:bg-red-700">Delete</button>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }////////////////////////////////final ka bi final working code
+//////////////
+
+
 import React, { useEffect, useState } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -1229,18 +1422,9 @@ export default function UserRegister() {
   const [plants, setPlants] = useState([]);
   const [editIdx, setEditIdx] = useState(null);
   const [editUser, setEditUser] = useState({});
-  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
-  const [showPlantDropdown, setShowPlantDropdown] = useState(false);
 
   useEffect(() => {
     fetchAll();
-
-    const handler = e => {
-      if (!e.target.closest('.role-dropdown')) setShowRoleDropdown(false);
-      if (!e.target.closest('.plant-dropdown')) setShowPlantDropdown(false);
-    };
-    window.addEventListener('click', handler);
-    return () => window.removeEventListener('click', handler);
   }, []);
 
   async function fetchAll() {
@@ -1310,102 +1494,117 @@ export default function UserRegister() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-4 sm:p-6">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-center text-indigo-800">User Register</h1>
+    <div className="max-w-7xl mx-auto p-4">
+      <h1 className="text-2xl sm:text-3xl font-bold text-indigo-800 mb-6 text-center">
+        User Register
+      </h1>
 
-        {/* Desktop Table */}
-        <div className="hidden md:block overflow-auto">
-          <table className="min-w-full border text-center text-sm">
-            <thead className="bg-blue-700 text-white">
-              <tr>
-                <th className="px-3 py-2">Username</th>
-                <th className="px-3 py-2">Password</th>
-                <th className="px-3 py-2">Role</th>
-                <th className="px-3 py-2">Allowed Plants</th>
-                <th className="px-3 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u, i) => (
-                <tr key={u.username} className="border-b hover:bg-gray-50">
-                  {editIdx === i ? (
-                    <>
-                      <td className="p-2">
-                        <input name="username" value={editUser.username} disabled className="w-full border-gray-300 rounded px-2 py-1 bg-gray-100" />
-                      </td>
-                      <td className="p-2">
-                        <input name="password" value={editUser.password} onChange={handleChange} className="w-full border-gray-300 rounded px-2 py-1" />
-                      </td>
-                      <td className="p-2 relative role-dropdown">
-                        <div onClick={() => setShowRoleDropdown(s => !s)} className="border rounded px-2 py-1 bg-white cursor-pointer text-xs">
-                          {editUser.role.split(',').filter(Boolean).join(', ') || 'Select Roles'}
-                        </div>
-                        {showRoleDropdown && (
-                          <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
-                            {ALL_ROLES.map(r => (
-                              <label key={r} className="flex items-center px-3 py-1 hover:bg-gray-100 text-xs">
-                                <input type="checkbox" checked={editUser.role.split(',').includes(r)} onChange={() => toggleListValue('role', r)} className="mr-2" />
-                                {r}
-                              </label>
-                            ))}
-                          </div>
-                        )}
-                      </td>
-                      <td className="p-2 relative plant-dropdown">
-                        <div onClick={() => setShowPlantDropdown(s => !s)} className="border rounded px-2 py-1 bg-white cursor-pointer text-xs">
-                          {getNames(editUser.allowedplants, plants, 'plantid', 'plantname') || 'Select Plants'}
-                        </div>
-                        {showPlantDropdown && (
-                          <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
-                            {plants.map(p => (
-                              <label key={p.plantid} className="flex items-center px-3 py-1 hover:bg-gray-100 text-xs">
-                                <input type="checkbox" checked={(editUser.allowedplants || '').split(',').includes(String(p.plantid))} onChange={() => toggleListValue('allowedplants', String(p.plantid))} className="mr-2" />
-                                {p.plantname}
-                              </label>
-                            ))}
-                          </div>
-                        )}
-                      </td>
-                      <td className="p-2 space-y-1 flex flex-col">
-                        <button onClick={handleSave} className="w-full bg-green-600 text-white py-1 rounded hover:bg-green-700 text-xs">Save</button>
-                        <button onClick={handleCancel} className="w-full bg-gray-500 text-white py-1 rounded hover:bg-gray-600 text-xs">Cancel</button>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td className="px-3 py-2 break-words">{u.username}</td>
-                      <td className="px-3 py-2 break-words">{'*'.repeat(u.password.length)}</td>
-                      <td className="px-3 py-2 break-words">{u.role}</td>
-                      <td className="px-3 py-2 break-words">{getNames(u.allowedplants, plants, 'plantid', 'plantname')}</td>
-                      <td className="px-3 py-2 space-y-1 flex flex-col">
-                        <button onClick={() => handleEdit(u, i)} className="w-full bg-yellow-500 text-white py-1 rounded hover:bg-yellow-600 text-xs">Edit</button>
-                        <button onClick={() => handleDelete(u.username)} className="w-full bg-red-600 text-white py-1 rounded hover:bg-red-700 text-xs">Delete</button>
-                      </td>
-                    </>
-                  )}
-                </tr>
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto bg-white rounded-lg shadow">
+        <table className="min-w-[700px] w-full text-left text-sm">
+          <thead className="bg-blue-600 text-white">
+            <tr>
+              {['Username', 'Password', 'Role', 'Allowed Plants', 'Actions'].map(c => (
+                <th key={c} className="px-3 py-2 md:px-6 md:py-3 break-words">{c}</th>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u, i) => (
+              <tr key={u.username} className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
+                <td className="px-3 py-2 md:px-6 md:py-3 break-words">{u.username}</td>
+                <td className="px-3 py-2 md:px-6 md:py-3 break-words">{'*'.repeat(u.password.length)}</td>
+                <td className="px-3 py-2 md:px-6 md:py-3 break-words">{u.role}</td>
+                <td className="px-3 py-2 md:px-6 md:py-3 break-words">
+                  {getNames(u.allowedplants, plants, 'plantid', 'plantname')}
+                </td>
+                <td className="px-3 py-2 md:px-6 md:py-3 space-y-1 md:space-x-2 flex flex-col md:flex-row">
+                  <button onClick={() => handleEdit(u, i)} className="w-full md:w-auto px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-xs md:text-sm">
+                    Edit
+                  </button>
+                  <button onClick={() => handleDelete(u.username)} className="w-full md:w-auto px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs md:text-sm">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {users.length === 0 && (
+              <tr>
+                <td colSpan="5" className="text-center py-6 text-gray-500">
+                  No users found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-        {/* Mobile Card View */}
-        <div className="block md:hidden space-y-3">
-          {users.map(u => (
-            <div key={u.username} className="border border-gray-300 rounded p-3 shadow-sm bg-white">
-              <p className="text-sm"><span className="font-semibold">Username:</span> {u.username}</p>
-              <p className="text-sm"><span className="font-semibold">Password:</span> {'*'.repeat(u.password.length)}</p>
-              <p className="text-sm"><span className="font-semibold">Role:</span> {u.role}</p>
-              <p className="text-sm"><span className="font-semibold">Allowed Plants:</span> {getNames(u.allowedplants, plants, 'plantid', 'plantname')}</p>
-              <div className="flex gap-2 mt-2">
-                <button onClick={() => handleEdit(u, users.indexOf(u))} className="flex-1 bg-yellow-500 text-white py-1 rounded hover:bg-yellow-600">Edit</button>
-                <button onClick={() => handleDelete(u.username)} className="flex-1 bg-red-600 text-white py-1 rounded hover:bg-red-700">Delete</button>
+      {/* Mobile Card View */}
+      <div className="block md:hidden space-y-3">
+        {users.map((u, i) => (
+          <div key={u.username} className="border border-gray-300 rounded p-3 shadow-sm bg-white">
+            <p className="text-sm"><span className="font-semibold">Username:</span> {u.username}</p>
+            <p className="text-sm"><span className="font-semibold">Password:</span> {'*'.repeat(u.password.length)}</p>
+            <p className="text-sm"><span className="font-semibold">Role:</span> {u.role}</p>
+            <p className="text-sm"><span className="font-semibold">Allowed Plants:</span> {getNames(u.allowedplants, plants, 'plantid', 'plantname')}</p>
+            <div className="flex gap-2 mt-2">
+              <button onClick={() => handleEdit(u, i)} className="flex-1 bg-yellow-500 text-white py-1 rounded hover:bg-yellow-600">
+                Edit
+              </button>
+              <button onClick={() => handleDelete(u.username)} className="flex-1 bg-red-600 text-white py-1 rounded hover:bg-red-700">
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Edit Form View */}
+      {editIdx !== null && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-lg font-semibold mb-4">Edit User</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Password</label>
+                <input
+                  name="password"
+                  value={editUser.password}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Role</label>
+                <input
+                  name="role"
+                  value={editUser.role}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Allowed Plants</label>
+                <input
+                  name="allowedplants"
+                  value={editUser.allowedplants}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                />
+              </div>
+              <div className="flex justify-between mt-4">
+                <button onClick={handleSave} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                  Save
+                </button>
+                <button onClick={handleCancel} className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                  Cancel
+                </button>
               </div>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
+
