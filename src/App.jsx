@@ -295,6 +295,7 @@ function Layout() {
         <Route path="/reports" element={<ProtectedRoute element={Reports} requiredRoute="reports" />} />
         <Route path="/usermaster" element={<ProtectedRoute element={UserMaster} requiredRoute="usermaster" />} />
         <Route path="/userregister" element={<ProtectedRoute element={UserRegister} requiredRoute="userregister" />} />
+        <Route path="/truckshedule" element={<ProtectedRoute element={TruckSchedule} requiredRoute="truckshedule" />} />
 
         {/* Wildcard: authenticated users go to home; unauthenticated go to login */}
         <Route
