@@ -526,204 +526,165 @@
 
 // export default UserRegister;///final code
 
-
 import React, { useEffect, useState } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const roles = [
-  'Admin',
-  'User',
-  'Dispatcher',
-  'GateKeeper',
-  'Report',
-  'Loader'
-];
-
 const UserRegister = () => {
   const [users, setUsers] = useState([]);
   const [plants, setPlants] = useState([]);
+  const [editIndex, setEditIndex] = useState(null);
+  const [editUser, setEditUser] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editIdx, setEditIdx] = useState(null);
-  const [editUser, setEditUser] = useState({ Username: '', Password: '', Role: '', AllowedPlant: '' });
 
   useEffect(() => {
-    fetchUsers();
-    fetchPlants();
+    fetchAllData();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchAllData = async () => {
     setLoading(true);
-    setError(null);
     try {
-      const response = await fetch(`${API_URL}/api/users`);
-      if (!response.ok) throw new Error('Failed to fetch users');
-      const data = await response.json();
-      const normalized = data.map(u => ({
-        Username: u.username,
-        Password: u.password,
-        Role: u.role,
-        AllowedPlant: u.allowedplants || ''
-      }));
-      setUsers(normalized);
-    } catch (err) {
-      setError(err.message);
+      const [userRes, plantRes] = await Promise.all([
+        fetch(`${API_URL}/api/users`),
+        fetch(`${API_URL}/api/plantmaster`)
+      ]);
+      if (!userRes.ok || !plantRes.ok) throw new Error('Fetch failed');
+      setUsers(await userRes.json());
+      setPlants(await plantRes.json());
+    } catch (e) {
+      setError(e.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchPlants = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/plantmaster`);
-      if (!response.ok) throw new Error('Failed to fetch plant data');
-      const data = await response.json();
-      const formatted = data.map(p => ({
-        PlantId: p.plantid,
-        PlantName: p.plantname
-      }));
-      setPlants(formatted);
-    } catch (err) {
-      console.error('Error fetching plants:', err);
-    }
+  const getPlantNamesFromIds = (str) => {
+    if (!str) return '';
+    return str.split(',')
+      .map(id => plants.find(p => p.plantid === +id)?.plantname || id)
+      .join(', ');
   };
 
-  const getPlantName = (plantIdsStr) => {
-    if (!plantIdsStr) return '';
-    const ids = plantIdsStr.split(',').map(id => id.trim());
-    const names = ids.map(id => {
-      const plant = plants.find(p => p.PlantId === Number(id));
-      return plant ? plant.PlantName : id;
+  const handleEdit = (i) => {
+    setEditIndex(i);
+    setEditUser({ ...users[i] });
+  };
+  const handleCancel = () => setEditIndex(null);
+  const handleChange = e => {
+    setEditUser(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+  const handlePlantChange = e => {
+    const opts = Array.from(e.target.selectedOptions).map(o => o.value);
+    setEditUser(prev => ({ ...prev, allowedplants: opts.join(',') }));
+  };
+  const handleSave = async () => {
+    await fetch(`${API_URL}/api/users/${editUser.username}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editUser)
     });
-    return names.join(', ');
+    await fetchAllData();
+    setEditIndex(null);
   };
-
-  const handleDelete = async (username) => {
-    if (!window.confirm(`Are you sure you want to delete user "${username}"?`)) return;
-    try {
-      const response = await fetch(`${API_URL}/api/users/${encodeURIComponent(username)}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) throw new Error('Failed to delete user');
-      setUsers(users.filter(u => u.Username !== username));
-    } catch (err) {
-      setError(err.message);
-    }
+  const handleDelete = async (u) => {
+    if (!confirm(`Delete ${u}?`)) return;
+    await fetch(`${API_URL}/api/users/${u}`, { method: 'DELETE' });
+    await fetchAllData();
   };
-
-  const handleEdit = (user, idx) => {
-    setEditIdx(idx);
-    setEditUser({ ...user });
-  };
-
-  const handleCheckboxChange = (name, value) => {
-    const current = editUser[name] ? editUser[name].split(',') : [];
-    const updated = current.includes(value)
-      ? current.filter(v => v !== value)
-      : [...current, value];
-    setEditUser(prev => ({ ...prev, [name]: updated.join(',') }));
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditUser(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleEditSave = async (username) => {
-    if (!editUser.Username.trim() || !editUser.Password.trim()) {
-      alert("Username and Password are required.");
-      return;
-    }
-    try {
-      const response = await fetch(`${API_URL}/api/users/${encodeURIComponent(username)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: editUser.Username,
-          password: editUser.Password,
-          role: editUser.Role,
-          allowedplants: editUser.AllowedPlant
-        })
-      });
-      if (!response.ok) throw new Error('Failed to update user');
-      setUsers(users.map(u => (u.Username === username ? editUser : u)));
-      setEditIdx(null);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleEditCancel = () => setEditIdx(null);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6 text-indigo-800">User Register</h2>
+    <div className="max-w-5xl mx-auto p-6">
+      <h1 className="text-3xl font-bold text-indigo-800 mb-6">User Register</h1>
+
       {loading ? (
-        <div>Loading...</div>
+        <div className="text-center py-10">Loading...</div>
       ) : error ? (
-        <div className="text-red-600">{error}</div>
+        <div className="text-center text-red-600">{error}</div>
       ) : (
-        <div className="overflow-x-auto bg-white rounded-xl shadow">
-          <table className="min-w-full text-sm text-left">
-            <thead className="bg-blue-700 text-white">
+        <div className="overflow-x-auto bg-white rounded-lg shadow">
+          <table className="w-full text-left">
+            <thead className="bg-gradient-to-r from-blue-600 to-blue-400 text-white">
               <tr>
-                <th className="p-3 font-semibold">User</th>
-                <th className="p-3 font-semibold">Password</th>
-                <th className="p-3 font-semibold">Role</th>
-                <th className="p-3 font-semibold">Allowed Plant</th>
-                <th className="p-3 font-semibold">Edit</th>
-                <th className="p-3 font-semibold">Delete</th>
+                {['Username','Password','Role','Allowed Plants','Actions'].map(col => (
+                  <th key={col} className="px-6 py-3">{col}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {users.map((user, idx) => (
-                <tr key={idx} className={idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                  {editIdx === idx ? (
+              {users.length === 0 && (
+                <tr>
+                  <td colSpan="5" className="text-center py-8 text-gray-500">No users found.</td>
+                </tr>
+              )}
+              {users.map((u,i) => (
+                <tr key={u.username} className={i%2===0?'bg-gray-50':'bg-white'}>
+                  {editIndex === i ? (
                     <>
-                      <td className="p-3">
-                        <input name="Username" value={editUser.Username} onChange={handleEditChange} className="w-full border p-2 rounded" />
+                      <td className="p-4">
+                        <input
+                          name="username"
+                          value={editUser.username}
+                          disabled
+                          className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100"
+                        />
                       </td>
-                      <td className="p-3">
-                        <input name="Password" value={editUser.Password} onChange={handleEditChange} className="w-full border p-2 rounded" />
+                      <td className="p-4">
+                        <input
+                          name="password"
+                          value={editUser.password}
+                          onChange={handleChange}
+                          className="w-full border border-gray-300 rounded px-3 py-2"
+                        />
                       </td>
-                      <td className="p-3">
-                        <div className="flex flex-col gap-1 max-h-32 overflow-y-auto">
-                          {roles.map(role => (
-                            <label key={role} className="flex items-center gap-2">
-                              <input type="checkbox" checked={editUser.Role.split(',').includes(role)} onChange={() => handleCheckboxChange('Role', role)} />
-                              {role}
-                            </label>
+                      <td className="p-4">
+                        <input
+                          name="role"
+                          value={editUser.role}
+                          onChange={handleChange}
+                          className="w-full border border-gray-300 rounded px-3 py-2"
+                        />
+                      </td>
+                      <td className="p-4">
+                        <select
+                          multiple
+                          value={editUser.allowedplants?.split(',')||[]}
+                          onChange={handlePlantChange}
+                          className="w-full border border-gray-300 rounded px-3 py-2 h-32 overflow-y-auto"
+                        >
+                          {plants.map(p => (
+                            <option key={p.plantid} value={p.plantid}>
+                              {p.plantname}
+                            </option>
                           ))}
-                        </div>
+                        </select>
                       </td>
-                      <td className="p-3">
-                        <div className="flex flex-col gap-1 max-h-32 overflow-y-auto">
-                          {plants.map(plant => (
-                            <label key={plant.PlantId} className="flex items-center gap-2">
-                              <input type="checkbox" checked={editUser.AllowedPlant.split(',').includes(String(plant.PlantId))} onChange={() => handleCheckboxChange('AllowedPlant', String(plant.PlantId))} />
-                              {plant.PlantName}
-                            </label>
-                          ))}
-                        </div>
+                      <td className="p-4 space-x-2">
+                        <button
+                          onClick={handleSave}
+                          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                        >Save</button>
+                        <button
+                          onClick={handleCancel}
+                          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
+                        >Cancel</button>
                       </td>
-                      <td className="p-3">
-                        <button onClick={() => handleEditSave(user.Username)} className="bg-green-600 text-white px-3 py-1 rounded">Save</button>
-                        <button onClick={handleEditCancel} className="ml-2 bg-gray-400 text-white px-3 py-1 rounded">Cancel</button>
-                      </td>
-                      <td className="p-3">-</td>
                     </>
                   ) : (
                     <>
-                      <td className="p-3 font-medium">{user.Username}</td>
-                      <td className="p-3">{'*'.repeat(user.Password?.length || 6)}</td>
-                      <td className="p-3">{user.Role}</td>
-                      <td className="p-3">{getPlantName(user.AllowedPlant)}</td>
-                      <td className="p-3">
-                        <button onClick={() => handleEdit(user, idx)} className="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                      </td>
-                      <td className="p-3">
-                        <button onClick={() => handleDelete(user.Username)} className="bg-red-600 text-white px-2 py-1 rounded">Delete</button>
+                      <td className="px-6 py-4 font-medium">{u.username}</td>
+                      <td className="px-6 py-4">{'*'.repeat(u.password.length)}</td>
+                      <td className="px-6 py-4">{u.role}</td>
+                      <td className="px-6 py-4">{getPlantNamesFromIds(u.allowedplants)}</td>
+                      <td className="px-6 py-4 space-x-2">
+                        <button
+                          onClick={() => handleEdit(i)}
+                          className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+                        >Edit</button>
+                        <button
+                          onClick={() => handleDelete(u.username)}
+                          className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                        >Delete</button>
                       </td>
                     </>
                   )}
@@ -738,5 +699,3 @@ const UserRegister = () => {
 };
 
 export default UserRegister;
-
-
