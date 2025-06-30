@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import truckImg from './truck.png'; // You can replace this with your actual truck image
+import truckImage from './assets/Truck.png.png';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
