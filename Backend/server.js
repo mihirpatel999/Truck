@@ -1406,39 +1406,125 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
 //   }
 // });////////////////////working apis
 
+// app.get('/api/users', async (req, res) => {
+//   try {
+//     const usersResult = await pool.query(
+//       'SELECT "userid", "username", "password", "role", "contactnumber", "allowedplants" FROM users'
+//     );
+
+//     const plantsResult = await pool.query(
+//       'SELECT "plantid", "plantname" FROM plantmaster'
+//     );
+
+//     const plantsMap = {};
+//     plantsResult.rows.forEach(plant => {
+//       plantsMap[plant.plantid] = plant.plantname;
+//     });
+
+//     const processedUsers = usersResult.rows.map(user => {
+//       let allowedPlantNames = '';
+//       if (user.allowedplants && user.allowedplants.trim() !== '') {
+//         const plantIds = user.allowedplants.split(',').map(id => id.trim());
+//         const plantNames = plantIds.map(id => plantsMap[parseInt(id)]).filter(Boolean);
+//         allowedPlantNames = plantNames.join(', ');
+//       }
+
+//       return {
+//         ...user,
+//         allowedPlantNames
+//       };
+//     });
+
+//     res.json(processedUsers);
+//   } catch (err) {
+//     console.error('Error fetching users:', err);
+//     res.status(500).json({ message: 'Error fetching users.' });
+//   }
+// });
+
+// app.delete('/api/users/:username', async (req, res) => {
+//   const { username } = req.params;
+//   try {
+//     const result = await pool.query(
+//       'DELETE FROM users WHERE "username" = $1',
+//       [username]
+//     );
+
+//     if (result.rowCount === 0) {
+//       return res.status(404).json({ message: 'User not found.' });
+//     }
+
+//     res.json({ message: 'User deleted successfully.' });
+//   } catch (err) {
+//     console.error('Error deleting user:', err);
+//     res.status(500).json({ message: 'Error deleting user.' });
+//   }
+// });
+
+// app.put('/api/users/:username', async (req, res) => {
+//   const { username } = req.params;
+//   const { username: newUsername, password, role, contactnumber, allowedplants } = req.body;
+
+//   try {
+//     const result = await pool.query(
+//       `UPDATE users
+//        SET "username" = $1,
+//            "password" = $2,
+//            "role" = $3,
+//            "contactnumber" = $4,
+//            "allowedplants" = $5
+//        WHERE "username" = $6`,
+//       [newUsername, password, role, contactnumber, allowedplants, username]
+//     );
+
+//     if (result.rowCount === 0) {
+//       return res.status(404).json({ message: 'User not found.' });
+//     }
+
+//     res.json({ message: 'User updated successfully.' });
+//   } catch (err) {
+//     console.error('Error updating user:', err);
+//     res.status(500).json({ message: 'Error updating user.' });
+//   }
+// });
+
 app.get('/api/users', async (req, res) => {
   try {
-    const usersResult = await pool.query(
+    const result = await pool.query(
       'SELECT "userid", "username", "password", "role", "contactnumber", "allowedplants" FROM users'
     );
-
-    const plantsResult = await pool.query(
-      'SELECT "plantid", "plantname" FROM plantmaster'
-    );
-
-    const plantsMap = {};
-    plantsResult.rows.forEach(plant => {
-      plantsMap[plant.plantid] = plant.plantname;
-    });
-
-    const processedUsers = usersResult.rows.map(user => {
-      let allowedPlantNames = '';
-      if (user.allowedplants && user.allowedplants.trim() !== '') {
-        const plantIds = user.allowedplants.split(',').map(id => id.trim());
-        const plantNames = plantIds.map(id => plantsMap[parseInt(id)]).filter(Boolean);
-        allowedPlantNames = plantNames.join(', ');
-      }
-
-      return {
-        ...user,
-        allowedPlantNames
-      };
-    });
-
-    res.json(processedUsers);
+    res.json(result.rows); // return plant IDs (e.g., "7,11")
   } catch (err) {
     console.error('Error fetching users:', err);
     res.status(500).json({ message: 'Error fetching users.' });
+  }
+});
+
+
+app.put('/api/users/:username', async (req, res) => {
+  const { username } = req.params;
+  const { username: newUsername, password, role, contactnumber, allowedplants } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE users
+       SET "username" = $1,
+           "password" = $2,
+           "role" = $3,
+           "contactnumber" = $4,
+           "allowedplants" = $5
+       WHERE "username" = $6`,
+      [newUsername, password, role, contactnumber || '', allowedplants, username]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    res.json({ message: 'User updated successfully.' });
+  } catch (err) {
+    console.error('Error updating user:', err);
+    res.status(500).json({ message: 'Error updating user.' });
   }
 });
 
@@ -1461,32 +1547,19 @@ app.delete('/api/users/:username', async (req, res) => {
   }
 });
 
-app.put('/api/users/:username', async (req, res) => {
-  const { username } = req.params;
-  const { username: newUsername, password, role, contactnumber, allowedplants } = req.body;
 
+app.get('/api/plantmaster', async (req, res) => {
   try {
     const result = await pool.query(
-      `UPDATE users
-       SET "username" = $1,
-           "password" = $2,
-           "role" = $3,
-           "contactnumber" = $4,
-           "allowedplants" = $5
-       WHERE "username" = $6`,
-      [newUsername, password, role, contactnumber, allowedplants, username]
+      'SELECT "plantid", "plantname" FROM plantmaster'
     );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-
-    res.json({ message: 'User updated successfully.' });
+    res.json(result.rows);
   } catch (err) {
-    console.error('Error updating user:', err);
-    res.status(500).json({ message: 'Error updating user.' });
+    console.error('Error fetching plantmaster:', err);
+    res.status(500).json({ message: 'Error fetching plantmaster.' });
   }
 });
+
 
 
 app.get('/api/truck-schedule', async (req, res) => {

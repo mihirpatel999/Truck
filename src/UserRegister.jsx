@@ -311,7 +311,6 @@ const UserRegister = () => {
       if (!response.ok) throw new Error('Failed to fetch plant data');
       const data = await response.json();
 
-      // Convert backend keys to expected frontend format
       const formatted = data.map(p => ({
         PlantId: p.plantid,
         PlantName: p.plantname
@@ -323,9 +322,14 @@ const UserRegister = () => {
     }
   };
 
-  const getPlantName = (plantId) => {
-    const plant = plants.find(p => p.PlantId === Number(plantId));
-    return plant ? plant.PlantName : plantId;
+  const getPlantName = (plantIdsStr) => {
+    if (!plantIdsStr) return '';
+    const ids = plantIdsStr.split(',').map(id => id.trim());
+    const names = ids.map(id => {
+      const plant = plants.find(p => p.PlantId === Number(id));
+      return plant ? plant.PlantName : id;
+    });
+    return names.join(', ');
   };
 
   const handleDelete = async (username) => {
@@ -364,8 +368,8 @@ const UserRegister = () => {
           username: editUser.Username,
           password: editUser.Password,
           role: editUser.Role,
-          allowedplants: editUser.AllowedPlant,
-          contactnumber: '' // Optional: you can update this if needed
+          contactnumber: '', // optional
+          allowedplants: editUser.AllowedPlant
         })
       });
       if (!response.ok) throw new Error('Failed to update user');
@@ -459,11 +463,17 @@ const UserRegister = () => {
                       <td>
                         <select
                           name="AllowedPlant"
-                          value={editUser.AllowedPlant}
-                          onChange={handleEditChange}
-                          style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #bdbdbd' }}
+                          multiple
+                          value={editUser.AllowedPlant.split(',')}
+                          onChange={(e) => {
+                            const selectedValues = Array.from(e.target.selectedOptions).map(opt => opt.value);
+                            setEditUser(prev => ({
+                              ...prev,
+                              AllowedPlant: selectedValues.join(',')
+                            }));
+                          }}
+                          style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #bdbdbd', height: '80px' }}
                         >
-                          <option value="">Select Plant</option>
                           {plants.map(plant => (
                             <option key={plant.PlantId} value={plant.PlantId}>
                               {plant.PlantName}
@@ -515,6 +525,3 @@ const UserRegister = () => {
 };
 
 export default UserRegister;
-
-
-
