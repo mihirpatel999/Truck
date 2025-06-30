@@ -1170,7 +1170,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import truckImg from './assets/truck-dashboard.svg'; // example illustration
+import truckImg from './assets/Truck.png.png'; // example illustration
 
 const API_URL = import.meta.env.VITE_API_URL;
 
