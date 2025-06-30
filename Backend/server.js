@@ -1562,7 +1562,7 @@ app.get('/api/truck-schedule', async (req, res) => {
   } else if (status === 'InTransit') {
     statusCondition = 'ttd.checkinstatus = 1 AND (ttd.checkoutstatus = 0 OR ttd.checkoutstatus IS NULL)';
   } else if (status === 'CheckedOut') {
-    statusCondition = 'ttd.checkinstatus = 1 AND ttd.checkoutstatus = 0';
+    statusCondition = 'ttd.checkinstatus = 1 AND ttd.checkoutstatus = 1';
   } else if (status === 'All') {
     statusCondition = '1=1';
   } else {
