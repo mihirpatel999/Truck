@@ -1440,14 +1440,25 @@ export default function TruckTransaction() {
 
   // const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleChange = (e) => {
-  const { name, value } = e.target;
+  let { name, value } = e.target;
 
   if (name === 'truckNo') {
-    setFormData({ ...formData, [name]: value.toUpperCase() });
+    // Remove all hyphens and spaces for clean processing
+    value = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+
+    let formatted = '';
+
+    if (value.length > 0) formatted += value.substring(0, 2);
+    if (value.length > 2) formatted += '-' + value.substring(2, 4);
+    if (value.length > 4) formatted += '-' + value.substring(4, 6);
+    if (value.length > 6) formatted += '-' + value.substring(6, 10);
+
+    setFormData({ ...formData, truckNo: formatted });
   } else {
     setFormData({ ...formData, [name]: value });
   }
 };
+
 
 
 
@@ -1524,6 +1535,7 @@ export default function TruckTransaction() {
     <input
       type="text"
       name="truckNo"
+       maxLength={13}
       value={formData.truckNo}
       onChange={handleChange}
       placeholder="e.g., GJ-01-AB-1234"
