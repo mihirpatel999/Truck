@@ -805,6 +805,8 @@ function Navbar() {
     Dispatch: ['truck', 'truckfind', 'truckshedule'],
     Report: ['reports', 'truckshedule'],
     GateKeeper: ['gate'],
+    UserMaster: ['usermaster'],
+    UserRegister: ['userregister']
     Loader: ['loader'],
   };
 

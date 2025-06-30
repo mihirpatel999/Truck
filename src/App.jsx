@@ -248,6 +248,8 @@ const roleAccess = {
   admin: ['plantmaster', 'usermaster', 'truck', 'gate', 'loader', 'reports', 'staff','userregister','truckshedule'],
   dispatch: ['truck', 'truckfind'],
   gatekeeper: ['gate'],
+  usermaster: ['usermaster'],
+  userregister: ['userregister']
   report: ['reports','truckshedule'],
   loader: ['loader'],
 };
