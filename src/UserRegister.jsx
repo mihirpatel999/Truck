@@ -992,7 +992,6 @@
 //   );
 // }///////////////////////////////////final working code //////////////////
 
-
 import React, { useEffect, useState } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -1089,8 +1088,8 @@ export default function UserRegister() {
         User Register
       </h1>
 
-      {/* Desktop Table */}
-      <div className="hidden md:block bg-white rounded-lg shadow overflow-auto">
+      {/* Desktop Table - Only show on md and above */}
+      <div className="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead className="bg-blue-600 text-white">
             <tr>
@@ -1102,64 +1101,14 @@ export default function UserRegister() {
           <tbody>
             {users.map((u, i) => (
               <tr key={u.username} className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
-                {editIdx === i ? (
-                  <>
-                    <td className="p-3">
-                      <input name="username" value={editUser.username} disabled className="w-full border-gray-300 rounded px-2 py-1 bg-gray-100" />
-                    </td>
-                    <td className="p-3">
-                      <input name="password" value={editUser.password} onChange={handleChange} className="w-full border-gray-300 rounded px-2 py-1" />
-                    </td>
-                    <td className="p-3 role-dropdown relative">
-                      <div onClick={() => setShowRoleDropdown(s => !s)} className="border rounded px-2 py-1 bg-white cursor-pointer">
-                        {editUser.role.split(',').filter(Boolean).join(', ') || 'Select Roles'}
-                      </div>
-                      {showRoleDropdown && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
-                          {ALL_ROLES.map(r => (
-                            <label key={r} className="flex items-center px-3 py-1 hover:bg-gray-100">
-                              <input type="checkbox" checked={editUser.role.split(',').includes(r)} onChange={() => toggleListValue('role', r)} className="mr-2" />
-                              {r}
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-3 plant-dropdown relative">
-                      <div onClick={() => setShowPlantDropdown(s => !s)} className="border rounded px-2 py-1 bg-white cursor-pointer">
-                        {getNames(editUser.allowedplants, plants, 'plantid', 'plantname') || 'Select Plants'}
-                      </div>
-                      {showPlantDropdown && (
-                        <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
-                          {plants.map(p => {
-                            const arr = editUser.allowedplants ? editUser.allowedplants.split(',') : [];
-                            return (
-                              <label key={p.plantid} className="flex items-center px-3 py-1 hover:bg-gray-100">
-                                <input type="checkbox" checked={arr.includes(String(p.plantid))} onChange={() => toggleListValue('allowedplants', String(p.plantid))} className="mr-2" />
-                                {p.plantname}
-                              </label>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-3 space-x-2">
-                      <button onClick={handleSave} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
-                      <button onClick={handleCancel} className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td className="p-3">{u.username}</td>
-                    <td className="p-3">{'*'.repeat(u.password.length)}</td>
-                    <td className="p-3">{u.role}</td>
-                    <td className="p-3">{getNames(u.allowedplants, plants, 'plantid', 'plantname')}</td>
-                    <td className="p-3 space-x-2">
-                      <button onClick={() => handleEdit(u, i)} className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</button>
-                      <button onClick={() => handleDelete(u.username)} className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
-                    </td>
-                  </>
-                )}
+                <td className="p-3">{u.username}</td>
+                <td className="p-3">{'*'.repeat(u.password.length)}</td>
+                <td className="p-3">{u.role}</td>
+                <td className="p-3">{getNames(u.allowedplants, plants, 'plantid', 'plantname')}</td>
+                <td className="p-3 space-x-2">
+                  <button onClick={() => handleEdit(u, i)} className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</button>
+                  <button onClick={() => handleDelete(u.username)} className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
+                </td>
               </tr>
             ))}
             {users.length === 0 && (
@@ -1171,10 +1120,10 @@ export default function UserRegister() {
         </table>
       </div>
 
-      {/* Mobile Card View */}
+      {/* Mobile Card View - Only show below md */}
       <div className="block md:hidden space-y-3">
         {users.map((u, i) => (
-          <div key={u.username} className="border border-gray-300 rounded p-3 shadow-sm bg-white">
+          <div key={u.username} className="border border-gray-300 rounded-lg p-3 shadow bg-white">
             <p className="text-sm"><span className="font-semibold">Username:</span> {u.username}</p>
             <p className="text-sm"><span className="font-semibold">Password:</span> {'*'.repeat(u.password.length)}</p>
             <p className="text-sm"><span className="font-semibold">Role:</span> {u.role}</p>
@@ -1192,5 +1141,4 @@ export default function UserRegister() {
     </div>
   );
 }
-
 
