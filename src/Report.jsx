@@ -1171,7 +1171,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import truckImg from './assets/Truck.png.png'; // example illustration
-import CancelButton from './CancelButton';
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 

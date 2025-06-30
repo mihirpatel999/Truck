@@ -1106,239 +1106,10 @@
 //   );
 // }
 
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
-// import truckImage from './assets/Truck.png.png'; 
-// import CancelButton from './CancelButton';
-
-// const API_URL = import.meta.env.VITE_API_URL;
-
-// export default function TruckSchedule() {
-//   const [fromDate, setFromDate] = useState('');
-//   const [toDate, setToDate] = useState('');
-//   const [status, setStatus] = useState('All');
-//   const [truckSearch, setTruckSearch] = useState('');
-//   const [plantList, setPlantList] = useState([]);
-//   const [selectedPlants, setSelectedPlants] = useState([]);
-//   const [data, setData] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState('');
-
-//   useEffect(() => {
-//     axios.get(`${API_URL}/api/plants`, {
-//       headers: {
-//         userid: localStorage.getItem('userId'),
-//         role: localStorage.getItem('role'),
-//       }
-//     })
-//     .then(res => {
-//       setPlantList(res.data);
-//       setSelectedPlants(res.data.map(p => p.plantid.toString()));
-//     })
-//     .catch(() => setError('Failed to load plants'));
-//   }, []);
-
-//   const togglePlant = id =>
-//     setSelectedPlants(prev =>
-//       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-//     );
-
-//   const selectAll = () =>
-//     setSelectedPlants(plantList.map(p => p.plantid.toString()));
-
-//   const deselectAll = () => setSelectedPlants([]);
-
-//   const fetchData = async (st, tr = '') => {
-//     if (!fromDate || !toDate || selectedPlants.length === 0) {
-//       setError('Please select all filters');
-//       return;
-//     }
-//     setLoading(true);
-//     setError('');
-//     setStatus(st);
-
-//     try {
-//       const res = await axios.get(`${API_URL}/api/truck-schedule`, {
-//         params: {
-//           fromDate,
-//           toDate,
-//           status: st,
-//           plant: JSON.stringify(selectedPlants),
-//           truckNo: tr || undefined,
-//         },
-//       });
-//       let fetched = res.data;
-//       if (tr) {
-//         fetched = fetched.filter(item =>
-//           item.truckNo?.toLowerCase().includes(tr.toLowerCase())
-//         );
-//       }
-//       setData(fetched);
-//     } catch {
-//       setError('Failed to fetch data');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="p-4 bg-gradient-to-br from-gray-100 to-blue-100 min-h-screen flex flex-col items-center w-full">
-//       <CancelButton />
-//       <h1 className="text-2xl sm:text-3xl font-bold text-indigo-700 mb-4 text-center">🚚 Truck Schedule</h1>
-
-//       {/* Filters */}
-//       <div className="flex flex-wrap gap-3 justify-center items-end bg-white p-3 rounded-lg shadow w-full max-w-5xl mb-4">
-//         <div className="flex flex-col">
-//           <label className="text-sm">From</label>
-//           <input
-//             type="date"
-//             value={fromDate}
-//             onChange={e => setFromDate(e.target.value)}
-//             className="border rounded px-2 py-1 text-sm"
-//           />
-//         </div>
-//         <div className="flex flex-col">
-//           <label className="text-sm">To</label>
-//           <input
-//             type="date"
-//             value={toDate}
-//             onChange={e => setToDate(e.target.value)}
-//             className="border rounded px-2 py-1 text-sm"
-//           />
-//         </div>
-//         <div className="flex gap-1 flex-wrap">
-//           {['Dispatched', 'InTransit', 'CheckedOut', 'All'].map(btn => (
-//             <button
-//               key={btn}
-//               onClick={() => fetchData(btn, truckSearch)}
-//               className={`px-3 py-1 rounded font-semibold text-xs ${
-//                 status === btn
-//                   ? 'bg-indigo-600 text-white'
-//                   : 'bg-indigo-100 text-indigo-700'
-//               }`}
-//             >
-//               {btn}
-//             </button>
-//           ))}
-//         </div>
-//         <input
-//           type="text"
-//           placeholder="Truck No."
-//           value={truckSearch}
-//           onChange={e => setTruckSearch(e.target.value)}
-//           className="border rounded px-2 py-1 text-sm w-24"
-//         />
-//         <button
-//           onClick={() => fetchData(status, truckSearch)}
-//           className="px-3 py-1 bg-indigo-500 text-white rounded text-sm"
-//         >
-//           Search
-//         </button>
-//       </div>
-
-//       {/* Plant selector */}
-//       <div className="bg-white p-3 rounded-lg shadow w-full max-w-5xl mb-4">
-//         <h2 className="text-base font-semibold mb-2">Select Plants</h2>
-//         <div className="flex gap-2 mb-2 flex-wrap">
-//           <button
-//             onClick={selectAll}
-//             className="bg-green-500 text-white px-3 py-1 rounded text-sm"
-//           >
-//             Select All
-//           </button>
-//           <button
-//             onClick={deselectAll}
-//             className="bg-red-500 text-white px-3 py-1 rounded text-sm"
-//           >
-//             Deselect
-//           </button>
-//         </div>
-//         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-40 overflow-y-auto">
-//           {plantList.map(p => (
-//             <label key={p.plantid} className="flex items-center gap-1 text-sm">
-//               <input
-//                 type="checkbox"
-//                 checked={selectedPlants.includes(p.plantid.toString())}
-//                 onChange={() => togglePlant(p.plantid.toString())}
-//               />
-//               {p.plantname}
-//             </label>
-//           ))}
-//         </div>
-//       </div>
-
-//       {/* Table / cards display */}
-//       <div className="bg-white p-3 shadow rounded-2xl w-full max-w-5xl overflow-x-auto">
-//         <img src={truckImage} alt="Truck" className="mx-auto h-24 sm:h-40 mb-3" />
-
-//         {loading && <p className="text-indigo-600 text-center">Loading...</p>}
-//         {error && <p className="text-red-500 text-center">{error}</p>}
-//         {!loading && !error && data.length === 0 && (
-//           <p className="text-gray-500 text-center">No trucks found</p>
-//         )}
-
-//         {/* Desktop Table */}
-//         {data.length > 0 && (
-//           <div className="hidden md:block">
-//             <table className="w-full table-auto border border-gray-300 text-sm">
-//               <thead className="bg-indigo-100">
-//                 <tr>
-//                   {['Truck No', 'Plant', 'Check‑In', 'Check‑Out', 'Slip', 'Qty', 'Freight', 'Priority'].map(h => (
-//                     <th key={h} className="px-3 py-2 border border-gray-300 text-left">{h}</th>
-//                   ))}
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {data.map((item, idx) => (
-//                   <tr key={idx} className="hover:bg-gray-50">
-//                     {['truckNo', 'plantName', 'checkInTime', 'checkOutTime', 'loadingSlipNo', 'qty', 'freight', 'priority'].map((key) => {
-//                       const raw = item[key];
-//                       const value = key.includes('Time') && raw
-//                         ? new Date(raw).toLocaleString()
-//                         : raw ?? '—';
-//                       return (
-//                         <td key={key} className="px-3 py-2 border border-gray-300">{value}</td>
-//                       );
-//                     })}
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-//         )}
-
-//         {/* Mobile Card View */}
-//         {data.length > 0 && (
-//           <div className="block md:hidden space-y-3">
-//             {data.map((item, idx) => (
-//               <div key={idx} className="border border-gray-300 rounded p-2 shadow-sm bg-white">
-//                 {['Truck No', 'Plant', 'Check‑In', 'Check‑Out', 'Slip', 'Qty', 'Freight', 'Priority'].map((label, i) => {
-//                   const key = ['truckNo', 'plantName', 'checkInTime', 'checkOutTime', 'loadingSlipNo', 'qty', 'freight', 'priority'][i];
-//                   const raw = item[key];
-//                   const value = key.includes('Time') && raw
-//                     ? new Date(raw).toLocaleString()
-//                     : raw ?? '—';
-//                   return (
-//                     <p key={key} className="text-sm">
-//                       <span className="font-semibold">{label}:</span> {value}
-//                     </p>
-//                   );
-//                 })}
-//               </div>
-//             ))}
-//           </div>
-//         )}
-
-//       </div>
-//     </div>
-//   );
-// }
-
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import truckImage from './assets/Truck.png.png';
-import CancelButton from './CancelButton';
+import truckImage from './assets/Truck.png.png'; 
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -1354,27 +1125,26 @@ export default function TruckSchedule() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    axios
-      .get(`${API_URL}/api/plants`, {
-        headers: {
-          userid: localStorage.getItem('userId'),
-          role: localStorage.getItem('role'),
-        },
-      })
-      .then((res) => {
-        setPlantList(res.data);
-        setSelectedPlants(res.data.map((p) => p.plantid.toString()));
-      })
-      .catch(() => setError('Failed to load plants'));
+    axios.get(`${API_URL}/api/plants`, {
+      headers: {
+        userid: localStorage.getItem('userId'),
+        role: localStorage.getItem('role'),
+      }
+    })
+    .then(res => {
+      setPlantList(res.data);
+      setSelectedPlants(res.data.map(p => p.plantid.toString()));
+    })
+    .catch(() => setError('Failed to load plants'));
   }, []);
 
-  const togglePlant = (id) =>
-    setSelectedPlants((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+  const togglePlant = id =>
+    setSelectedPlants(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
 
   const selectAll = () =>
-    setSelectedPlants(plantList.map((p) => p.plantid.toString()));
+    setSelectedPlants(plantList.map(p => p.plantid.toString()));
 
   const deselectAll = () => setSelectedPlants([]);
 
@@ -1399,7 +1169,7 @@ export default function TruckSchedule() {
       });
       let fetched = res.data;
       if (tr) {
-        fetched = fetched.filter((item) =>
+        fetched = fetched.filter(item =>
           item.truckNo?.toLowerCase().includes(tr.toLowerCase())
         );
       }
@@ -1412,33 +1182,94 @@ export default function TruckSchedule() {
   };
 
   return (
-    <div className="relative p-4 bg-gradient-to-br from-gray-100 to-blue-100 min-h-screen flex flex-col items-center w-full">
-      {/* Cancel button top-right */}
-      <div className="absolute top-4 right-4">
-        <CancelButton size={40} />
-      </div>
-
-      <h1 className="mt-4 text-2xl sm:text-3xl font-bold text-indigo-700 mb-4 text-center">
-        🚚 Truck Schedule
-      </h1>
+    <div className="p-4 bg-gradient-to-br from-gray-100 to-blue-100 min-h-screen flex flex-col items-center w-full">
+      <CancelButton />
+      <h1 className="text-2xl sm:text-3xl font-bold text-indigo-700 mb-4 text-center">🚚 Truck Schedule</h1>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 justify-center items-end bg-white p-4 rounded-xl shadow-md w-full max-w-5xl mb-4">
-        {/* ... rest remains same ... */}
+      <div className="flex flex-wrap gap-3 justify-center items-end bg-white p-3 rounded-lg shadow w-full max-w-5xl mb-4">
+        <div className="flex flex-col">
+          <label className="text-sm">From</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={e => setFromDate(e.target.value)}
+            className="border rounded px-2 py-1 text-sm"
+          />
+        </div>
+        <div className="flex flex-col">
+          <label className="text-sm">To</label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={e => setToDate(e.target.value)}
+            className="border rounded px-2 py-1 text-sm"
+          />
+        </div>
+        <div className="flex gap-1 flex-wrap">
+          {['Dispatched', 'InTransit', 'CheckedOut', 'All'].map(btn => (
+            <button
+              key={btn}
+              onClick={() => fetchData(btn, truckSearch)}
+              className={`px-3 py-1 rounded font-semibold text-xs ${
+                status === btn
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-indigo-100 text-indigo-700'
+              }`}
+            >
+              {btn}
+            </button>
+          ))}
+        </div>
+        <input
+          type="text"
+          placeholder="Truck No."
+          value={truckSearch}
+          onChange={e => setTruckSearch(e.target.value)}
+          className="border rounded px-2 py-1 text-sm w-24"
+        />
+        <button
+          onClick={() => fetchData(status, truckSearch)}
+          className="px-3 py-1 bg-indigo-500 text-white rounded text-sm"
+        >
+          Search
+        </button>
       </div>
 
       {/* Plant selector */}
-      <div className="bg-white p-4 rounded-xl shadow-md w-full max-w-5xl mb-4">
-        {/* ... */}
+      <div className="bg-white p-3 rounded-lg shadow w-full max-w-5xl mb-4">
+        <h2 className="text-base font-semibold mb-2">Select Plants</h2>
+        <div className="flex gap-2 mb-2 flex-wrap">
+          <button
+            onClick={selectAll}
+            className="bg-green-500 text-white px-3 py-1 rounded text-sm"
+          >
+            Select All
+          </button>
+          <button
+            onClick={deselectAll}
+            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+          >
+            Deselect
+          </button>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+          {plantList.map(p => (
+            <label key={p.plantid} className="flex items-center gap-1 text-sm">
+              <input
+                type="checkbox"
+                checked={selectedPlants.includes(p.plantid.toString())}
+                onChange={() => togglePlant(p.plantid.toString())}
+              />
+              {p.plantname}
+            </label>
+          ))}
+        </div>
       </div>
 
-      {/* Data display */}
-      <div className="bg-white p-4 shadow-md rounded-2xl w-full max-w-5xl overflow-x-auto">
-        <img
-          src={truckImage}
-          alt="Truck"
-          className="mx-auto h-24 sm:h-40 mb-4"
-        />
+      {/* Table / cards display */}
+      <div className="bg-white p-3 shadow rounded-2xl w-full max-w-5xl overflow-x-auto">
+        <img src={truckImage} alt="Truck" className="mx-auto h-24 sm:h-40 mb-3" />
 
         {loading && <p className="text-indigo-600 text-center">Loading...</p>}
         {error && <p className="text-red-500 text-center">{error}</p>}
@@ -1449,16 +1280,55 @@ export default function TruckSchedule() {
         {/* Desktop Table */}
         {data.length > 0 && (
           <div className="hidden md:block">
-            {/* ... */}
+            <table className="w-full table-auto border border-gray-300 text-sm">
+              <thead className="bg-indigo-100">
+                <tr>
+                  {['Truck No', 'Plant', 'Check‑In', 'Check‑Out', 'Slip', 'Qty', 'Freight', 'Priority'].map(h => (
+                    <th key={h} className="px-3 py-2 border border-gray-300 text-left">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50">
+                    {['truckNo', 'plantName', 'checkInTime', 'checkOutTime', 'loadingSlipNo', 'qty', 'freight', 'priority'].map((key) => {
+                      const raw = item[key];
+                      const value = key.includes('Time') && raw
+                        ? new Date(raw).toLocaleString()
+                        : raw ?? '—';
+                      return (
+                        <td key={key} className="px-3 py-2 border border-gray-300">{value}</td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
         {/* Mobile Card View */}
         {data.length > 0 && (
           <div className="block md:hidden space-y-3">
-            {/* ... */}
+            {data.map((item, idx) => (
+              <div key={idx} className="border border-gray-300 rounded p-2 shadow-sm bg-white">
+                {['Truck No', 'Plant', 'Check‑In', 'Check‑Out', 'Slip', 'Qty', 'Freight', 'Priority'].map((label, i) => {
+                  const key = ['truckNo', 'plantName', 'checkInTime', 'checkOutTime', 'loadingSlipNo', 'qty', 'freight', 'priority'][i];
+                  const raw = item[key];
+                  const value = key.includes('Time') && raw
+                    ? new Date(raw).toLocaleString()
+                    : raw ?? '—';
+                  return (
+                    <p key={key} className="text-sm">
+                      <span className="font-semibold">{label}:</span> {value}
+                    </p>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         )}
+
       </div>
     </div>
   );
