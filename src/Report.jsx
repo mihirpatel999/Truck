@@ -570,6 +570,195 @@
 //   );
 // }
 //////////////
+
+
+
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+
+// const API_URL = import.meta.env.VITE_API_URL;
+
+// export default function Report() {
+//   const [fromDate, setFromDate] = useState('');
+//   const [toDate, setToDate] = useState('');
+//   const [plant, setPlant] = useState('');
+//   const [plants, setPlants] = useState([]);
+//   const [reportData, setReportData] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+
+//   // ✅ Fetch all plants for dropdown
+// useEffect(() => {
+//   const fetchPlants = async () => {
+//     try {
+//       const res = await axios.get(`${API_URL}/api/plants`, {
+//         headers: {
+//           userid: localStorage.getItem('userId'),
+//           role: localStorage.getItem('role')
+//         }
+//       });
+//       console.log(res.data);  // 👈 Console me response dekhna
+//       setPlants(res.data);
+//     } catch (err) {
+//       console.error(err);
+//       setError('Failed to fetch plants');
+//     }
+//   };
+//   fetchPlants();
+// }, []);
+
+
+//   // ✅ Fetch report based on filters
+//   const fetchReport = async () => {
+//     if (!fromDate || !toDate || !plant) {
+//       setError('Please select all filters');
+//       return;
+//     }
+//     setError('');
+//     setLoading(true);
+
+//     try {
+//       const res = await axios.get(
+//         `${API_URL}/api/truck-report?fromDate=${fromDate}&toDate=${toDate}&plant=${plant}`
+//       );
+
+//       console.log('API raw response:', res.data);
+
+//       if (res.data.success && Array.isArray(res.data.data)) {
+//         setReportData(res.data.data);
+//       } else if (Array.isArray(res.data)) {
+//         setReportData(res.data); // In case backend is returning raw array
+//       } else {
+//         setError('Invalid data format from server');
+//         setReportData([]);
+//       }
+//     } catch (err) {
+//       console.error(err);
+//       setError(err.response?.data?.error || 'Failed to fetch report');
+//       setReportData([]);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-blue-100 p-4">
+//       <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-6xl">
+//         <h2 className="text-2xl font-bold text-center text-indigo-600 mb-6">
+//           Truck Movement Report
+//         </h2>
+
+//         {/* 🔵 Filters Section */}
+//         <div className="flex flex-col sm:flex-row gap-4 mb-6">
+//           <div className="flex flex-col w-full sm:w-1/4">
+//             <label className="mb-1 font-medium">From Date</label>
+//             <input
+//               type="date"
+//               value={fromDate}
+//               onChange={(e) => setFromDate(e.target.value)}
+//               className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+//             />
+//           </div>
+
+//           <div className="flex flex-col w-full sm:w-1/4">
+//             <label className="mb-1 font-medium">To Date</label>
+//             <input
+//               type="date"
+//               value={toDate}
+//               onChange={(e) => setToDate(e.target.value)}
+//               className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+//             />
+//           </div>
+
+//           <div className="flex flex-col w-full sm:w-1/4">
+//             <label className="mb-1 font-medium">Plant</label>
+//             <select
+//               value={plant}
+//               onChange={(e) => setPlant(e.target.value)}
+//               className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+//             >
+//               <option value="">Select Plant</option>
+//               {plants.map((p) => (
+//                 <option key={p.plantid} value={p.plantid}>
+//                   {p.plantname}
+//                 </option>
+//               ))}
+//             </select>
+//           </div>
+
+//           <div className="flex items-end w-full sm:w-auto">
+//             <button
+//               onClick={fetchReport}
+//               className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition duration-300 w-full"
+//             >
+//               Search
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* 🔵 Loading / Error / No Data */}
+//         {loading && (
+//           <div className="text-center text-indigo-600 font-medium">Loading report...</div>
+//         )}
+//         {error && (
+//           <div className="text-center text-red-500 font-medium">{error}</div>
+//         )}
+//         {!loading && !error && reportData.length === 0 && (
+//           <div className="text-center text-gray-500">
+//             No records found for selected filters.
+//           </div>
+//         )}
+
+//         {/* 🔵 Report Table */}
+//         {!loading && reportData.length > 0 && (
+//           <div className="overflow-x-auto mt-4">
+//             <table className="min-w-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+//               <thead className="bg-indigo-100 text-indigo-700">
+//                 <tr>
+//                   <th className="px-4 py-3 text-left">Truck No</th>
+//                   <th className="px-4 py-3 text-left">Transaction Date</th>
+//                   <th className="px-4 py-3 text-left">Plant Name</th>
+//                   <th className="px-4 py-3 text-left">Check-In Time</th>
+//                   <th className="px-4 py-3 text-left">Check-Out Time</th>
+//                   <th className="px-4 py-3 text-left">Loading Slip</th>
+//                   <th className="px-4 py-3 text-left">Qty</th>
+//                   <th className="px-4 py-3 text-left">Freight</th>
+//                   <th className="px-4 py-3 text-left">Priority</th>
+//                   <th className="px-4 py-3 text-left">Remarks</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {reportData.map((item, i) => (
+//                   <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+//                     <td className="px-4 py-3">{item.truckNo || '—'}</td>
+//                     <td className="px-4 py-3">
+//                       {item.transactionDate ? new Date(item.transactionDate).toLocaleDateString() : '—'}
+//                     </td>
+//                     <td className="px-4 py-3">{item.plantName || '—'}</td>
+//                     <td className="px-4 py-3">
+//                       {item.checkInTime ? new Date(item.checkInTime).toLocaleString() : '—'}
+//                     </td>
+//                     <td className="px-4 py-3">
+//                       {item.checkOutTime ? new Date(item.checkOutTime).toLocaleString() : '—'}
+//                     </td>
+//                     <td className="px-4 py-3">{item.loadingSlipNo || '—'}</td>
+//                     <td className="px-4 py-3">{item.qty ?? '—'}</td>
+//                     <td className="px-4 py-3">{item.freight ?? '—'}</td>
+//                     <td className="px-4 py-3">{item.priority ?? '—'}</td>
+//                     <td className="px-4 py-3">{item.remarks || '—'}</td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }///////////////////////////final working code //////////////////
+
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -584,8 +773,10 @@ export default function Report() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // ✅ Fetch all plants for dropdown
-useEffect(() => {
+  useEffect(() => {
+    fetchPlants();
+  }, []);
+
   const fetchPlants = async () => {
     try {
       const res = await axios.get(`${API_URL}/api/plants`, {
@@ -594,20 +785,15 @@ useEffect(() => {
           role: localStorage.getItem('role')
         }
       });
-      console.log(res.data);  // 👈 Console me response dekhna
       setPlants(res.data);
     } catch (err) {
       console.error(err);
       setError('Failed to fetch plants');
     }
   };
-  fetchPlants();
-}, []);
 
-
-  // ✅ Fetch report based on filters
-  const fetchReport = async () => {
-    if (!fromDate || !toDate || !plant) {
+  const fetchReport = async (selectedPlant = plant) => {
+    if (!fromDate || !toDate || !selectedPlant) {
       setError('Please select all filters');
       return;
     }
@@ -616,15 +802,13 @@ useEffect(() => {
 
     try {
       const res = await axios.get(
-        `${API_URL}/api/truck-report?fromDate=${fromDate}&toDate=${toDate}&plant=${plant}`
+        `${API_URL}/api/truck-report?fromDate=${fromDate}&toDate=${toDate}&plant=${selectedPlant}`
       );
-
-      console.log('API raw response:', res.data);
 
       if (res.data.success && Array.isArray(res.data.data)) {
         setReportData(res.data.data);
       } else if (Array.isArray(res.data)) {
-        setReportData(res.data); // In case backend is returning raw array
+        setReportData(res.data);
       } else {
         setError('Invalid data format from server');
         setReportData([]);
@@ -638,14 +822,24 @@ useEffect(() => {
     }
   };
 
+  const handleSelectAll = () => {
+    setPlant('ALL');
+    fetchReport('ALL');
+  };
+
+  const handleDeselectAll = () => {
+    setPlant('');
+    setReportData([]);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-blue-100 p-4">
-      <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-6xl">
-        <h2 className="text-2xl font-bold text-center text-indigo-600 mb-6">
-          Truck Movement Report
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 to-blue-200 p-4">
+      <div className="bg-white shadow-2xl rounded-3xl p-8 w-full max-w-7xl border border-indigo-200">
+        <h2 className="text-3xl font-bold text-center text-indigo-700 mb-8">
+          🚛 Truck Movement Report
         </h2>
 
-        {/* 🔵 Filters Section */}
+        {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex flex-col w-full sm:w-1/4">
             <label className="mb-1 font-medium">From Date</label>
@@ -653,7 +847,7 @@ useEffect(() => {
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="p-3 border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
           </div>
 
@@ -663,7 +857,7 @@ useEffect(() => {
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="p-3 border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
           </div>
 
@@ -672,7 +866,7 @@ useEffect(() => {
             <select
               value={plant}
               onChange={(e) => setPlant(e.target.value)}
-              className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="p-3 border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
             >
               <option value="">Select Plant</option>
               {plants.map((p) => (
@@ -683,33 +877,39 @@ useEffect(() => {
             </select>
           </div>
 
-          <div className="flex items-end w-full sm:w-auto">
+          <div className="flex items-end gap-2 w-full sm:w-auto">
             <button
-              onClick={fetchReport}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition duration-300 w-full"
+              onClick={() => fetchReport()}
+              className="px-5 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-transform transform hover:scale-105"
             >
               Search
+            </button>
+            <button
+              onClick={handleSelectAll}
+              className="px-4 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-transform transform hover:scale-105"
+            >
+              Select All
+            </button>
+            <button
+              onClick={handleDeselectAll}
+              className="px-4 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-transform transform hover:scale-105"
+            >
+              Deselect
             </button>
           </div>
         </div>
 
-        {/* 🔵 Loading / Error / No Data */}
-        {loading && (
-          <div className="text-center text-indigo-600 font-medium">Loading report...</div>
-        )}
-        {error && (
-          <div className="text-center text-red-500 font-medium">{error}</div>
-        )}
+        {/* Loading, Error, No Data */}
+        {loading && <div className="text-center text-indigo-600 font-medium">Loading report...</div>}
+        {error && <div className="text-center text-red-500 font-medium">{error}</div>}
         {!loading && !error && reportData.length === 0 && (
-          <div className="text-center text-gray-500">
-            No records found for selected filters.
-          </div>
+          <div className="text-center text-gray-500">No records found for selected filters.</div>
         )}
 
-        {/* 🔵 Report Table */}
+        {/* Report Table */}
         {!loading && reportData.length > 0 && (
           <div className="overflow-x-auto mt-4">
-            <table className="min-w-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+            <table className="min-w-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow">
               <thead className="bg-indigo-100 text-indigo-700">
                 <tr>
                   <th className="px-4 py-3 text-left">Truck No</th>
@@ -753,3 +953,4 @@ useEffect(() => {
     </div>
   );
 }
+
