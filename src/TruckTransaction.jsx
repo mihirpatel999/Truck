@@ -1438,7 +1438,24 @@ export default function TruckTransaction() {
     }
   };
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  // const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  if (name === 'truckNo') {
+    const pattern = /^[A-Z]{2}-[0-9]{2}-[A-Z]{1,2}-[0-9]{1,4}$/;
+
+    if (value === '' || pattern.test(value.toUpperCase())) {
+      setFormData({ ...formData, [name]: value.toUpperCase() });
+    }
+    // Else में कुछ नहीं करेंगे, गलत फॉर्मेट है तो ignore
+  } else {
+    setFormData({ ...formData, [name]: value });
+  }
+};
+
+
+
   const handleNewRowChange = (e) => setNewRow({ ...newRow, [e.target.name]: e.target.value });
 
   const addOrUpdateRow = () => {
@@ -1494,7 +1511,7 @@ export default function TruckTransaction() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-gray-50 py-8">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
         <h1 className="text-3xl font-bold text-center text-slate-800 mb-8 tracking-wide">Truck Transaction</h1>
-
+{/* 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {['truckNo', 'transactionDate', 'cityName', 'transporter'].map((field, idx) => (
             <div key={idx}>
@@ -1502,7 +1519,38 @@ export default function TruckTransaction() {
               <input type={field === 'transactionDate' ? 'date' : 'text'} name={field} value={formData[field]} onChange={handleChange} className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
             </div>
           ))}
-        </div>
+        </div> */}
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+  {/* Truck Number Field */}
+  <div>
+    <label className="font-medium text-slate-700 mb-1 block">Truck No</label>
+    <input
+      type="text"
+      name="truckNo"
+      value={formData.truckNo}
+      onChange={handleChange}
+      placeholder="e.g., GJ-01-AB-1234"
+      className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+    />
+  </div>
+
+  {/* बाकी 3 Fields */}
+  {['transactionDate', 'cityName', 'transporter'].map((field, idx) => (
+    <div key={idx}>
+      <label className="font-medium text-slate-700 mb-1 block capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
+      <input
+        type={field === 'transactionDate' ? 'date' : 'text'}
+        name={field}
+        value={formData[field]}
+        onChange={handleChange}
+        className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+      />
+    </div>
+  ))}
+</div>
+
 
         <div className="overflow-x-auto mb-6">
           <table className="w-full text-sm text-left border shadow rounded-xl">
