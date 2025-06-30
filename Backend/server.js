@@ -1501,32 +1501,35 @@ app.get('/api/users', async (req, res) => {
 });
 
 
+// Example in Express (Node.js)
 app.put('/api/users/:username', async (req, res) => {
   const { username } = req.params;
-  const { username: newUsername, password, role, contactnumber, allowedplants } = req.body;
+  let { password, role, contactnumber, allowedplants } = req.body;
 
   try {
-    const result = await pool.query(
-      `UPDATE users
-       SET "username" = $1,
-           "password" = $2,
-           "role" = $3,
-           "contactnumber" = $4,
-           "allowedplants" = $5
-       WHERE "username" = $6`,
-      [newUsername, password, role, contactnumber || '', allowedplants, username]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'User not found.' });
+    // Handle arrays coming from frontend
+    if (Array.isArray(role)) {
+      role = role.join(','); // convert ['admin','gatekeeper'] → 'admin,gatekeeper'
+    }
+    if (Array.isArray(allowedplants)) {
+      allowedplants = allowedplants.join(','); // convert [1,2] → '1,2'
     }
 
-    res.json({ message: 'User updated successfully.' });
+    const pool = await getPool();
+    await pool.query(
+      `UPDATE Users 
+       SET password = $1, role = $2, contactnumber = $3, allowedplants = $4 
+       WHERE username = $5`,
+      [password, role, contactnumber || '', allowedplants, username]
+    );
+
+    res.status(200).json({ message: 'User updated' });
   } catch (err) {
     console.error('Error updating user:', err);
-    res.status(500).json({ message: 'Error updating user.' });
+    res.status(500).json({ message: 'Server error updating user' });
   }
 });
+
 
 app.delete('/api/users/:username', async (req, res) => {
   const { username } = req.params;
