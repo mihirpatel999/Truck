@@ -737,10 +737,266 @@
 
 
 
+// import React, { useEffect, useState } from 'react';
+
+// const API_URL = import.meta.env.VITE_API_URL;
+// const ALL_ROLES = ['Admin','User','Dispatcher','GateKeeper','Report','Loader'];
+
+// export default function UserRegister() {
+//   const [users, setUsers] = useState([]);
+//   const [plants, setPlants] = useState([]);
+//   const [editIdx, setEditIdx] = useState(null);
+//   const [editUser, setEditUser] = useState({});
+//   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+//   const [showPlantDropdown, setShowPlantDropdown] = useState(false);
+
+//   useEffect(() => {
+//     fetchAll();
+
+//     const handler = e => {
+//       if (!e.target.closest('.role-dropdown')) setShowRoleDropdown(false);
+//       if (!e.target.closest('.plant-dropdown')) setShowPlantDropdown(false);
+//     };
+//     window.addEventListener('click', handler);
+//     return () => window.removeEventListener('click', handler);
+//   }, []);
+
+//   async function fetchAll() {
+//     const [uRes, pRes] = await Promise.all([
+//       fetch(`${API_URL}/api/users`),
+//       fetch(`${API_URL}/api/plantmaster`)
+//     ]);
+//     setUsers(await uRes.json());
+//     setPlants(await pRes.json());
+//   }
+
+//   const handleEdit = (u, i) => {
+//     setEditIdx(i);
+//     setEditUser({
+//       ...u,
+//       allowedplants: u.allowedplants || '',
+//       role: u.role || ''
+//     });
+//   };
+//   const handleCancel = () => {
+//     setEditIdx(null);
+//     setEditUser({});
+//   };
+
+//   const handleChange = e => {
+//     setEditUser(prev => ({ ...prev, [e.target.name]: e.target.value }));
+//   };
+
+//   const toggleListValue = (field, value) => {
+//     setEditUser(prev => {
+//       const cur = prev[field] || '';
+//       const arr = cur.split(',').filter(Boolean);
+//       const nextArr = arr.includes(value)
+//         ? arr.filter(x => x !== value)
+//         : [...arr, value];
+//       return { ...prev, [field]: nextArr.join(',') };
+//     });
+//   };
+
+//   const handleSave = async () => {
+//     await fetch(`${API_URL}/api/users/${editUser.username}`, {
+//       method: 'PUT',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(editUser)
+//     });
+//     await fetchAll();
+//     setEditIdx(null);
+//     setEditUser({});
+//   };
+
+//   const handleDelete = async username => {
+//     if (!confirm(`Delete ${username}?`)) return;
+//     await fetch(`${API_URL}/api/users/${username}`, { method: 'DELETE' });
+//     await fetchAll();
+//   };
+
+//   const getNames = (str, list, idKey, nameKey) => {
+//     if (!str) return '';
+//     return str
+//       .split(',')
+//       .map(id => {
+//         const m = list.find(x => String(x[idKey]) === id);
+//         return m ? m[nameKey] : id;
+//       })
+//       .join(', ');
+//   };
+
+//   return (
+//     <div className="max-w-5xl mx-auto p-6">
+//       <h1 className="text-3xl font-bold text-indigo-800 mb-6">
+//         User Register
+//       </h1>
+//       <div className="overflow-x-auto bg-white rounded-lg shadow">
+//         <table className="w-full text-left">
+//           <thead className="bg-blue-600 text-white">
+//             <tr>
+//               {['Username','Password','Role','Allowed Plants','Actions'].map(c => (
+//                 <th key={c} className="px-6 py-3">{c}</th>
+//               ))}
+//             </tr>
+//           </thead>
+//           <tbody>
+//             {users.map((u, i) => (
+//               <tr
+//                 key={u.username}
+//                 className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
+//                 {editIdx === i ? (
+//                   <>
+//                     <td className="p-4">
+//                       <input
+//                         name="username"
+//                         value={editUser.username}
+//                         disabled
+//                         className="w-full border-gray-300 rounded px-3 py-2 bg-gray-100"
+//                       />
+//                     </td>
+//                     <td className="p-4">
+//                       <input
+//                         name="password"
+//                         value={editUser.password}
+//                         onChange={handleChange}
+//                         className="w-full border-gray-300 rounded px-3 py-2"
+//                       />
+//                     </td>
+
+//                     {/* Role Dropdown */}
+//                     <td className="p-4 role-dropdown relative">
+//                       <div
+//                         onClick={() => setShowRoleDropdown(show => !show)}
+//                         className="border rounded px-3 py-2 bg-white cursor-pointer"
+//                       >
+//                         {editUser.role.split(',').filter(Boolean).join(', ') ||
+//                           'Select Roles'}
+//                       </div>
+//                       {showRoleDropdown && (
+//                         <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
+//                           {ALL_ROLES.map(r => (
+//                             <label
+//                               key={r}
+//                               className="flex items-center px-3 py-1 hover:bg-gray-100">
+//                               <input
+//                                 type="checkbox"
+//                                 checked={editUser.role
+//                                   .split(',')
+//                                   .includes(r)}
+//                                 onChange={() => toggleListValue('role', r)}
+//                                 className="mr-2"
+//                               />
+//                               {r}
+//                             </label>
+//                           ))}
+//                         </div>
+//                       )}
+//                     </td>
+
+//                     {/* Plant Dropdown */}
+//                     <td className="p-4 plant-dropdown relative">
+//                       <div
+//                         onClick={() => setShowPlantDropdown(show => !show)}
+//                         className="border rounded px-3 py-2 bg-white cursor-pointer"
+//                       >
+//                         {getNames(editUser.allowedplants, plants, 'plantid', 'plantname') ||
+//                           'Select Plants'}
+//                       </div>
+//                       {showPlantDropdown && (
+//                         <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
+//                           {plants.length === 0 && (
+//                             <div className="p-3 text-gray-500">No plants</div>
+//                           )}
+//                           {plants.map(p => {
+//                             const arr = editUser.allowedplants
+//                               ? editUser.allowedplants.split(',')
+//                               : [];
+//                             return (
+//                               <label
+//                                 key={p.plantid}
+//                                 className="flex items-center px-3 py-1 hover:bg-gray-100">
+//                                 <input
+//                                   type="checkbox"
+//                                   checked={arr.includes(String(p.plantid))}
+//                                   onChange={() =>
+//                                     toggleListValue(
+//                                       'allowedplants',
+//                                       String(p.plantid)
+//                                     )
+//                                   }
+//                                   className="mr-2"
+//                                 />
+//                                 {p.plantname}
+//                               </label>
+//                             );
+//                           })}
+//                         </div>
+//                       )}
+//                     </td>
+
+//                     <td className="p-4 space-x-2">
+//                       <button
+//                         onClick={handleSave}
+//                         className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+//                       >
+//                         Save
+//                       </button>
+//                       <button
+//                         onClick={handleCancel}
+//                         className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+//                       >
+//                         Cancel
+//                       </button>
+//                     </td>
+//                   </>
+//                 ) : (
+//                   <>
+//                     <td className="px-6 py-4 font-medium">{u.username}</td>
+//                     <td className="px-6 py-4">
+//                       {'*'.repeat(u.password.length)}
+//                     </td>
+//                     <td className="px-6 py-4">{u.role}</td>
+//                     <td className="px-6 py-4">
+//                       {getNames(u.allowedplants, plants, 'plantid', 'plantname')}
+//                     </td>
+//                     <td className="px-6 py-4 space-x-2">
+//                       <button
+//                         onClick={() => handleEdit(u, i)}
+//                         className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+//                       >
+//                         Edit
+//                       </button>
+//                       <button
+//                         onClick={() => handleDelete(u.username)}
+//                         className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+//                       >
+//                         Delete
+//                       </button>
+//                     </td>
+//                   </>
+//                 )}
+//               </tr>
+//             ))}
+//             {users.length === 0 && (
+//               <tr>
+//                 <td colSpan="5" className="text-center py-8 text-gray-500">
+//                   No users found.
+//                 </td>
+//               </tr>
+//             )}
+//           </tbody>
+//         </table>
+//       </div>
+//     </div>
+//   );
+// }///////////////////////////////////final working code //////////////////
+
+
 import React, { useEffect, useState } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL;
-const ALL_ROLES = ['Admin','User','Dispatcher','GateKeeper','Report','Loader'];
+const ALL_ROLES = ['Admin', 'User', 'Dispatcher', 'GateKeeper', 'Report', 'Loader'];
 
 export default function UserRegister() {
   const [users, setUsers] = useState([]);
@@ -778,6 +1034,7 @@ export default function UserRegister() {
       role: u.role || ''
     });
   };
+
   const handleCancel = () => {
     setEditIdx(null);
     setEditUser({});
@@ -827,106 +1084,58 @@ export default function UserRegister() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-indigo-800 mb-6">
+    <div className="max-w-5xl mx-auto p-4">
+      <h1 className="text-2xl sm:text-3xl font-bold text-indigo-800 mb-4 text-center">
         User Register
       </h1>
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="w-full text-left">
+
+      {/* Desktop Table */}
+      <div className="hidden md:block bg-white rounded-lg shadow overflow-auto">
+        <table className="w-full text-left text-sm">
           <thead className="bg-blue-600 text-white">
             <tr>
-              {['Username','Password','Role','Allowed Plants','Actions'].map(c => (
-                <th key={c} className="px-6 py-3">{c}</th>
+              {['Username', 'Password', 'Role', 'Allowed Plants', 'Actions'].map(c => (
+                <th key={c} className="px-4 py-3">{c}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {users.map((u, i) => (
-              <tr
-                key={u.username}
-                className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
+              <tr key={u.username} className={i % 2 ? 'bg-gray-50' : 'bg-white'}>
                 {editIdx === i ? (
                   <>
-                    <td className="p-4">
-                      <input
-                        name="username"
-                        value={editUser.username}
-                        disabled
-                        className="w-full border-gray-300 rounded px-3 py-2 bg-gray-100"
-                      />
+                    <td className="p-3">
+                      <input name="username" value={editUser.username} disabled className="w-full border-gray-300 rounded px-2 py-1 bg-gray-100" />
                     </td>
-                    <td className="p-4">
-                      <input
-                        name="password"
-                        value={editUser.password}
-                        onChange={handleChange}
-                        className="w-full border-gray-300 rounded px-3 py-2"
-                      />
+                    <td className="p-3">
+                      <input name="password" value={editUser.password} onChange={handleChange} className="w-full border-gray-300 rounded px-2 py-1" />
                     </td>
-
-                    {/* Role Dropdown */}
-                    <td className="p-4 role-dropdown relative">
-                      <div
-                        onClick={() => setShowRoleDropdown(show => !show)}
-                        className="border rounded px-3 py-2 bg-white cursor-pointer"
-                      >
-                        {editUser.role.split(',').filter(Boolean).join(', ') ||
-                          'Select Roles'}
+                    <td className="p-3 role-dropdown relative">
+                      <div onClick={() => setShowRoleDropdown(s => !s)} className="border rounded px-2 py-1 bg-white cursor-pointer">
+                        {editUser.role.split(',').filter(Boolean).join(', ') || 'Select Roles'}
                       </div>
                       {showRoleDropdown && (
                         <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
                           {ALL_ROLES.map(r => (
-                            <label
-                              key={r}
-                              className="flex items-center px-3 py-1 hover:bg-gray-100">
-                              <input
-                                type="checkbox"
-                                checked={editUser.role
-                                  .split(',')
-                                  .includes(r)}
-                                onChange={() => toggleListValue('role', r)}
-                                className="mr-2"
-                              />
+                            <label key={r} className="flex items-center px-3 py-1 hover:bg-gray-100">
+                              <input type="checkbox" checked={editUser.role.split(',').includes(r)} onChange={() => toggleListValue('role', r)} className="mr-2" />
                               {r}
                             </label>
                           ))}
                         </div>
                       )}
                     </td>
-
-                    {/* Plant Dropdown */}
-                    <td className="p-4 plant-dropdown relative">
-                      <div
-                        onClick={() => setShowPlantDropdown(show => !show)}
-                        className="border rounded px-3 py-2 bg-white cursor-pointer"
-                      >
-                        {getNames(editUser.allowedplants, plants, 'plantid', 'plantname') ||
-                          'Select Plants'}
+                    <td className="p-3 plant-dropdown relative">
+                      <div onClick={() => setShowPlantDropdown(s => !s)} className="border rounded px-2 py-1 bg-white cursor-pointer">
+                        {getNames(editUser.allowedplants, plants, 'plantid', 'plantname') || 'Select Plants'}
                       </div>
                       {showPlantDropdown && (
                         <div className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-40 overflow-y-auto">
-                          {plants.length === 0 && (
-                            <div className="p-3 text-gray-500">No plants</div>
-                          )}
                           {plants.map(p => {
-                            const arr = editUser.allowedplants
-                              ? editUser.allowedplants.split(',')
-                              : [];
+                            const arr = editUser.allowedplants ? editUser.allowedplants.split(',') : [];
                             return (
-                              <label
-                                key={p.plantid}
-                                className="flex items-center px-3 py-1 hover:bg-gray-100">
-                                <input
-                                  type="checkbox"
-                                  checked={arr.includes(String(p.plantid))}
-                                  onChange={() =>
-                                    toggleListValue(
-                                      'allowedplants',
-                                      String(p.plantid)
-                                    )
-                                  }
-                                  className="mr-2"
-                                />
+                              <label key={p.plantid} className="flex items-center px-3 py-1 hover:bg-gray-100">
+                                <input type="checkbox" checked={arr.includes(String(p.plantid))} onChange={() => toggleListValue('allowedplants', String(p.plantid))} className="mr-2" />
                                 {p.plantname}
                               </label>
                             );
@@ -934,45 +1143,20 @@ export default function UserRegister() {
                         </div>
                       )}
                     </td>
-
-                    <td className="p-4 space-x-2">
-                      <button
-                        onClick={handleSave}
-                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={handleCancel}
-                        className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-                      >
-                        Cancel
-                      </button>
+                    <td className="p-3 space-x-2">
+                      <button onClick={handleSave} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
+                      <button onClick={handleCancel} className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500">Cancel</button>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="px-6 py-4 font-medium">{u.username}</td>
-                    <td className="px-6 py-4">
-                      {'*'.repeat(u.password.length)}
-                    </td>
-                    <td className="px-6 py-4">{u.role}</td>
-                    <td className="px-6 py-4">
-                      {getNames(u.allowedplants, plants, 'plantid', 'plantname')}
-                    </td>
-                    <td className="px-6 py-4 space-x-2">
-                      <button
-                        onClick={() => handleEdit(u, i)}
-                        className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(u.username)}
-                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
+                    <td className="p-3">{u.username}</td>
+                    <td className="p-3">{'*'.repeat(u.password.length)}</td>
+                    <td className="p-3">{u.role}</td>
+                    <td className="p-3">{getNames(u.allowedplants, plants, 'plantid', 'plantname')}</td>
+                    <td className="p-3 space-x-2">
+                      <button onClick={() => handleEdit(u, i)} className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</button>
+                      <button onClick={() => handleDelete(u.username)} className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
                     </td>
                   </>
                 )}
@@ -980,15 +1164,33 @@ export default function UserRegister() {
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan="5" className="text-center py-8 text-gray-500">
-                  No users found.
-                </td>
+                <td colSpan="5" className="text-center py-6 text-gray-500">No users found.</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+
+      {/* Mobile Card View */}
+      <div className="block md:hidden space-y-3">
+        {users.map((u, i) => (
+          <div key={u.username} className="border border-gray-300 rounded p-3 shadow-sm bg-white">
+            <p className="text-sm"><span className="font-semibold">Username:</span> {u.username}</p>
+            <p className="text-sm"><span className="font-semibold">Password:</span> {'*'.repeat(u.password.length)}</p>
+            <p className="text-sm"><span className="font-semibold">Role:</span> {u.role}</p>
+            <p className="text-sm"><span className="font-semibold">Allowed Plants:</span> {getNames(u.allowedplants, plants, 'plantid', 'plantname')}</p>
+            <div className="flex gap-2 mt-2">
+              <button onClick={() => handleEdit(u, i)} className="flex-1 bg-yellow-500 text-white py-1 rounded hover:bg-yellow-600">Edit</button>
+              <button onClick={() => handleDelete(u.username)} className="flex-1 bg-red-600 text-white py-1 rounded hover:bg-red-700">Delete</button>
+            </div>
+          </div>
+        ))}
+        {users.length === 0 && (
+          <p className="text-center text-gray-500">No users found.</p>
+        )}
+      </div>
     </div>
   );
 }
+
 
