@@ -4558,6 +4558,7 @@
 
 
 
+// GateKeeper.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4567,17 +4568,17 @@ import truckImage from './assets/Truck.png.png';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function GateKeeper() {
+  const [plants, setPlants] = useState([]);
+  const [selectedPlant, setSelectedPlant] = useState('');
+  const [trucks, setTrucks] = useState([]);
+  const [panels, setPanels] = useState([]);
+  const [checkedIn, setCheckedIn] = useState([]);
   const [formData, setFormData] = useState({
     truckNo: '',
     dispatchDate: new Date().toISOString().split('T')[0],
     invoiceNo: '',
-    remarks: 'System-generated remark.',
+    remarks: 'System‑generated remark.',
   });
-  const [plants, setPlants] = useState([]);
-  const [plant, setPlant] = useState('');
-  const [trucks, setTrucks] = useState([]);
-  const [checkedIn, setCheckedIn] = useState([]);
-  const [panels, setPanels] = useState([]);
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -4585,8 +4586,7 @@ export default function GateKeeper() {
     const allowed = (localStorage.getItem('allowedPlants') || '')
       .split(',').map(x => x.trim()).filter(Boolean);
 
-    axios
-      .get(`${API_URL}/api/plants`, { headers: { userid: userId, role } })
+    axios.get(`${API_URL}/api/plants`, { headers: { userid: userId, role } })
       .then(res => {
         const filtered = res.data.filter(p => {
           const pid = String(p.plantid || p.PlantID || p.PlantId);
@@ -4598,74 +4598,90 @@ export default function GateKeeper() {
   }, []);
 
   useEffect(() => {
-    if (!plant) return;
-    axios.get(`${API_URL}/api/trucks?plantName=${plant}`)
-      .then(r => setTrucks(r.data)).catch(() => {});
-    axios.get(`${API_URL}/api/checked-in-trucks?plantName=${plant}`)
-      .then(r => setCheckedIn(r.data)).catch(() => {});
-  }, [plant]);
+    if (!selectedPlant) return;
+    axios.get(`${API_URL}/api/trucks?plantName=${selectedPlant}`)
+      .then(res => setTrucks(res.data))
+      .catch(() => {});
+    axios.get(`${API_URL}/api/checked-in-trucks?plantName=${selectedPlant}`)
+      .then(res => setCheckedIn(res.data))
+      .catch(() => {});
+  }, [selectedPlant]);
+
+  const handleTruckClick = async truckNo => {
+    setFormData(prev => ({ ...prev, truckNo }));
+    try {
+      const [qRes, rRes] = await Promise.all([
+        axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`),
+        axios.get(`${API_URL}/api/fetch-remarks`, { params: { plantName: selectedPlant, truckNo } }),
+      ]);
+      setPanels(qRes.data);
+      setFormData(prev => ({ ...prev, remarks: rRes.data.remarks || 'No remarks' }));
+    } catch {
+      setPanels([]);
+      setFormData(prev => ({ ...prev, remarks: 'No remarks available' }));
+    }
+  };
 
   const maxQty = Math.max(...panels.map(p => p.quantity || 0), 0);
 
-  const layout = (
+  return (
     <div className="p-6 bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen">
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* LEFT */}
+        
+        {/* Left Column */}
         <div className="space-y-4">
           <select
             className="w-full border rounded px-4 py-2"
-            value={plant}
+            value={selectedPlant}
             onChange={e => {
-              setPlant(e.target.value);
-              setTrucks([]); setCheckedIn([]); setPanels([]);
-              setFormData(f => ({ ...f, truckNo: '', invoiceNo: '', remarks: 'System-generated remark.' }));
+              setSelectedPlant(e.target.value);
+              setTrucks([]);
+              setPanels([]);
+              setCheckedIn([]);
+              setFormData(prev => ({ ...prev, truckNo: '', invoiceNo: '', remarks: 'System‑generated remark.' }));
             }}
           >
-            <option value="">Select plant</option>
+            <option value="">Select Plant</option>
             {plants.map(p => (
-              <option key={p.plantid || p.PlantID} value={p.plantname || p.PlantName}>
-                {p.plantname || p.PlantName}
-              </option>
+              <option key={p.plantid} value={p.plantid}>{p.plantname}</option>
             ))}
           </select>
           <div className="bg-blue-100 rounded p-4 h-64 overflow-y-auto">
             <h3 className="font-bold text-blue-700 mb-2">Truck List</h3>
-            {!trucks.length && <p className="text-gray-500 italic">No trucks</p>}
-            <ul className="space-y-1">
-              {trucks.map(t => (
-                <li
-                  key={t.TruckNo || t.truckno}
-                  onClick={() => {
-                    const no = t.TruckNo || t.truckno;
-                    setFormData(f => ({ ...f, truckNo: no }));
-                    axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${no}`)
-                      .then(r => setPanels(r.data))
-                      .catch(() => setPanels([]));
-                    axios.get(`${API_URL}/api/fetch-remarks`, { params: { plantName: plant, truckNo: no }})
-                      .then(r => setFormData(f => ({ ...f, remarks: r.data.remarks || '' })))
-                      .catch(() => setFormData(f => ({ ...f, remarks: 'No remarks.' })));
-                  }}
-                  className="cursor-pointer hover:text-blue-600"
-                >
-                  🚛 {t.TruckNo || t.truckno}
-                </li>
-              ))}
-            </ul>
+            {trucks.length === 0 ? (
+              <p className="text-gray-500 italic">No trucks available</p>
+            ) : (
+              <ul className="space-y-1">
+                {trucks.map(t => {
+                  const no = t.TruckNo || t.truckno;
+                  return (
+                    <li key={no}
+                      onClick={() => handleTruckClick(no)}
+                      className="cursor-pointer hover:text-blue-600"
+                    >
+                      🚛 {no}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </div>
 
-        {/* CENTER */}
+        {/* Center Column */}
         <div className="space-y-6">
           <div className="relative w-full h-56 md:h-72 bg-blue-200 rounded-lg overflow-hidden">
-            {panels.length ? (
-              <div className="absolute bottom-0 inset-x-0 z-10 flex items-end justify-evenly space-x-1 px-2 pb-2">
+            
+            {/* Chart Bars */}
+            {panels.length > 0 ? (
+              <div className="absolute top-2 inset-x-0 z-20 flex items-end justify-evenly space-x-1 px-2 pb-2">
                 {panels.map((pl, i) => (
                   <div
                     key={i}
-                    className="flex flex-col items-center justify-end bg-green-500 text-white rounded-t transition-transform hover:scale-105"
+                    className="flex flex-col items-center justify-end bg-green-500 text-white rounded-t shadow-lg"
                     style={{
                       width: `${100 / panels.length}%`,
-                      height: `${maxQty ? (pl.quantity / maxQty) * 100 : 0}%`,
+                      height: `${maxQty ? (pl.quantity / maxQty) * 80 : 0}%`,
                     }}
                   >
                     <span className="text-xs">📦{pl.quantity}</span>
@@ -4678,62 +4694,78 @@ export default function GateKeeper() {
                 No chart data
               </p>
             )}
+
+            {/* Truck Image */}
             <img
               src={truckImage}
               alt="Truck"
-              className="absolute bottom-0 left-0 w-full object-contain"
-              style={{ height: '65%' }}
+              className="absolute inset-x-0 bottom-0 w-full object-contain z-10"
+              style={{ height: '80%' }}
             />
           </div>
+
+          {/* Form Fields */}
           <div className="space-y-4">
-            <input name="truckNo" value={formData.truckNo} onChange={e => setFormData(f => ({ ...f, truckNo: e.target.value }))}
+            <input
+              className="w-full border rounded px-4 py-2"
               placeholder="Truck No"
-              className="w-full border rounded px-4 py-2" />
-            <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={e => setFormData(f => ({ ...f, dispatchDate: e.target.value }))}
-              className="w-full border rounded px-4 py-2" />
-            <input name="invoiceNo" placeholder="Invoice No" value={formData.invoiceNo}
-              onChange={e => setFormData(f => ({ ...f, invoiceNo: e.target.value }))}
-              className="w-full border rounded px-4 py-2" />
-            <textarea name="remarks" readOnly value={formData.remarks}
-              className="w-full border rounded px-4 py-2 bg-gray-100" rows={3} />
+              value={formData.truckNo}
+              readOnly
+            />
+            <input
+              type="date"
+              className="w-full border rounded px-4 py-2"
+              value={formData.dispatchDate}
+              onChange={e => setFormData(prev => ({ ...prev, dispatchDate: e.target.value }))}
+            />
+            <input
+              className="w-full border rounded px-4 py-2"
+              placeholder="Invoice No"
+              value={formData.invoiceNo}
+              onChange={e => setFormData(prev => ({ ...prev, invoiceNo: e.target.value }))}
+            />
+            <textarea
+              className="w-full border rounded px-4 py-2 bg-gray-100"
+              rows={3}
+              value={formData.remarks}
+              readOnly
+            />
           </div>
+
+          {/* Action Buttons */}
           <div className="flex flex-col md:flex-row gap-4">
             <button
-              onClick={() => {
-                if (!formData.truckNo) return toast.warn('Select truck');
-                console.log('Check In');
-              }}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded">
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded"
+              onClick={() => toast.info('Check In clicked')}
+            >
               Check In
             </button>
             <button
-              onClick={() => {
-                if (!formData.truckNo) return toast.warn('Select truck');
-                console.log('Check Out');
-              }}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded">
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded"
+              onClick={() => toast.info('Check Out clicked')}
+            >
               Check Out
             </button>
           </div>
         </div>
 
-        {/* RIGHT */}
+        {/* Right Column */}
         <div className="bg-green-100 rounded p-4 h-64 overflow-y-auto">
-          <h3 className="font-bold text-green-700 mb-2">Checked In</h3>
-          {!checkedIn.length && <p className="text-gray-500 italic">No trucks</p>}
-          <ul className="space-y-1">
-            {checkedIn.map(t => (
-              <li key={t.TruckNo || t.truckno} className="cursor-pointer hover:text-green-600">
-                ✓ {t.TruckNo || t.truckno}
-              </li>
-            ))}
-          </ul>
+          <h3 className="font-bold text-green-700 mb-2">Checked In Trucks</h3>
+          {checkedIn.length === 0 ? (
+            <p className="text-gray-500 italic">No checked-in trucks</p>
+          ) : (
+            <ul className="space-y-1">
+              {checkedIn.map(t => {
+                const no = t.TruckNo || t.truckno;
+                return <li key={no} className="cursor-pointer hover:text-green-600">✓ {no}</li>;
+              })}
+            </ul>
+          )}
         </div>
       </div>
 
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
     </div>
   );
-
-  return layout;
 }
