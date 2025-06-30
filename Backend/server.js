@@ -1550,6 +1550,40 @@ app.delete('/api/users/:username', async (req, res) => {
   }
 });
 
+////////////
+
+app.put('/api/users/:username', async (req, res) => {
+  const { username } = req.params;
+  let { password, role, contactnumber, allowedplants } = req.body;
+
+  if (!username || !password || !role) {
+    return res.status(400).json({ error: 'Missing fields' });
+  }
+
+  // Normalize role/allowedplants (if array, convert to comma-separated)
+  if (Array.isArray(role)) role = role.join(',');
+  if (Array.isArray(allowedplants)) allowedplants = allowedplants.join(',');
+
+  try {
+    const result = await pool.query(
+      `UPDATE users 
+       SET password = $1, role = $2, contactnumber = $3, allowedplants = $4 
+       WHERE LOWER(username) = LOWER($5)`,
+      [password, role, contactnumber || '', allowedplants, username]
+    );
+
+    if (result.rowCount > 0) {
+      res.json({ message: 'User updated successfully' });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (err) {
+    console.error('Error updating user:', err);
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+});
+
+
 
 app.get('/api/plantmaster', async (req, res) => {
   try {
