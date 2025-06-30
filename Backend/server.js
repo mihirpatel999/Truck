@@ -1406,33 +1406,32 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
 //   }
 // });////////////////////working apis
 
-
 app.get('/api/users', async (req, res) => {
   try {
-    // Fetch all users
-    const usersResult = await pool.query('SELECT username, password, role, allowedplants FROM users');
+    const usersResult = await pool.query(
+      'SELECT "userid", "username", "password", "role", "contactnumber", "allowedplants" FROM users'
+    );
 
-    // Fetch all plants
-    const plantsResult = await pool.query('SELECT plantid, plantname FROM plantmaster');
+    const plantsResult = await pool.query(
+      'SELECT "plantid", "plantname" FROM plantmaster'
+    );
 
-    // Map plant ID -> plant name
     const plantsMap = {};
     plantsResult.rows.forEach(plant => {
       plantsMap[plant.plantid] = plant.plantname;
     });
 
-    // Map plant IDs to names
     const processedUsers = usersResult.rows.map(user => {
       let allowedPlantNames = '';
       if (user.allowedplants && user.allowedplants.trim() !== '') {
         const plantIds = user.allowedplants.split(',').map(id => id.trim());
-        const plantNames = plantIds.map(id => plantsMap[id]).filter(Boolean);
+        const plantNames = plantIds.map(id => plantsMap[parseInt(id)]).filter(Boolean);
         allowedPlantNames = plantNames.join(', ');
       }
 
       return {
         ...user,
-        allowedPlantNames,
+        allowedPlantNames
       };
     });
 
@@ -1443,11 +1442,13 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-// DELETE /api/users/:username - Delete user
 app.delete('/api/users/:username', async (req, res) => {
   const { username } = req.params;
   try {
-    const result = await pool.query('DELETE FROM users WHERE username = $1', [username]);
+    const result = await pool.query(
+      'DELETE FROM users WHERE "username" = $1',
+      [username]
+    );
 
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'User not found.' });
@@ -1460,20 +1461,20 @@ app.delete('/api/users/:username', async (req, res) => {
   }
 });
 
-// PUT /api/users/:username - Update user
 app.put('/api/users/:username', async (req, res) => {
   const { username } = req.params;
-  const { username: newUsername, password, role, allowedplants } = req.body;
+  const { username: newUsername, password, role, contactnumber, allowedplants } = req.body;
 
   try {
     const result = await pool.query(
       `UPDATE users
-       SET username = $1,
-           password = $2,
-           role = $3,
-           allowedplants = $4
-       WHERE username = $5`,
-      [newUsername, password, role, allowedplants, username]
+       SET "username" = $1,
+           "password" = $2,
+           "role" = $3,
+           "contactnumber" = $4,
+           "allowedplants" = $5
+       WHERE "username" = $6`,
+      [newUsername, password, role, contactnumber, allowedplants, username]
     );
 
     if (result.rowCount === 0) {
@@ -1487,56 +1488,6 @@ app.put('/api/users/:username', async (req, res) => {
   }
 });
 
-
-// app.get('/api/truck-schedule', async (req, res) => {
-//   const { fromDate, toDate, status } = req.query;
-
-//   if (!fromDate || !toDate || !status) {
-//     return res.status(400).json({ error: 'Missing required filters' });
-//   }
-
-//   try {
-//     let statusCondition = '';
-
-//     if (status === 'Dispatched') {
-//       statusCondition = 'ttd.checkinstatus = 1 AND ttd.checkoutstatus = 1';
-//     } else if (status === 'InTransit') {
-//       statusCondition = 'ttd.checkinstatus = 1 AND (ttd.checkoutstatus = 0 OR ttd.checkoutstatus IS NULL)';
-//     } else if (status === 'CheckedOut') {
-//       statusCondition = 'ttd.checkinstatus = 1';
-//     } else if (status === 'All') {
-//       statusCondition = '1=1';
-//     } else {
-//       return res.status(400).json({ error: 'Invalid status filter' });
-//     }
-
-//     const query = `
-//       SELECT 
-//         ttm.truckno AS "truckNo",
-//         ttm.transactiondate AS "transactionDate",
-//         p.plantname AS "plantName",
-//         ttd.checkintime AS "checkInTime",
-//         ttd.checkouttime AS "checkOutTime",
-//         ttd.loadingslipno AS "loadingSlipNo",
-//         ttd.qty AS "qty",
-//         ttd.freight AS "freight",
-//         ttd.priority AS "priority",
-//         ttd.remarks AS "remarks"
-//       FROM trucktransactiondetails ttd
-//       JOIN plantmaster p ON ttd.plantid = p.plantid
-//       JOIN trucktransactionmaster ttm ON ttd.transactionid = ttm.transactionid
-//       WHERE DATE(ttm.transactiondate) BETWEEN $1 AND $2
-//       AND ${statusCondition}
-//       ORDER BY ttm.transactiondate DESC
-//     `;
-
-//     const result = await pool.query(query, [fromDate, toDate]);
-//     res.json(result.rows);
-//   } catch (err) {
-//     console.error('Error fetching truck schedule:', err);
-//     res.status(500).json({ error: 'Server error' });
-//   }
-// });
 
 app.get('/api/truck-schedule', async (req, res) => {
   const { fromDate, toDate, status, plant } = req.query;
