@@ -1108,7 +1108,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import truckImage from './assets/Truck.png.png'; // Update path if needed
+import truckImage from './assets/Truck.png.png'; 
 
 const API_URL = import.meta.env.VITE_API_URL;
 
