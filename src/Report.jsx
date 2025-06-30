@@ -759,6 +759,203 @@
 
 
 
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+
+// const API_URL = import.meta.env.VITE_API_URL;
+
+// export default function Report() {
+//   const [fromDate, setFromDate] = useState('');
+//   const [toDate, setToDate] = useState('');
+//   const [plant, setPlant] = useState('');
+//   const [plants, setPlants] = useState([]);
+//   const [reportData, setReportData] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+
+//   useEffect(() => {
+//     fetchPlants();
+//   }, []);
+
+//   const fetchPlants = async () => {
+//     try {
+//       const res = await axios.get(`${API_URL}/api/plants`, {
+//         headers: {
+//           userid: localStorage.getItem('userId'),
+//           role: localStorage.getItem('role')
+//         }
+//       });
+//       setPlants(res.data);
+//     } catch (err) {
+//       console.error(err);
+//       setError('Failed to fetch plants');
+//     }
+//   };
+
+//   const fetchReport = async (selectedPlant = plant) => {
+//     if (!fromDate || !toDate || !selectedPlant) {
+//       setError('Please select all filters');
+//       return;
+//     }
+//     setError('');
+//     setLoading(true);
+
+//     try {
+//       const res = await axios.get(
+//         `${API_URL}/api/truck-report?fromDate=${fromDate}&toDate=${toDate}&plant=${selectedPlant}`
+//       );
+
+//       if (res.data.success && Array.isArray(res.data.data)) {
+//         setReportData(res.data.data);
+//       } else if (Array.isArray(res.data)) {
+//         setReportData(res.data);
+//       } else {
+//         setError('Invalid data format from server');
+//         setReportData([]);
+//       }
+//     } catch (err) {
+//       console.error(err);
+//       setError(err.response?.data?.error || 'Failed to fetch report');
+//       setReportData([]);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleSelectAll = () => {
+//     setPlant('ALL');
+//     fetchReport('ALL');
+//   };
+
+//   const handleDeselectAll = () => {
+//     setPlant('');
+//     setReportData([]);
+//   };
+
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 to-blue-200 p-4">
+//       <div className="bg-white shadow-2xl rounded-3xl p-8 w-full max-w-7xl border border-indigo-200">
+//         <h2 className="text-3xl font-bold text-center text-indigo-700 mb-8">
+//           🚛 Truck Movement Report
+//         </h2>
+
+//         {/* Filters */}
+//         <div className="flex flex-col sm:flex-row gap-4 mb-6">
+//           <div className="flex flex-col w-full sm:w-1/4">
+//             <label className="mb-1 font-medium">From Date</label>
+//             <input
+//               type="date"
+//               value={fromDate}
+//               onChange={(e) => setFromDate(e.target.value)}
+//               className="p-3 border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+//             />
+//           </div>
+
+//           <div className="flex flex-col w-full sm:w-1/4">
+//             <label className="mb-1 font-medium">To Date</label>
+//             <input
+//               type="date"
+//               value={toDate}
+//               onChange={(e) => setToDate(e.target.value)}
+//               className="p-3 border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+//             />
+//           </div>
+
+//           <div className="flex flex-col w-full sm:w-1/4">
+//             <label className="mb-1 font-medium">Plant</label>
+//             <select
+//               value={plant}
+//               onChange={(e) => setPlant(e.target.value)}
+//               className="p-3 border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+//             >
+//               <option value="">Select Plant</option>
+//               {plants.map((p) => (
+//                 <option key={p.plantid} value={p.plantid}>
+//                   {p.plantname}
+//                 </option>
+//               ))}
+//             </select>
+//           </div>
+
+//           <div className="flex items-end gap-2 w-full sm:w-auto">
+//             <button
+//               onClick={() => fetchReport()}
+//               className="px-5 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-transform transform hover:scale-105"
+//             >
+//               Search
+//             </button>
+//             <button
+//               onClick={handleSelectAll}
+//               className="px-4 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-transform transform hover:scale-105"
+//             >
+//               Select All
+//             </button>
+//             <button
+//               onClick={handleDeselectAll}
+//               className="px-4 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-transform transform hover:scale-105"
+//             >
+//               Deselect
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* Loading, Error, No Data */}
+//         {loading && <div className="text-center text-indigo-600 font-medium">Loading report...</div>}
+//         {error && <div className="text-center text-red-500 font-medium">{error}</div>}
+//         {!loading && !error && reportData.length === 0 && (
+//           <div className="text-center text-gray-500">No records found for selected filters.</div>
+//         )}
+
+//         {/* Report Table */}
+//         {!loading && reportData.length > 0 && (
+//           <div className="overflow-x-auto mt-4">
+//             <table className="min-w-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow">
+//               <thead className="bg-indigo-100 text-indigo-700">
+//                 <tr>
+//                   <th className="px-4 py-3 text-left">Truck No</th>
+//                   <th className="px-4 py-3 text-left">Transaction Date</th>
+//                   <th className="px-4 py-3 text-left">Plant Name</th>
+//                   <th className="px-4 py-3 text-left">Check-In Time</th>
+//                   <th className="px-4 py-3 text-left">Check-Out Time</th>
+//                   <th className="px-4 py-3 text-left">Loading Slip</th>
+//                   <th className="px-4 py-3 text-left">Qty</th>
+//                   <th className="px-4 py-3 text-left">Freight</th>
+//                   <th className="px-4 py-3 text-left">Priority</th>
+//                   <th className="px-4 py-3 text-left">Remarks</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {reportData.map((item, i) => (
+//                   <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+//                     <td className="px-4 py-3">{item.truckNo || '—'}</td>
+//                     <td className="px-4 py-3">
+//                       {item.transactionDate ? new Date(item.transactionDate).toLocaleDateString() : '—'}
+//                     </td>
+//                     <td className="px-4 py-3">{item.plantName || '—'}</td>
+//                     <td className="px-4 py-3">
+//                       {item.checkInTime ? new Date(item.checkInTime).toLocaleString() : '—'}
+//                     </td>
+//                     <td className="px-4 py-3">
+//                       {item.checkOutTime ? new Date(item.checkOutTime).toLocaleString() : '—'}
+//                     </td>
+//                     <td className="px-4 py-3">{item.loadingSlipNo || '—'}</td>
+//                     <td className="px-4 py-3">{item.qty ?? '—'}</td>
+//                     <td className="px-4 py-3">{item.freight ?? '—'}</td>
+//                     <td className="px-4 py-3">{item.priority ?? '—'}</td>
+//                     <td className="px-4 py-3">{item.remarks || '—'}</td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -767,33 +964,32 @@ const API_URL = import.meta.env.VITE_API_URL;
 export default function Report() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [plant, setPlant] = useState('');
+  const [plant, setPlant] = useState([]);
   const [plants, setPlants] = useState([]);
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const fetchPlants = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/plants`, {
+          headers: {
+            userid: localStorage.getItem('userId'),
+            role: localStorage.getItem('role')
+          }
+        });
+        setPlants(res.data);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to fetch plants');
+      }
+    };
     fetchPlants();
   }, []);
 
-  const fetchPlants = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/api/plants`, {
-        headers: {
-          userid: localStorage.getItem('userId'),
-          role: localStorage.getItem('role')
-        }
-      });
-      setPlants(res.data);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to fetch plants');
-    }
-  };
-
-  const fetchReport = async (selectedPlant = plant) => {
-    if (!fromDate || !toDate || !selectedPlant) {
+  const fetchReport = async () => {
+    if (!fromDate || !toDate || plant.length === 0) {
       setError('Please select all filters');
       return;
     }
@@ -801,18 +997,14 @@ export default function Report() {
     setLoading(true);
 
     try {
-      const res = await axios.get(
-        `${API_URL}/api/truck-report?fromDate=${fromDate}&toDate=${toDate}&plant=${selectedPlant}`
-      );
-
-      if (res.data.success && Array.isArray(res.data.data)) {
-        setReportData(res.data.data);
-      } else if (Array.isArray(res.data)) {
-        setReportData(res.data);
-      } else {
-        setError('Invalid data format from server');
-        setReportData([]);
-      }
+      const res = await axios.get(`${API_URL}/api/truck-report`, {
+        params: {
+          fromDate,
+          toDate,
+          plant: JSON.stringify(plant)
+        }
+      });
+      setReportData(res.data);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.error || 'Failed to fetch report');
@@ -822,91 +1014,111 @@ export default function Report() {
     }
   };
 
-  const handleSelectAll = () => {
-    setPlant('ALL');
-    fetchReport('ALL');
+  const togglePlant = (plantId) => {
+    setPlant((prev) =>
+      prev.includes(plantId)
+        ? prev.filter((id) => id !== plantId)
+        : [...prev, plantId]
+    );
   };
 
-  const handleDeselectAll = () => {
-    setPlant('');
-    setReportData([]);
+  const selectAllPlants = () => {
+    const allIds = plants.map((p) => String(p.plantid));
+    setPlant(allIds);
+  };
+
+  const deselectAllPlants = () => {
+    setPlant([]);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 to-blue-200 p-4">
-      <div className="bg-white shadow-2xl rounded-3xl p-8 w-full max-w-7xl border border-indigo-200">
-        <h2 className="text-3xl font-bold text-center text-indigo-700 mb-8">
-          🚛 Truck Movement Report
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="bg-white shadow-2xl rounded-3xl p-8 w-full max-w-7xl">
+        
+        <h2 className="text-3xl font-bold text-center text-indigo-700 mb-6 flex items-center justify-center gap-2">
+          🚚 Truck Movement Report
         </h2>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="flex flex-col w-full sm:w-1/4">
+        <div className="flex flex-col md:flex-row gap-4 mb-6 items-end">
+          
+          <div className="flex flex-col w-full md:w-1/4">
             <label className="mb-1 font-medium">From Date</label>
             <input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="p-3 border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
           </div>
 
-          <div className="flex flex-col w-full sm:w-1/4">
+          <div className="flex flex-col w-full md:w-1/4">
             <label className="mb-1 font-medium">To Date</label>
             <input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="p-3 border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
           </div>
 
-          <div className="flex flex-col w-full sm:w-1/4">
-            <label className="mb-1 font-medium">Plant</label>
-            <select
-              value={plant}
-              onChange={(e) => setPlant(e.target.value)}
-              className="p-3 border border-indigo-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            >
-              <option value="">Select Plant</option>
+          <div className="flex flex-col w-full md:w-1/3">
+            <label className="mb-1 font-medium">Select Plants</label>
+            <div className="grid grid-cols-2 gap-2 bg-indigo-50 p-3 rounded-xl max-h-40 overflow-y-auto border border-indigo-200">
               {plants.map((p) => (
-                <option key={p.plantid} value={p.plantid}>
+                <label key={p.plantid} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    value={p.plantid}
+                    checked={plant.includes(String(p.plantid))}
+                    onChange={() => togglePlant(String(p.plantid))}
+                    className="w-4 h-4 rounded-full accent-green-600"
+                  />
                   {p.plantname}
-                </option>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
 
-          <div className="flex items-end gap-2 w-full sm:w-auto">
+          <div className="flex gap-2 w-full md:w-auto">
             <button
-              onClick={() => fetchReport()}
-              className="px-5 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-transform transform hover:scale-105"
+              onClick={fetchReport}
+              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition transform hover:scale-105 w-full"
             >
               Search
-            </button>
-            <button
-              onClick={handleSelectAll}
-              className="px-4 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-transform transform hover:scale-105"
-            >
-              Select All
-            </button>
-            <button
-              onClick={handleDeselectAll}
-              className="px-4 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-transform transform hover:scale-105"
-            >
-              Deselect
             </button>
           </div>
         </div>
 
-        {/* Loading, Error, No Data */}
-        {loading && <div className="text-center text-indigo-600 font-medium">Loading report...</div>}
-        {error && <div className="text-center text-red-500 font-medium">{error}</div>}
+        {/* Select/Deselect All */}
+        <div className="flex gap-3 mb-4">
+          <button
+            onClick={selectAllPlants}
+            className="px-5 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl shadow transition transform hover:scale-105"
+          >
+            Select All
+          </button>
+          <button
+            onClick={deselectAllPlants}
+            className="px-5 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow transition transform hover:scale-105"
+          >
+            Deselect
+          </button>
+        </div>
+
+        {/* Error / Loading / Table */}
+        {loading && (
+          <div className="text-center text-indigo-600 font-medium">Loading report...</div>
+        )}
+        {error && (
+          <div className="text-center text-red-500 font-medium">{error}</div>
+        )}
         {!loading && !error && reportData.length === 0 && (
-          <div className="text-center text-gray-500">No records found for selected filters.</div>
+          <div className="text-center text-gray-500">
+            No records found for selected filters.
+          </div>
         )}
 
-        {/* Report Table */}
         {!loading && reportData.length > 0 && (
           <div className="overflow-x-auto mt-4">
             <table className="min-w-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow">
@@ -953,4 +1165,3 @@ export default function Report() {
     </div>
   );
 }
-

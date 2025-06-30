@@ -789,6 +789,45 @@ app.post("/api/update-truck-status", async (req, res) => {
 // });
 
 /////////////////////////////////////////////////
+// app.get('/api/truck-report', async (req, res) => {
+//   const { fromDate, toDate, plant } = req.query;
+
+//   if (!fromDate || !toDate || !plant) {
+//     return res.status(400).json({ error: 'Missing required filters' });
+//   }
+
+//   try {
+//     const result = await pool.query(
+//       `SELECT 
+//          ttm.truckno AS "truckNo",
+//          ttm.transactiondate AS "transactionDate",
+//          p.plantname AS "plantName",
+//          ttd.checkintime AS "checkInTime",
+//          ttd.checkouttime AS "checkOutTime",
+//          ttd.loadingslipno AS "loadingSlipNo",
+//          ttd.qty AS "qty",
+//          ttd.freight AS "freight",
+//          ttd.priority AS "priority",
+//          ttd.remarks AS "remarks"
+//        FROM trucktransactiondetails ttd
+//        JOIN plantmaster p ON ttd.plantid = p.plantid
+//        JOIN trucktransactionmaster ttm ON ttd.transactionid = ttm.transactionid
+//        WHERE ttd.plantid = $1
+//          AND DATE(ttm.transactiondate) BETWEEN $2 AND $3
+//        ORDER BY ttm.transactiondate DESC`,
+//       [plant, fromDate, toDate]
+//     );
+
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error('Error fetching truck report:', error);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });//////////////////////////// truk refort working api 
+
+
+
+
 app.get('/api/truck-report', async (req, res) => {
   const { fromDate, toDate, plant } = req.query;
 
@@ -796,9 +835,22 @@ app.get('/api/truck-report', async (req, res) => {
     return res.status(400).json({ error: 'Missing required filters' });
   }
 
+  let plantArray = [];
   try {
-    const result = await pool.query(
-      `SELECT 
+    plantArray = JSON.parse(plant); 
+  } catch (err) {
+    return res.status(400).json({ error: 'Invalid plant parameter' });
+  }
+
+  if (!Array.isArray(plantArray) || plantArray.length === 0) {
+    return res.status(400).json({ error: 'No plants selected' });
+  }
+
+  try {
+    const placeholders = plantArray.map((_, i) => `$${i + 1}`).join(',');
+
+    const query = `
+      SELECT 
          ttm.truckno AS "truckNo",
          ttm.transactiondate AS "transactionDate",
          p.plantname AS "plantName",
@@ -809,14 +861,17 @@ app.get('/api/truck-report', async (req, res) => {
          ttd.freight AS "freight",
          ttd.priority AS "priority",
          ttd.remarks AS "remarks"
-       FROM trucktransactiondetails ttd
-       JOIN plantmaster p ON ttd.plantid = p.plantid
-       JOIN trucktransactionmaster ttm ON ttd.transactionid = ttm.transactionid
-       WHERE ttd.plantid = $1
-         AND DATE(ttm.transactiondate) BETWEEN $2 AND $3
-       ORDER BY ttm.transactiondate DESC`,
-      [plant, fromDate, toDate]
-    );
+      FROM trucktransactiondetails ttd
+      JOIN plantmaster p ON ttd.plantid = p.plantid
+      JOIN trucktransactionmaster ttm ON ttd.transactionid = ttm.transactionid
+      WHERE ttd.plantid IN (${placeholders})
+        AND DATE(ttm.transactiondate) BETWEEN $${plantArray.length + 1} AND $${plantArray.length + 2}
+      ORDER BY ttm.transactiondate DESC
+    `;
+
+    const values = [...plantArray, fromDate, toDate];
+
+    const result = await pool.query(query, values);
 
     res.json(result.rows);
   } catch (error) {
@@ -824,6 +879,7 @@ app.get('/api/truck-report', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 
 
