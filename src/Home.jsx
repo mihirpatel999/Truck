@@ -804,9 +804,11 @@
 // }////////////////////workingg fulll
 
 
+/////////////////////////////////
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Sidebar from "./Sidebar"; // 👈 Import the new Sidebar component
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
@@ -844,7 +846,7 @@ export default function Home() {
   if (!isMobile) {
     return (
       <div className="flex flex-col min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-100">
-        {/* existing desktop view stays unchanged */}
+        {/* Desktop content remains here */}
       </div>
     );
   }
@@ -853,60 +855,26 @@ export default function Home() {
     <div className={`min-h-screen ${darkMode ? "bg-gray-900 text-white" : "bg-slate-100 text-gray-900"} relative`}>
       {/* Sidebar Toggle Button */}
       <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
+        onClick={() => setSidebarOpen(true)}
         className="absolute top-4 left-4 z-50 text-3xl"
       >
         ☰
       </button>
 
-      {/* Sidebar */}
-      {sidebarOpen && (
-        <div className="fixed top-0 left-0 h-full w-64 bg-gray-900 text-white shadow-lg z-40 p-4">
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="text-white text-xl mb-4"
-          >
-            ✖
-          </button>
-          <nav className="space-y-4">
-            {allowedPanels.map((p, i) => (
-              <Link
-                key={i}
-                to={p.path}
-                className="block px-4 py-2 rounded hover:bg-gray-800"
-              >
-                {p.icon} {p.name}
-              </Link>
-            ))}
-            <button
-              onClick={() => {
-                localStorage.clear();
-                window.location.href = "/";
-              }}
-              className="block px-4 py-2 rounded text-red-500 hover:bg-red-700 hover:text-white"
-            >
-              🔓 Logout
-            </button>
-            <div className="mt-6 px-4">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={darkMode}
-                  onChange={() => setDarkMode(!darkMode)}
-                />
-                <span>Dark Mode</span>
-              </label>
-            </div>
-          </nav>
-        </div>
-      )}
+      {/* Sidebar Component */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        toggleSidebar={() => setSidebarOpen(false)}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+      />
 
-      {/* Header */}
+      {/* Header Space */}
       <div className="flex items-center justify-center py-6">
-      
+        {/* You can optionally add a logo or title here */}
       </div>
 
-      {/* Mobile Panels */}
+      {/* Panel View for Mobile */}
       {allowedPanels.length === 1 ? (
         <div className="flex justify-start p-4">
           <Link
@@ -926,9 +894,7 @@ export default function Home() {
               className="bg-white bg-opacity-50 backdrop-blur-md rounded-xl shadow-lg flex flex-col items-center justify-center p-4 hover:scale-105 transition-transform"
             >
               <span className="text-3xl mb-1">{p.icon}</span>
-              <span className="text-sm font-semibold text-center">
-                {p.name}
-              </span>
+              <span className="text-sm font-semibold text-center">{p.name}</span>
             </Link>
           ))}
         </div>
