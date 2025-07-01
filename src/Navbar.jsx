@@ -1601,12 +1601,12 @@ function Navbar() {
           </div>
 
           <div className="md:hidden">
-            <button
+            {/* <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="text-white hover:text-yellow-400 text-2xl transition-all duration-300 hover:scale-110"
             >
               ☰
-            </button>
+            </button> */}
           </div>
 
           {/* Desktop Menu */}
