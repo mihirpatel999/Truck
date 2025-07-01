@@ -1538,7 +1538,272 @@
 // i/////////////////////////////////////
 
 
-import { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
+// import { Link, useLocation } from 'react-router-dom';
+
+// const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+// function Navbar() {
+//   const [adminOpen, setAdminOpen] = useState(false);
+//   const [dispatcherOpen, setDispatcherOpen] = useState(false);
+//   const [reportsOpen, setReportsOpen] = useState(false);
+//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+//   const [userRole, setUserRole] = useState(null);
+//   const location = useLocation();
+
+//   useEffect(() => {
+//     const role = localStorage.getItem('userRole');
+//     setUserRole(role);
+//   }, []);
+
+//   const handleLogout = () => {
+//     localStorage.clear();
+//     alert("You have been logged out.");
+//     window.location.href = "/";
+//   };
+
+//   const roleAccess = {
+//     Owner: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Admin: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Dispatch: ['truck', 'truckfind', 'truckshedule'],
+//     Report: ['reports', 'truckshedule'],
+//     GateKeeper: ['gate'],
+//     UserMaster: ['usermaster'],
+//     UserRegister: ['userregister'],
+//     Loader: ['loader'],
+//   };
+
+//   const canAccess = (route) => {
+//     if (!userRole) return false;
+//     const roles = userRole.split(',').map(r => r.trim());
+//     return roles.some(role => roleAccess[role]?.includes(route));
+//   };
+
+//   const NavLink = ({ to, children }) => (
+//     <Link to={to} className="no-underline">
+//       {children}
+//     </Link>
+//   );
+
+//   if (location.pathname === '/') return null;
+
+//   return (
+//     <nav className="bg-black shadow-xl">
+//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//         <div className="flex justify-between h-20 items-center">
+//           <div className="flex items-center space-x-3 text-white font-bold text-xl">
+//             <img
+//               src="https://upload.wikimedia.org/wikipedia/commons/4/48/Emoji_u1f34b.svg"
+//               alt="Lemon Logo"
+//               className="w-8 h-8"
+//             />
+//             <span>Lemon ERP</span>
+//           </div>
+
+//           <div className="md:hidden">
+//             <button
+//               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+//               className="text-white hover:text-yellow-400 text-2xl transition-all duration-300 hover:scale-110"
+//             >
+//               ☰
+//             </button>
+//           </div>
+
+//           {/* Desktop Menu */}
+//           <div className="hidden md:flex space-x-8 items-center font-medium text-white">
+//             {(canAccess('plantmaster') || canAccess('usermaster') || canAccess('userregister')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setAdminOpen(!adminOpen);
+//                     setDispatcherOpen(false);
+//                     setReportsOpen(false);
+//                   }}
+//                   className="hover:text-yellow-400 flex items-center"
+//                 >
+//                   Admin Master <span className="ml-1 text-sm">▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50 ${adminOpen ? 'block' : 'hidden'}`}>
+//                   {canAccess('plantmaster') && (
+//                     <NavLink to="/plantmaster">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">🏭 Plant Master</span>
+//                     </NavLink>
+//                   )}
+//                   {canAccess('usermaster') && (
+//                     <NavLink to="/usermaster">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">👤 User Master</span>
+//                     </NavLink>
+//                   )}
+//                   {canAccess('userregister') && (
+//                     <NavLink to="/userregister">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">📝 User Register</span>
+//                     </NavLink>
+//                   )}
+//                 </div>
+//               </div>
+//             )}
+
+//             {(canAccess('truck') || canAccess('truckfind')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setDispatcherOpen(!dispatcherOpen);
+//                     setAdminOpen(false);
+//                     setReportsOpen(false);
+//                   }}
+//                   className="hover:text-yellow-400 flex items-center"
+//                 >
+//                   Dispatcher <span className="ml-1 text-sm">▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50 ${dispatcherOpen ? 'block' : 'hidden'}`}>
+//                   {canAccess('truck') && (
+//                     <NavLink to="/truck">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">🚛 Truck Transaction</span>
+//                     </NavLink>
+//                   )}
+//                   {canAccess('truckfind') && (
+//                     <NavLink to="/truckfind">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">🔍 Truck Find</span>
+//                     </NavLink>
+//                   )}
+//                 </div>
+//               </div>
+//             )}
+
+//             {canAccess('gate') && (
+//               <NavLink to="/gate">
+//                 <span className="text-white hover:text-yellow-400 flex items-center">🚪 Gate Keeper</span>
+//               </NavLink>
+//             )}
+
+//             {canAccess('loader') && (
+//               <NavLink to="/loader">
+//                 <span className="text-white hover:text-yellow-400 flex items-center">📦 Loader</span>
+//               </NavLink>
+//             )}
+
+//             {(canAccess('reports') || canAccess('truckshedule')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setReportsOpen(!reportsOpen);
+//                     setAdminOpen(false);
+//                     setDispatcherOpen(false);
+//                   }}
+//                   className="hover:text-yellow-400 flex items-center"
+//                 >
+//                   📊 Reports <span className="ml-1 text-sm">▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50 ${reportsOpen ? 'block' : 'hidden'}`}>
+//                   {canAccess('reports') && (
+//                     <NavLink to="/reports">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">📈 Reports</span>
+//                     </NavLink>
+//                   )}
+//                   {canAccess('truckshedule') && (
+//                     <NavLink to="/truckshedule">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">🚛 Truck Schedule</span>
+//                     </NavLink>
+//                   )}
+//                 </div>
+//               </div>
+//             )}
+
+//             <button
+//               onClick={handleLogout}
+//               className="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-lg border border-red-700 transition duration-300 hover:scale-105"
+//             >
+//               🔓 Logout
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* Mobile Menu Panel Style */}
+//         {mobileMenuOpen && (
+//           <div className="md:hidden mt-4 grid grid-cols-2 gap-4 bg-gray-900 p-4 rounded-xl shadow-2xl text-white font-medium">
+
+//             {canAccess('plantmaster') && (
+//               <NavLink to="/plantmaster">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   🏭 <span className="mt-2">Plant Master</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('usermaster') && (
+//               <NavLink to="/usermaster">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   👤 <span className="mt-2">User Master</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('userregister') && (
+//               <NavLink to="/userregister">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   📝 <span className="mt-2">User Register</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truck') && (
+//               <NavLink to="/truck">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   🚛 <span className="mt-2">Truck Transaction</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truckfind') && (
+//               <NavLink to="/truckfind">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   🔍 <span className="mt-2">Truck Find</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('gate') && (
+//               <NavLink to="/gate">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   🚪 <span className="mt-2">Gate Keeper</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('loader') && (
+//               <NavLink to="/loader">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   📦 <span className="mt-2">Loader</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('reports') && (
+//               <NavLink to="/reports">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   📈 <span className="mt-2">Reports</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truckshedule') && (
+//               <NavLink to="/truckshedule">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   🚛 <span className="mt-2">Truck Schedule</span>
+//                 </div>
+//               </NavLink>
+//             )}
+
+//             <button
+//               onClick={handleLogout}
+//               className="col-span-2 mt-2 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl shadow-lg"
+//             >
+//               🔓 Logout
+//             </button>
+//           </div>
+//         )}
+//       </div>
+//     </nav>
+//   );
+// }
+
+// export default Navbar;///////////////////fully working code with mobile panel and desktop menu
+
+
+
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -1591,14 +1856,7 @@ function Navbar() {
     <nav className="bg-black shadow-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
-          <div className="flex items-center space-x-3 text-white font-bold text-xl">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/4/48/Emoji_u1f34b.svg"
-              alt="Lemon Logo"
-              className="w-8 h-8"
-            />
-            <span>Lemon ERP</span>
-          </div>
+          <div className="font-bold text-2xl text-white">Lemon Software Gate Pass</div>
 
           <div className="md:hidden">
             <button
@@ -1718,80 +1976,64 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu Panel Style */}
+        {/* Mobile Menu - Modern Panel Style with fixed height */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 grid grid-cols-2 gap-4 bg-gray-900 p-4 rounded-xl shadow-2xl text-white font-medium">
-
-            {canAccess('plantmaster') && (
+            {[canAccess('plantmaster') && (
               <NavLink to="/plantmaster">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  🏭 <span className="mt-2">Plant Master</span>
+                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg min-h-[100px]">
+                  🏭<span className="mt-2">Plant Master</span>
                 </div>
               </NavLink>
-            )}
-            {canAccess('usermaster') && (
+            ), canAccess('usermaster') && (
               <NavLink to="/usermaster">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  👤 <span className="mt-2">User Master</span>
+                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg min-h-[100px]">
+                  👤<span className="mt-2">User Master</span>
                 </div>
               </NavLink>
-            )}
-            {canAccess('userregister') && (
+            ), canAccess('userregister') && (
               <NavLink to="/userregister">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  📝 <span className="mt-2">User Register</span>
+                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg min-h-[100px]">
+                  📝<span className="mt-2">User Register</span>
                 </div>
               </NavLink>
-            )}
-            {canAccess('truck') && (
+            ), canAccess('truck') && (
               <NavLink to="/truck">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  🚛 <span className="mt-2">Truck Transaction</span>
+                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg min-h-[100px]">
+                  🚛<span className="mt-2">Truck Transaction</span>
                 </div>
               </NavLink>
-            )}
-            {canAccess('truckfind') && (
+            ), canAccess('truckfind') && (
               <NavLink to="/truckfind">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  🔍 <span className="mt-2">Truck Find</span>
+                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg min-h-[100px]">
+                  🔍<span className="mt-2">Truck Find</span>
                 </div>
               </NavLink>
-            )}
-            {canAccess('gate') && (
+            ), canAccess('gate') && (
               <NavLink to="/gate">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  🚪 <span className="mt-2">Gate Keeper</span>
+                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg min-h-[100px]">
+                  🚪<span className="mt-2">Gate Keeper</span>
                 </div>
               </NavLink>
-            )}
-            {canAccess('loader') && (
+            ), canAccess('loader') && (
               <NavLink to="/loader">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  📦 <span className="mt-2">Loader</span>
+                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg min-h-[100px]">
+                  📦<span className="mt-2">Loader</span>
                 </div>
               </NavLink>
-            )}
-            {canAccess('reports') && (
+            ), canAccess('reports') && (
               <NavLink to="/reports">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  📈 <span className="mt-2">Reports</span>
+                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg min-h-[100px]">
+                  📈<span className="mt-2">Reports</span>
                 </div>
               </NavLink>
-            )}
-            {canAccess('truckshedule') && (
+            ), canAccess('truckshedule') && (
               <NavLink to="/truckshedule">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  🚛 <span className="mt-2">Truck Schedule</span>
+                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg min-h-[100px]">
+                  🚛<span className="mt-2">Truck Schedule</span>
                 </div>
               </NavLink>
-            )}
-
-            <button
-              onClick={handleLogout}
-              className="col-span-2 mt-2 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl shadow-lg"
-            >
-              🔓 Logout
-            </button>
+            )].filter(Boolean)}
           </div>
         )}
       </div>
@@ -1800,3 +2042,4 @@ function Navbar() {
 }
 
 export default Navbar;
+
