@@ -2130,14 +2130,14 @@ function Navbar() {
             <span>Lemon ERP</span>
           </div>
 
-          <div className="md:hidden">
+          {/* <div className="md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="text-white hover:text-yellow-400 text-2xl transition-all duration-300 hover:scale-110"
             >
               ☰
             </button>
-          </div>
+          </div> */}
 
           <div className="hidden md:flex space-x-8 items-center font-medium text-white">
             {(canAccess('plantmaster') || canAccess('usermaster') || canAccess('userregister')) && (
