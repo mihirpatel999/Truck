@@ -806,9 +806,115 @@
 
 /////////////////////////////////
 
+// import { useEffect, useState } from "react";
+// import { Link } from "react-router-dom";
+// import Sidebar from "./Sidebar"; // 👈 Import the new Sidebar component
+
+// export default function Home() {
+//   const [isMobile, setIsMobile] = useState(false);
+//   const [sidebarOpen, setSidebarOpen] = useState(false);
+//   const [darkMode, setDarkMode] = useState(false);
+//   const userRole = localStorage.getItem("userRole");
+
+//   useEffect(() => {
+//     const checkSize = () => {
+//       setIsMobile(window.innerWidth <= 768);
+//     };
+//     checkSize();
+//     window.addEventListener("resize", checkSize);
+//     return () => window.removeEventListener("resize", checkSize);
+//   }, []);
+
+//   const panelList = [
+//     { name: "Plant Master", path: "/plantmaster", icon: "🏭", roles: ["Owner", "Admin"] },
+//     { name: "User Master", path: "/usermaster", icon: "👤", roles: ["Owner", "Admin"] },
+//     { name: "User Register", path: "/userregister", icon: "📝", roles: ["Owner", "Admin"] },
+//     { name: "Truck Transaction", path: "/truck", icon: "🚛", roles: ["Owner", "Admin", "Dispatch"] },
+//     { name: "Truck Find", path: "/truckfind", icon: "🔍", roles: ["Owner", "Admin", "Dispatch"] },
+//     { name: "Gate Keeper", path: "/gate", icon: "🚪", roles: ["Owner", "Admin", "GateKeeper"] },
+//     { name: "Loader", path: "/loader", icon: "📦", roles: ["Owner", "Admin", "Loader"] },
+//     { name: "Reports", path: "/reports", icon: "📊", roles: ["Owner", "Admin", "Report"] },
+//     { name: "Truck Schedule", path: "/truckshedule", icon: "📅", roles: ["Owner", "Admin", "Report"] },
+//   ];
+
+//   const allowedPanels = panelList.filter((p) => {
+//     if (!userRole) return false;
+//     const roles = userRole.split(",").map((r) => r.trim());
+//     return roles.some((r) => p.roles.includes(r));
+//   });
+
+//   if (!isMobile) {
+//     return (
+//       <div className="flex flex-col min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-100">
+//         {/* Desktop content remains here */}
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className={`min-h-screen ${darkMode ? "bg-gray-900 text-white" : "bg-slate-100 text-gray-900"} relative`}>
+//       {/* Sidebar Toggle Button */}
+//       <button
+//         onClick={() => setSidebarOpen(true)}
+//         className="absolute top-4 left-4 z-50 text-3xl"
+//       >
+//         ☰
+//       </button>
+
+//       {/* Sidebar Component */}
+//       <Sidebar
+//         isOpen={sidebarOpen}
+//         toggleSidebar={() => setSidebarOpen(false)}
+//         darkMode={darkMode}
+//         setDarkMode={setDarkMode}
+//       />
+
+//       {/* Header Space */}
+//       <div className="flex items-center justify-center py-6">
+//         {/* You can optionally add a logo or title here */}
+//       </div>
+
+//       {/* Panel View for Mobile */}
+//       {allowedPanels.length === 1 ? (
+//         <div className="flex justify-start p-4">
+//           <Link
+//             to={allowedPanels[0].path}
+//             className="w-full bg-white bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 text-center hover:scale-105 transform transition-all"
+//           >
+//             <span className="text-4xl block mb-2">{allowedPanels[0].icon}</span>
+//             <span className="font-bold text-lg">{allowedPanels[0].name}</span>
+//           </Link>
+//         </div>
+//       ) : (
+//         <div className="grid grid-cols-2 gap-4 p-4">
+//           {allowedPanels.map((p, idx) => (
+//             <Link
+//               to={p.path}
+//               key={idx}
+//               className="bg-white bg-opacity-50 backdrop-blur-md rounded-xl shadow-lg flex flex-col items-center justify-center p-4 hover:scale-105 transition-transform"
+//             >
+//               <span className="text-3xl mb-1">{p.icon}</span>
+//               <span className="text-sm font-semibold text-center">{p.name}</span>
+//             </Link>
+//           ))}
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+
+///////////////////
+
+
+// Home.jsx (with Modern Sidebar Integrated)
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Sidebar from "./Sidebar"; // 👈 Import the new Sidebar component
+import Sidebar from "./Sidebar";
+import { MdOutlineWarehouse } from "react-icons/md";
+import { FiUser, FiClipboard, FiTruck, FiBarChart2 } from "react-icons/fi";
+import { AiOutlineSchedule } from "react-icons/ai";
+import { PiPackageLight } from "react-icons/pi";
+import { BsDoorOpen } from "react-icons/bs";
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
@@ -826,15 +932,15 @@ export default function Home() {
   }, []);
 
   const panelList = [
-    { name: "Plant Master", path: "/plantmaster", icon: "🏭", roles: ["Owner", "Admin"] },
-    { name: "User Master", path: "/usermaster", icon: "👤", roles: ["Owner", "Admin"] },
-    { name: "User Register", path: "/userregister", icon: "📝", roles: ["Owner", "Admin"] },
-    { name: "Truck Transaction", path: "/truck", icon: "🚛", roles: ["Owner", "Admin", "Dispatch"] },
-    { name: "Truck Find", path: "/truckfind", icon: "🔍", roles: ["Owner", "Admin", "Dispatch"] },
-    { name: "Gate Keeper", path: "/gate", icon: "🚪", roles: ["Owner", "Admin", "GateKeeper"] },
-    { name: "Loader", path: "/loader", icon: "📦", roles: ["Owner", "Admin", "Loader"] },
-    { name: "Reports", path: "/reports", icon: "📊", roles: ["Owner", "Admin", "Report"] },
-    { name: "Truck Schedule", path: "/truckshedule", icon: "📅", roles: ["Owner", "Admin", "Report"] },
+    { name: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse />, roles: ["Owner", "Admin"] },
+    { name: "User Master", path: "/usermaster", icon: <FiUser />, roles: ["Owner", "Admin"] },
+    { name: "User Register", path: "/userregister", icon: <FiClipboard />, roles: ["Owner", "Admin"] },
+    { name: "Truck Transaction", path: "/truck", icon: <FiTruck />, roles: ["Owner", "Admin", "Dispatch"] },
+    { name: "Truck Find", path: "/truckfind", icon: <FiTruck />, roles: ["Owner", "Admin", "Dispatch"] },
+    { name: "Gate Keeper", path: "/gate", icon: <BsDoorOpen />, roles: ["Owner", "Admin", "GateKeeper"] },
+    { name: "Loader", path: "/loader", icon: <PiPackageLight />, roles: ["Owner", "Admin", "Loader"] },
+    { name: "Reports", path: "/reports", icon: <FiBarChart2 />, roles: ["Owner", "Admin", "Report"] },
+    { name: "Truck Schedule", path: "/truckshedule", icon: <AiOutlineSchedule />, roles: ["Owner", "Admin", "Report"] },
   ];
 
   const allowedPanels = panelList.filter((p) => {
@@ -846,7 +952,7 @@ export default function Home() {
   if (!isMobile) {
     return (
       <div className="flex flex-col min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-100">
-        {/* Desktop content remains here */}
+        {/* Desktop View Placeholder */}
       </div>
     );
   }
@@ -869,12 +975,10 @@ export default function Home() {
         setDarkMode={setDarkMode}
       />
 
-      {/* Header Space */}
-      <div className="flex items-center justify-center py-6">
-        {/* You can optionally add a logo or title here */}
-      </div>
+      {/* Header Placeholder */}
+      <div className="flex items-center justify-center py-6"></div>
 
-      {/* Panel View for Mobile */}
+      {/* Panel View */}
       {allowedPanels.length === 1 ? (
         <div className="flex justify-start p-4">
           <Link
