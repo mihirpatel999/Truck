@@ -145,17 +145,53 @@ app.post('/api/login', async (req, res) => {
 
 
 
+// app.get('/api/plants', async (req, res) => {
+//   const userId = req.headers['userid'];
+//   const role = req.headers['role'] || 'admin';
+
+//   try {
+//     if (role.toLowerCase() === 'admin') {
+//       const result = await pool.query('SELECT plantid, plantname FROM plantmaster');
+//       return res.json(result.rows);
+//     }
+
+//     // ✅ For staff: fetch allowedplants from users table
+//     const userResult = await pool.query('SELECT allowedplants FROM users WHERE userid = $1', [userId]);
+//     if (userResult.rowCount === 0) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
+
+//     const allowedPlants = userResult.rows[0].allowedplants;
+//     if (!allowedPlants || allowedPlants.trim() === '') {
+//       return res.json([]); // No access
+//     }
+
+//     // Convert "7,11" => [7, 11]
+//     const plantIdArray = allowedPlants.split(',').map(id => parseInt(id.trim())).filter(Boolean);
+
+//     const placeholders = plantIdArray.map((_, i) => `$${i + 1}`).join(',');
+//     const plantQuery = `SELECT plantid, plantname FROM plantmaster WHERE plantid IN (${placeholders})`;
+
+//     const plantResult = await pool.query(plantQuery, plantIdArray);
+//     res.json(plantResult.rows);
+
+//   } catch (error) {
+//     console.error('Error fetching plants:', error);
+//     res.status(500).json({ error: 'Error fetching plants' });
+//   }
+// });///////////////////working api
+
+
 app.get('/api/plants', async (req, res) => {
   const userId = req.headers['userid'];
   const role = req.headers['role'] || 'admin';
 
   try {
     if (role.toLowerCase() === 'admin') {
-      const result = await pool.query('SELECT plantid, plantname FROM plantmaster');
+      const result = await pool.query('SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0');
       return res.json(result.rows);
     }
 
-    // ✅ For staff: fetch allowedplants from users table
     const userResult = await pool.query('SELECT allowedplants FROM users WHERE userid = $1', [userId]);
     if (userResult.rowCount === 0) {
       return res.status(404).json({ error: 'User not found' });
@@ -163,14 +199,12 @@ app.get('/api/plants', async (req, res) => {
 
     const allowedPlants = userResult.rows[0].allowedplants;
     if (!allowedPlants || allowedPlants.trim() === '') {
-      return res.json([]); // No access
+      return res.json([]);
     }
 
-    // Convert "7,11" => [7, 11]
     const plantIdArray = allowedPlants.split(',').map(id => parseInt(id.trim())).filter(Boolean);
-
     const placeholders = plantIdArray.map((_, i) => `$${i + 1}`).join(',');
-    const plantQuery = `SELECT plantid, plantname FROM plantmaster WHERE plantid IN (${placeholders})`;
+    const plantQuery = `SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0 AND plantid IN (${placeholders})`;
 
     const plantResult = await pool.query(plantQuery, plantIdArray);
     res.json(plantResult.rows);
@@ -180,6 +214,7 @@ app.get('/api/plants', async (req, res) => {
     res.status(500).json({ error: 'Error fetching plants' });
   }
 });
+
 
 
 
@@ -219,13 +254,36 @@ app.get('/api/plant-master', async (req, res) => {
 });
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// ✅ Delete plant by ID
+// // ✅ Delete plant by ID
+// app.delete('/api/plant-master/:id', async (req, res) => {
+//   const { id } = req.params;
+
+//   try {
+//     const result = await pool.query(
+//       'DELETE FROM PlantMaster WHERE PlantID = $1 RETURNING *',
+//       [id]
+//     );
+
+//     if (result.rowCount === 0) {
+//       return res.status(404).json({ error: 'Plant not found' });
+//     }
+
+//     res.json({ message: 'Plant deleted successfully' });
+//   } catch (error) {
+//     console.error('Error deleting plant:', error);
+//     res.status(500).json({ error: 'Failed to delete plant' });
+//   }
+// });////// working api
+
+
+
+// ✅ Soft delete plant by setting isdeleted = 1
 app.delete('/api/plant-master/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
     const result = await pool.query(
-      'DELETE FROM PlantMaster WHERE PlantID = $1 RETURNING *',
+      'UPDATE PlantMaster SET isdeleted = 1 WHERE PlantID = $1 RETURNING *',
       [id]
     );
 
@@ -233,12 +291,13 @@ app.delete('/api/plant-master/:id', async (req, res) => {
       return res.status(404).json({ error: 'Plant not found' });
     }
 
-    res.json({ message: 'Plant deleted successfully' });
+    res.json({ message: '✅ Plant soft deleted successfully' });
   } catch (error) {
     console.error('Error deleting plant:', error);
-    res.status(500).json({ error: 'Failed to delete plant' });
+    res.status(500).json({ error: '❌ Failed to delete plant' });
   }
 });
+
 
 
 
