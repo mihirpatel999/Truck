@@ -1943,7 +1943,9 @@ export default function TruckTransaction() {
       })));
     } catch (err) {
       if (err.response?.status === 409) {
-        setMessage('🚫 Truck is already in transaction. Please complete Check-Out first.');
+        setMessage('🚫 Truck is already in transport. Please complete Check-Out first.');
+      } else if (err.response?.status === 404) {
+        setMessage('Truck not found. You can create a new transaction.');
       } else {
         console.error('Error loading truck details:', err);
         setMessage('❌ Failed to load truck details.');
@@ -2015,8 +2017,12 @@ export default function TruckTransaction() {
         setMessage('❌ Error saving transaction.');
       }
     } catch (error) {
-      console.error('Submit error:', error);
-      setMessage('❌ Server error while submitting data.');
+      if (error.response?.status === 409) {
+        setMessage('🚫 Truck is already in transport. Please complete Check-Out first.');
+      } else {
+        console.error('Submit error:', error);
+        setMessage('❌ Server error while submitting data.');
+      }
     }
   };
 
@@ -2128,5 +2134,3 @@ export default function TruckTransaction() {
     </div>
   );
 }
-
-
