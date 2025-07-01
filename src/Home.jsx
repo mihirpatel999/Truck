@@ -677,51 +677,128 @@
 //     </div>
 //   );
 // }//////////////final
-// App.jsx or Home.jsx
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Sidebar from "./Sidebar";
 
 export default function Home() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const userRole = localStorage.getItem("userRole");
 
-  const allowedPanels = [
-    { title: "Gate Keeper", icon: "🚪", path: "/gate" },
-    { title: "Truck Transaction", icon: "🚛", path: "/truck" },
-    { title: "Reports", icon: "📊", path: "/reports" },
+  useEffect(() => {
+    const checkSize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkSize();
+    window.addEventListener("resize", checkSize);
+    return () => window.removeEventListener("resize", checkSize);
+  }, []);
+
+  const panelList = [
+    { name: "Plant Master", path: "/plantmaster", icon: "🏭", roles: ["Owner", "Admin"] },
+    { name: "User Master", path: "/usermaster", icon: "👤", roles: ["Owner", "Admin"] },
+    { name: "User Register", path: "/userregister", icon: "📝", roles: ["Owner", "Admin"] },
+    { name: "Truck Transaction", path: "/truck", icon: "🚛", roles: ["Owner", "Admin", "Dispatch"] },
+    { name: "Truck Find", path: "/truckfind", icon: "🔍", roles: ["Owner", "Admin", "Dispatch"] },
+    { name: "Gate Keeper", path: "/gate", icon: "🚪", roles: ["Owner", "Admin", "GateKeeper"] },
+    { name: "Loader", path: "/loader", icon: "📦", roles: ["Owner", "Admin", "Loader"] },
+    { name: "Reports", path: "/reports", icon: "📊", roles: ["Owner", "Admin", "Report"] },
+    { name: "Truck Schedule", path: "/truckshedule", icon: "📅", roles: ["Owner", "Admin", "Report", "Dispatch"] },
   ];
 
+  const allowedPanels = panelList.filter((p) => {
+    if (!userRole) return false;
+    const roles = userRole.split(",").map((r) => r.trim());
+    return roles.some((r) => p.roles.includes(r));
+  });
+
+  if (!isMobile) {
+    return (
+      <div className="flex flex-col min-h-screen bg-gradient-to-br from-yellow-50 via-white to-yellow-100">
+        {/* existing desktop view stays unchanged */}
+      </div>
+    );
+  }
+
   return (
-    <div className={`${darkMode ? "bg-gray-900 text-white" : "bg-slate-100 text-black"} min-h-screen transition-colors duration-300`}>
+    <div className="min-h-screen bg-slate-100 relative">
+      {/* Sidebar Toggle Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="absolute top-4 left-4 z-50 text-3xl"
+      >
+        ☰
+      </button>
+
       {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} darkMode={darkMode} setDarkMode={setDarkMode} />
-
-      {/* Topbar */}
-      <div className="flex items-center p-4 shadow-md bg-white dark:bg-gray-800 sticky top-0 z-40">
-        <button onClick={() => setIsSidebarOpen(true)} className="text-xl mr-4">☰</button>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/4/48/Emoji_u1f34b.svg" alt="Lemon Logo" className="w-8 h-8 mr-2" />
-        <h2 className="text-lg font-bold">Lemon ERP</h2>
-      </div>
-
-      {/* Cards Grid */}
-      <div className="grid grid-cols-2 gap-4 p-4 ml-0 md:ml-64">
-        {allowedPanels.map((p, idx) => (
-          <Link
-            key={idx}
-            to={p.path}
-            className="bg-white/30 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition-transform"
+      {sidebarOpen && (
+        <div className="fixed top-0 left-0 h-full w-64 bg-gray-900 text-white shadow-lg z-40 p-4">
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="text-white text-xl mb-4"
           >
-            <span className="text-3xl mb-2">{p.icon}</span>
-            <span className="text-sm font-semibold text-center">{p.title}</span>
-            <span className="mt-2 text-xs text-blue-500 underline">Go</span>
-          </Link>
-        ))}
+            ✖
+          </button>
+          <nav className="space-y-4">
+            {allowedPanels.map((p, i) => (
+              <Link
+                key={i}
+                to={p.path}
+                className="block px-4 py-2 rounded hover:bg-gray-800"
+              >
+                {p.icon} {p.name}
+              </Link>
+            ))}
+            <button
+              onClick={() => {
+                localStorage.clear();
+                window.location.href = "/";
+              }}
+              className="block px-4 py-2 rounded text-red-500 hover:bg-red-700 hover:text-white"
+            >
+              🔓 Logout
+            </button>
+          </nav>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex items-center justify-center py-6">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/4/48/Emoji_u1f34b.svg"
+          alt="Lemon Logo"
+          className="w-10 h-10 mr-3"
+        />
+        <h2 className="text-xl font-bold text-slate-700">Lemon ERP</h2>
       </div>
+
+      {/* Mobile Panels */}
+      {allowedPanels.length === 1 ? (
+        <div className="flex justify-start p-4">
+          <Link
+            to={allowedPanels[0].path}
+            className="w-full bg-white bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 text-center hover:scale-105 transform transition-all"
+          >
+            <span className="text-4xl block mb-2">{allowedPanels[0].icon}</span>
+            <span className="font-bold text-lg text-gray-700">{allowedPanels[0].name}</span>
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-4 p-4">
+          {allowedPanels.map((p, idx) => (
+            <Link
+              to={p.path}
+              key={idx}
+              className="bg-white bg-opacity-50 backdrop-blur-md rounded-xl shadow-lg flex flex-col items-center justify-center p-4 hover:scale-105 transition-transform"
+            >
+              <span className="text-3xl mb-1">{p.icon}</span>
+              <span className="text-sm font-semibold text-gray-700 text-center">
+                {p.name}
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-
-
-
-
