@@ -349,7 +349,7 @@
 //   );
 // }///////normal home 
 
-/ Home.jsx attractive, professional mobile panels view
+// / Home.jsx attractive, professional mobile panels view
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import lemonLogo from './assets/lemon-logo.png';
