@@ -157,82 +157,191 @@
 ////////////////////////////////////////
 
 
-// UPDATED Home.jsx for Mobile Block Panels
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+// // UPDATED Home.jsx for Mobile Block Panels
+// import React, { useEffect, useState } from 'react';
+// import { Link } from 'react-router-dom';
+
+// export default function Home() {
+//   const [userRole, setUserRole] = useState(null);
+
+//   useEffect(() => {
+//     const role = localStorage.getItem('userRole');
+//     setUserRole(role);
+//   }, []);
+
+//   const roleAccess = {
+//     Owner: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Admin: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Dispatch: ['truck', 'truckfind', 'truckshedule'],
+//     Report: ['reports', 'truckshedule'],
+//     GateKeeper: ['gate'],
+//     UserMaster: ['usermaster'],
+//     UserRegister: ['userregister'],
+//     Loader: ['loader'],
+//   };
+
+//   const canAccess = (route) => {
+//     if (!userRole) return false;
+//     const roles = userRole.split(',').map(r => r.trim());
+//     return roles.some(role => roleAccess[role]?.includes(route));
+//   };
+
+//   return (
+//     <div>
+//       {/* Mobile View Panels */}
+//       <div className="block md:hidden p-4 grid grid-cols-2 gap-4">
+//         {canAccess('plantmaster') && (
+//           <Link to="/plantmaster" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
+//             🏭<span className="mt-2 text-center font-semibold">Plant Master</span>
+//           </Link>
+//         )}
+//         {canAccess('usermaster') && (
+//           <Link to="/usermaster" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
+//             👤<span className="mt-2 text-center font-semibold">User Master</span>
+//           </Link>
+//         )}
+//         {canAccess('userregister') && (
+//           <Link to="/userregister" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
+//             📝<span className="mt-2 text-center font-semibold">User Register</span>
+//           </Link>
+//         )}
+//         {canAccess('truck') && (
+//           <Link to="/truck" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
+//             🚛<span className="mt-2 text-center font-semibold">Truck Transaction</span>
+//           </Link>
+//         )}
+//         {canAccess('truckfind') && (
+//           <Link to="/truckfind" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
+//             🔍<span className="mt-2 text-center font-semibold">Truck Find</span>
+//           </Link>
+//         )}
+//         {canAccess('gate') && (
+//           <Link to="/gate" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
+//             🚪<span className="mt-2 text-center font-semibold">Gate Keeper</span>
+//           </Link>
+//         )}
+//         {canAccess('loader') && (
+//           <Link to="/loader" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
+//             📦<span className="mt-2 text-center font-semibold">Loader</span>
+//           </Link>
+//         )}
+//         {canAccess('reports') && (
+//           <Link to="/reports" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
+//             📈<span className="mt-2 text-center font-semibold">Reports</span>
+//           </Link>
+//         )}
+//         {canAccess('truckshedule') && (
+//           <Link to="/truckshedule" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
+//             🚛<span className="mt-2 text-center font-semibold">Truck Schedule</span>
+//           </Link>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+//////////////////////////
+
+
+
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Home() {
-  const [userRole, setUserRole] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const userRole = localStorage.getItem("userRole") || "";
 
   useEffect(() => {
-    const role = localStorage.getItem('userRole');
-    setUserRole(role);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const roleAccess = {
-    Owner: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
-    Admin: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
-    Dispatch: ['truck', 'truckfind', 'truckshedule'],
-    Report: ['reports', 'truckshedule'],
-    GateKeeper: ['gate'],
-    UserMaster: ['usermaster'],
-    UserRegister: ['userregister'],
-    Loader: ['loader'],
+    Owner: ["plantmaster", "usermaster", "userregister", "truck", "gate", "loader", "reports", "truckfind", "truckshedule"],
+    Admin: ["plantmaster", "usermaster", "userregister", "truck", "gate", "loader", "reports", "truckfind", "truckshedule"],
+    Dispatch: ["truck", "truckfind", "truckshedule"],
+    Report: ["reports", "truckshedule"],
+    GateKeeper: ["gate"],
+    UserMaster: ["usermaster"],
+    UserRegister: ["userregister"],
+    Loader: ["loader"],
   };
 
   const canAccess = (route) => {
-    if (!userRole) return false;
-    const roles = userRole.split(',').map(r => r.trim());
-    return roles.some(role => roleAccess[role]?.includes(route));
+    const roles = userRole.split(",").map((r) => r.trim());
+    return roles.some((role) => roleAccess[role]?.includes(route));
   };
 
+  if (!isMobile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-white to-yellow-100">
+        <div className="text-center p-8 bg-white shadow-2xl rounded-xl">
+          <h1 className="text-4xl font-bold mb-6 text-yellow-600">Welcome to Lemon Software</h1>
+          <p className="text-lg text-gray-700">Track, manage and simplify your truck operations with ease.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      {/* Mobile View Panels */}
-      <div className="block md:hidden p-4 grid grid-cols-2 gap-4">
-        {canAccess('plantmaster') && (
-          <Link to="/plantmaster" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
-            🏭<span className="mt-2 text-center font-semibold">Plant Master</span>
+    <div className="min-h-screen bg-gray-100 px-4 pt-6">
+      <div className="flex justify-center mb-6">
+        <img src="/logo.png" alt="Lemon Software" className="h-16" />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {canAccess("plantmaster") && (
+          <Link to="/plantmaster" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+            <div className="text-3xl mb-2">🏭</div>
+            <div className="font-semibold text-gray-700">Plant Master</div>
           </Link>
         )}
-        {canAccess('usermaster') && (
-          <Link to="/usermaster" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
-            👤<span className="mt-2 text-center font-semibold">User Master</span>
+        {canAccess("usermaster") && (
+          <Link to="/usermaster" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+            <div className="text-3xl mb-2">👤</div>
+            <div className="font-semibold text-gray-700">User Master</div>
           </Link>
         )}
-        {canAccess('userregister') && (
-          <Link to="/userregister" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
-            📝<span className="mt-2 text-center font-semibold">User Register</span>
+        {canAccess("userregister") && (
+          <Link to="/userregister" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+            <div className="text-3xl mb-2">📝</div>
+            <div className="font-semibold text-gray-700">User Register</div>
           </Link>
         )}
-        {canAccess('truck') && (
-          <Link to="/truck" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
-            🚛<span className="mt-2 text-center font-semibold">Truck Transaction</span>
+        {canAccess("truck") && (
+          <Link to="/truck" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+            <div className="text-3xl mb-2">🚛</div>
+            <div className="font-semibold text-gray-700">Truck Transaction</div>
           </Link>
         )}
-        {canAccess('truckfind') && (
-          <Link to="/truckfind" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
-            🔍<span className="mt-2 text-center font-semibold">Truck Find</span>
+        {canAccess("truckfind") && (
+          <Link to="/truckfind" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+            <div className="text-3xl mb-2">🔍</div>
+            <div className="font-semibold text-gray-700">Truck Find</div>
           </Link>
         )}
-        {canAccess('gate') && (
-          <Link to="/gate" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
-            🚪<span className="mt-2 text-center font-semibold">Gate Keeper</span>
+        {canAccess("gate") && (
+          <Link to="/gate" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+            <div className="text-3xl mb-2">🚪</div>
+            <div className="font-semibold text-gray-700">Gate Keeper</div>
           </Link>
         )}
-        {canAccess('loader') && (
-          <Link to="/loader" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
-            📦<span className="mt-2 text-center font-semibold">Loader</span>
+        {canAccess("loader") && (
+          <Link to="/loader" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+            <div className="text-3xl mb-2">📦</div>
+            <div className="font-semibold text-gray-700">Loader</div>
           </Link>
         )}
-        {canAccess('reports') && (
-          <Link to="/reports" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
-            📈<span className="mt-2 text-center font-semibold">Reports</span>
+        {canAccess("reports") && (
+          <Link to="/reports" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+            <div className="text-3xl mb-2">📈</div>
+            <div className="font-semibold text-gray-700">Reports</div>
           </Link>
         )}
-        {canAccess('truckshedule') && (
-          <Link to="/truckshedule" className="bg-yellow-100 shadow-md rounded-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition">
-            🚛<span className="mt-2 text-center font-semibold">Truck Schedule</span>
+        {canAccess("truckshedule") && (
+          <Link to="/truckshedule" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+            <div className="text-3xl mb-2">🚛</div>
+            <div className="font-semibold text-gray-700">Truck Schedule</div>
           </Link>
         )}
       </div>
