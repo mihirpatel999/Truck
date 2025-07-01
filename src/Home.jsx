@@ -832,7 +832,7 @@ export default function Home() {
     { name: "Gate Keeper", path: "/gate", icon: "🚪", roles: ["Owner", "Admin", "GateKeeper"] },
     { name: "Loader", path: "/loader", icon: "📦", roles: ["Owner", "Admin", "Loader"] },
     { name: "Reports", path: "/reports", icon: "📊", roles: ["Owner", "Admin", "Report"] },
-    { name: "Truck Schedule", path: "/truckshedule", icon: "📅", roles: ["Owner", "Admin", "Report", "Dispatch"] },
+    { name: "Truck Schedule", path: "/truckshedule", icon: "📅", roles: ["Owner", "Admin", "Report"] },
   ];
 
   const allowedPanels = panelList.filter((p) => {
