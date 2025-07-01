@@ -677,101 +677,51 @@
 //     </div>
 //   );
 // }//////////////final
-
-
-import { useEffect, useState } from "react";
+// App.jsx or Home.jsx
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import Sidebar from "./Sidebar";
 
 export default function Home() {
-  const [isMobile, setIsMobile] = useState(false);
-  const userRole = localStorage.getItem("userRole");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
-  useEffect(() => {
-    const checkSize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkSize();
-    window.addEventListener("resize", checkSize);
-    return () => window.removeEventListener("resize", checkSize);
-  }, []);
-
-  const panelList = [
-    { name: "Plant Master", path: "/plantmaster", icon: "🏭", roles: ["Owner", "Admin"] },
-    { name: "User Master", path: "/usermaster", icon: "👤", roles: ["Owner", "Admin"] },
-    { name: "User Register", path: "/userregister", icon: "📝", roles: ["Owner", "Admin"] },
-    { name: "Truck Transaction", path: "/truck", icon: "🚛", roles: ["Owner", "Admin", "Dispatch"] },
-    { name: "Truck Find", path: "/truckfind", icon: "🔍", roles: ["Owner", "Admin", "Dispatch"] },
-    { name: "Gate Keeper", path: "/gate", icon: "🚪", roles: ["Owner", "Admin", "GateKeeper"] },
-    { name: "Loader", path: "/loader", icon: "📦", roles: ["Owner", "Admin", "Loader"] },
-    { name: "Reports", path: "/reports", icon: "📊", roles: ["Owner", "Admin", "Report"] },
-    { name: "Truck Schedule", path: "/truckshedule", icon: "📅", roles: ["Owner", "Admin", "Report", "Dispatch"] },
+  const allowedPanels = [
+    { title: "Gate Keeper", icon: "🚪", path: "/gate" },
+    { title: "Truck Transaction", icon: "🚛", path: "/truck" },
+    { title: "Reports", icon: "📊", path: "/reports" },
   ];
 
-  const allowedPanels = panelList.filter(p => {
-    if (!userRole) return false;
-    const roles = userRole.split(",").map(r => r.trim());
-    return roles.some(r => p.roles.includes(r));
-  });
-
-  // Desktop version untouched
-  if (!isMobile) {
-    return <div className="text-center text-2xl p-20">Open on Mobile to see the redesigned interface.</div>;
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-4 flex flex-col font-sans">
-      {/* Header */}
-      <div className="flex items-center mb-6">
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/4/48/Emoji_u1f34b.svg"
-          alt="Lemon Logo"
-          className="w-10 h-10 mr-3"
-        />
-        <h2 className="text-xl font-bold text-slate-700">Lemon ERP</h2>
+    <div className={`${darkMode ? "bg-gray-900 text-white" : "bg-slate-100 text-black"} min-h-screen transition-colors duration-300`}>
+      {/* Sidebar */}
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} darkMode={darkMode} setDarkMode={setDarkMode} />
+
+      {/* Topbar */}
+      <div className="flex items-center p-4 shadow-md bg-white dark:bg-gray-800 sticky top-0 z-40">
+        <button onClick={() => setIsSidebarOpen(true)} className="text-xl mr-4">☰</button>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/48/Emoji_u1f34b.svg" alt="Lemon Logo" className="w-8 h-8 mr-2" />
+        <h2 className="text-lg font-bold">Lemon ERP</h2>
       </div>
 
-      {/* Single Access Role Panel */}
-      {allowedPanels.length === 1 ? (
-        <div className="flex-grow">
+      {/* Cards Grid */}
+      <div className="grid grid-cols-2 gap-4 p-4 ml-0 md:ml-64">
+        {allowedPanels.map((p, idx) => (
           <Link
-            to={allowedPanels[0].path}
-            className="bg-white/30 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 p-6 mb-4 transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+            key={idx}
+            to={p.path}
+            className="bg-white/30 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-4 flex flex-col items-center justify-center hover:scale-105 transition-transform"
           >
-            <div className="flex flex-col items-center text-center">
-              <div className="text-4xl mb-2">{allowedPanels[0].icon}</div>
-              <div className="text-lg font-semibold text-gray-800">{allowedPanels[0].name}</div>
-            </div>
+            <span className="text-3xl mb-2">{p.icon}</span>
+            <span className="text-sm font-semibold text-center">{p.title}</span>
+            <span className="mt-2 text-xs text-blue-500 underline">Go</span>
           </Link>
-        </div>
-      ) : (
-        // Multiple Panels
-        <div className="grid grid-cols-2 gap-4 flex-grow">
-          {allowedPanels
-            .sort((a, b) => (a.name === "Gate Keeper" ? -1 : 1)) // Gate Keeper first
-            .map((p, idx) => (
-              <Link
-                to={p.path}
-                key={idx}
-                className="bg-white/20 backdrop-blur-lg rounded-2xl shadow-lg border border-white/20 p-4 flex flex-col items-center text-center hover:scale-105 hover:shadow-xl transition-all duration-300"
-              >
-                <div className="text-3xl mb-2">{p.icon}</div>
-                <div className="text-base font-medium text-slate-800">{p.name}</div>
-              </Link>
-            ))}
-        </div>
-      )}
-
-      {/* Logout Button */}
-      <button
-        onClick={() => {
-          localStorage.clear();
-          window.location.href = "/";
-        }}
-        className="mt-6 bg-red-500 text-white px-4 py-2 rounded-xl shadow hover:bg-red-600 transition-all"
-      >
-        🔓 Logout
-      </button>
+        ))}
+      </div>
     </div>
   );
 }
+
+
+
 
