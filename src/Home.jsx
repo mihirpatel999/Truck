@@ -349,69 +349,72 @@
 //   );
 // }///////normal home 
 
-// / Home.jsx attractive, professional mobile panels view
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import lemonLogo from './assets/lemon-logo.png';
+
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
+  const userRole = localStorage.getItem("userRole");
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const checkSize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkSize();
+    window.addEventListener("resize", checkSize);
+    return () => window.removeEventListener("resize", checkSize);
   }, []);
 
-  const panels = [
-    { name: 'Plant Master', route: '/plantmaster', icon: '🏭' },
-    { name: 'User Master', route: '/usermaster', icon: '👤' },
-    { name: 'User Register', route: '/userregister', icon: '📝' },
-    { name: 'Truck Transaction', route: '/truck', icon: '🚛' },
-    { name: 'Truck Find', route: '/truckfind', icon: '🔍' },
-    { name: 'Gate Keeper', route: '/gate', icon: '🚪' },
-    { name: 'Loader', route: '/loader', icon: '📦' },
-    { name: 'Reports', route: '/reports', icon: '📈' },
-    { name: 'Truck Schedule', route: '/truckshedule', icon: '🗓️' },
+  const panelList = [
+    { name: "Plant Master", path: "/plantmaster", icon: "🏭", roles: ["Owner", "Admin"] },
+    { name: "Truck Transaction", path: "/truck", icon: "🚛", roles: ["Owner", "Admin", "Dispatch"] },
+    { name: "Gate Keeper", path: "/gate", icon: "🚪", roles: ["Owner", "Admin", "GateKeeper"] },
+    { name: "Reports", path: "/reports", icon: "📊", roles: ["Owner", "Admin", "Report"] },
   ];
 
-  const handleLogout = () => {
-    localStorage.clear();
-    alert("You have been logged out.");
-    window.location.href = "/";
-  };
+  const allowedPanels = panelList.filter(p => {
+    if (!userRole) return false;
+    const roles = userRole.split(",").map(r => r.trim());
+    return roles.some(r => p.roles.includes(r));
+  });
+
+  if (!isMobile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-slate-200">
+        <h1 className="text-4xl font-bold text-slate-700">🚀 Welcome to Lemon Software ERP</h1>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-yellow-50 to-yellow-100">
-      {isMobile ? (
-        <div className="flex flex-col items-center p-4">
-          <img src={lemonLogo} alt="Logo" className="h-20 mb-4" />
-          <h1 className="text-xl font-bold mb-6">Lemon Software ERP</h1>
+    <div className="min-h-screen bg-slate-100 p-4">
+      <div className="flex items-center mb-6">
+        <img src="https://cdn-icons-png.flaticon.com/512/861/861060.png" alt="Lemon Logo" className="w-10 h-10 mr-3" />
+        <h2 className="text-xl font-bold text-slate-700">Lemon ERP</h2>
+        <button
+          onClick={() => {
+            localStorage.clear();
+            window.location.href = "/";
+          }}
+          className="ml-auto bg-red-500 text-white px-3 py-1 rounded-lg shadow hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
 
-          <div className="grid grid-cols-2 gap-4 w-full">
-            {panels.map(panel => (
-              <Link to={panel.route} key={panel.name} className="bg-white shadow-xl rounded-xl p-4 flex flex-col items-center justify-center text-center hover:scale-105 transition">
-                <div className="text-3xl mb-2">{panel.icon}</div>
-                <div className="font-semibold text-gray-800">{panel.name}</div>
-              </Link>
-            ))}
-          </div>
-
-          <button onClick={handleLogout} className="mt-6 bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-xl">Logout</button>
-        </div>
-      ) : (
-        <section className="flex flex-col items-center justify-center text-center p-16">
-          <h1 className="text-4xl font-bold mb-4">Welcome to Lemon Software ERP</h1>
-          <p className="text-gray-700 max-w-xl mb-8">Efficient Gate Pass and Truck Transaction Management System</p>
-          <img src={lemonLogo} alt="Logo" className="h-32" />
-        </section>
-      )}
-
-      <footer className="mt-auto bg-gradient-to-r from-gray-900 to-gray-800 text-white text-center py-4 text-sm">
-        © 2025 Lemon Software ERP. All rights reserved.
-      </footer>
+      <div className="grid grid-cols-2 gap-4">
+        {allowedPanels.map((p, idx) => (
+          <Link
+            to={p.path}
+            key={idx}
+            className="bg-white shadow-xl rounded-2xl flex flex-col items-center justify-center p-4 hover:scale-105 transition-all border border-slate-200"
+          >
+            <span className="text-3xl mb-2">{p.icon}</span>
+            <span className="font-medium text-slate-700">{p.name}</span>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
-
