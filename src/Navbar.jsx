@@ -1565,7 +1565,7 @@ function Navbar() {
   const roleAccess = {
     Owner: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
     Admin: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
-    Dispatch: ['truck', 'truckfind', 'truckshedule'],
+    Dispatch: ['truck', 'truckfind'],
     Report: ['reports', 'truckshedule'],
     GateKeeper: ['gate'],
     UserMaster: ['usermaster'],
