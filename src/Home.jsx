@@ -243,108 +243,175 @@
 
 
 
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+// import React, { useEffect, useState } from "react";
+// import { Link } from "react-router-dom";
+
+// export default function Home() {
+//   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+//   const userRole = localStorage.getItem("userRole") || "";
+
+//   useEffect(() => {
+//     const handleResize = () => setIsMobile(window.innerWidth < 768);
+//     window.addEventListener("resize", handleResize);
+//     return () => window.removeEventListener("resize", handleResize);
+//   }, []);
+
+//   const roleAccess = {
+//     Owner: ["plantmaster", "usermaster", "userregister", "truck", "gate", "loader", "reports", "truckfind", "truckshedule"],
+//     Admin: ["plantmaster", "usermaster", "userregister", "truck", "gate", "loader", "reports", "truckfind", "truckshedule"],
+//     Dispatch: ["truck", "truckfind", "truckshedule"],
+//     Report: ["reports", "truckshedule"],
+//     GateKeeper: ["gate"],
+//     UserMaster: ["usermaster"],
+//     UserRegister: ["userregister"],
+//     Loader: ["loader"],
+//   };
+
+//   const canAccess = (route) => {
+//     const roles = userRole.split(",").map((r) => r.trim());
+//     return roles.some((role) => roleAccess[role]?.includes(route));
+//   };
+
+//   if (!isMobile) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-white to-yellow-100">
+//         <div className="text-center p-8 bg-white shadow-2xl rounded-xl">
+//           <h1 className="text-4xl font-bold mb-6 text-yellow-600">Welcome to Lemon Software</h1>
+//           <p className="text-lg text-gray-700">Track, manage and simplify your truck operations with ease.</p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-gray-100 px-4 pt-6">
+//       <div className="flex justify-center mb-6">
+//         <img src="/logo.png" alt="Lemon Software" className="h-16" />
+//       </div>
+
+//       <div className="grid grid-cols-2 gap-4">
+//         {canAccess("plantmaster") && (
+//           <Link to="/plantmaster" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+//             <div className="text-3xl mb-2">🏭</div>
+//             <div className="font-semibold text-gray-700">Plant Master</div>
+//           </Link>
+//         )}
+//         {canAccess("usermaster") && (
+//           <Link to="/usermaster" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+//             <div className="text-3xl mb-2">👤</div>
+//             <div className="font-semibold text-gray-700">User Master</div>
+//           </Link>
+//         )}
+//         {canAccess("userregister") && (
+//           <Link to="/userregister" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+//             <div className="text-3xl mb-2">📝</div>
+//             <div className="font-semibold text-gray-700">User Register</div>
+//           </Link>
+//         )}
+//         {canAccess("truck") && (
+//           <Link to="/truck" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+//             <div className="text-3xl mb-2">🚛</div>
+//             <div className="font-semibold text-gray-700">Truck Transaction</div>
+//           </Link>
+//         )}
+//         {canAccess("truckfind") && (
+//           <Link to="/truckfind" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+//             <div className="text-3xl mb-2">🔍</div>
+//             <div className="font-semibold text-gray-700">Truck Find</div>
+//           </Link>
+//         )}
+//         {canAccess("gate") && (
+//           <Link to="/gate" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+//             <div className="text-3xl mb-2">🚪</div>
+//             <div className="font-semibold text-gray-700">Gate Keeper</div>
+//           </Link>
+//         )}
+//         {canAccess("loader") && (
+//           <Link to="/loader" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+//             <div className="text-3xl mb-2">📦</div>
+//             <div className="font-semibold text-gray-700">Loader</div>
+//           </Link>
+//         )}
+//         {canAccess("reports") && (
+//           <Link to="/reports" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+//             <div className="text-3xl mb-2">📈</div>
+//             <div className="font-semibold text-gray-700">Reports</div>
+//           </Link>
+//         )}
+//         {canAccess("truckshedule") && (
+//           <Link to="/truckshedule" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
+//             <div className="text-3xl mb-2">🚛</div>
+//             <div className="font-semibold text-gray-700">Truck Schedule</div>
+//           </Link>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }///////normal home 
+
+/ Home.jsx attractive, professional mobile panels view
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import lemonLogo from './assets/lemon-logo.png';
 
 export default function Home() {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const userRole = localStorage.getItem("userRole") || "";
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const roleAccess = {
-    Owner: ["plantmaster", "usermaster", "userregister", "truck", "gate", "loader", "reports", "truckfind", "truckshedule"],
-    Admin: ["plantmaster", "usermaster", "userregister", "truck", "gate", "loader", "reports", "truckfind", "truckshedule"],
-    Dispatch: ["truck", "truckfind", "truckshedule"],
-    Report: ["reports", "truckshedule"],
-    GateKeeper: ["gate"],
-    UserMaster: ["usermaster"],
-    UserRegister: ["userregister"],
-    Loader: ["loader"],
-  };
+  const panels = [
+    { name: 'Plant Master', route: '/plantmaster', icon: '🏭' },
+    { name: 'User Master', route: '/usermaster', icon: '👤' },
+    { name: 'User Register', route: '/userregister', icon: '📝' },
+    { name: 'Truck Transaction', route: '/truck', icon: '🚛' },
+    { name: 'Truck Find', route: '/truckfind', icon: '🔍' },
+    { name: 'Gate Keeper', route: '/gate', icon: '🚪' },
+    { name: 'Loader', route: '/loader', icon: '📦' },
+    { name: 'Reports', route: '/reports', icon: '📈' },
+    { name: 'Truck Schedule', route: '/truckshedule', icon: '🗓️' },
+  ];
 
-  const canAccess = (route) => {
-    const roles = userRole.split(",").map((r) => r.trim());
-    return roles.some((role) => roleAccess[role]?.includes(route));
+  const handleLogout = () => {
+    localStorage.clear();
+    alert("You have been logged out.");
+    window.location.href = "/";
   };
-
-  if (!isMobile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-white to-yellow-100">
-        <div className="text-center p-8 bg-white shadow-2xl rounded-xl">
-          <h1 className="text-4xl font-bold mb-6 text-yellow-600">Welcome to Lemon Software</h1>
-          <p className="text-lg text-gray-700">Track, manage and simplify your truck operations with ease.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gray-100 px-4 pt-6">
-      <div className="flex justify-center mb-6">
-        <img src="/logo.png" alt="Lemon Software" className="h-16" />
-      </div>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-yellow-50 to-yellow-100">
+      {isMobile ? (
+        <div className="flex flex-col items-center p-4">
+          <img src={lemonLogo} alt="Logo" className="h-20 mb-4" />
+          <h1 className="text-xl font-bold mb-6">Lemon Software ERP</h1>
 
-      <div className="grid grid-cols-2 gap-4">
-        {canAccess("plantmaster") && (
-          <Link to="/plantmaster" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
-            <div className="text-3xl mb-2">🏭</div>
-            <div className="font-semibold text-gray-700">Plant Master</div>
-          </Link>
-        )}
-        {canAccess("usermaster") && (
-          <Link to="/usermaster" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
-            <div className="text-3xl mb-2">👤</div>
-            <div className="font-semibold text-gray-700">User Master</div>
-          </Link>
-        )}
-        {canAccess("userregister") && (
-          <Link to="/userregister" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
-            <div className="text-3xl mb-2">📝</div>
-            <div className="font-semibold text-gray-700">User Register</div>
-          </Link>
-        )}
-        {canAccess("truck") && (
-          <Link to="/truck" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
-            <div className="text-3xl mb-2">🚛</div>
-            <div className="font-semibold text-gray-700">Truck Transaction</div>
-          </Link>
-        )}
-        {canAccess("truckfind") && (
-          <Link to="/truckfind" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
-            <div className="text-3xl mb-2">🔍</div>
-            <div className="font-semibold text-gray-700">Truck Find</div>
-          </Link>
-        )}
-        {canAccess("gate") && (
-          <Link to="/gate" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
-            <div className="text-3xl mb-2">🚪</div>
-            <div className="font-semibold text-gray-700">Gate Keeper</div>
-          </Link>
-        )}
-        {canAccess("loader") && (
-          <Link to="/loader" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
-            <div className="text-3xl mb-2">📦</div>
-            <div className="font-semibold text-gray-700">Loader</div>
-          </Link>
-        )}
-        {canAccess("reports") && (
-          <Link to="/reports" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
-            <div className="text-3xl mb-2">📈</div>
-            <div className="font-semibold text-gray-700">Reports</div>
-          </Link>
-        )}
-        {canAccess("truckshedule") && (
-          <Link to="/truckshedule" className="bg-yellow-100 shadow-lg rounded-xl p-4 text-center hover:scale-105 transition">
-            <div className="text-3xl mb-2">🚛</div>
-            <div className="font-semibold text-gray-700">Truck Schedule</div>
-          </Link>
-        )}
-      </div>
+          <div className="grid grid-cols-2 gap-4 w-full">
+            {panels.map(panel => (
+              <Link to={panel.route} key={panel.name} className="bg-white shadow-xl rounded-xl p-4 flex flex-col items-center justify-center text-center hover:scale-105 transition">
+                <div className="text-3xl mb-2">{panel.icon}</div>
+                <div className="font-semibold text-gray-800">{panel.name}</div>
+              </Link>
+            ))}
+          </div>
+
+          <button onClick={handleLogout} className="mt-6 bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-xl">Logout</button>
+        </div>
+      ) : (
+        <section className="flex flex-col items-center justify-center text-center p-16">
+          <h1 className="text-4xl font-bold mb-4">Welcome to Lemon Software ERP</h1>
+          <p className="text-gray-700 max-w-xl mb-8">Efficient Gate Pass and Truck Transaction Management System</p>
+          <img src={lemonLogo} alt="Logo" className="h-32" />
+        </section>
+      )}
+
+      <footer className="mt-auto bg-gradient-to-r from-gray-900 to-gray-800 text-white text-center py-4 text-sm">
+        © 2025 Lemon Software ERP. All rights reserved.
+      </footer>
     </div>
   );
 }
+
