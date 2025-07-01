@@ -10,7 +10,7 @@ export default function Sidebar({ isOpen, toggleSidebar, darkMode, setDarkMode }
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-bold">Lemon ERP</h2>
+        <h2 className="text-lg font-bold"></h2>
         <button onClick={toggleSidebar} className="text-gray-300 hover:text-white">✖</button>
       </div>
 
