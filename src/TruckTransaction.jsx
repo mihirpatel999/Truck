@@ -2423,104 +2423,107 @@
 // TruckTransaction.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function TruckTransaction() {
+function TruckTransaction() {
+  const navigate = useNavigate();
   const location = useLocation();
 
   const [formData, setFormData] = useState({
-    transactionId: null,
     truckNo: '', transactionDate: '', cityName: '', transporter: '',
     amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: ''
   });
 
   const [plantList, setPlantList] = useState([]);
   const [tableData, setTableData] = useState([]);
-  const [editingIndex, setEditingIndex] = useState(null);
   const [newRow, setNewRow] = useState({
-    detailId: null, plantName: '', loadingSlipNo: '', qty: '',
+    detailId: null,
+    plantName: '', loadingSlipNo: '', qty: '',
     priority: '', remarks: '', freight: 'To Pay'
   });
   const [message, setMessage] = useState('');
+  const [truckNoError, setTruckNoError] = useState('');
+  const [priorityError, setPriorityError] = useState('');
+  const [editRow, setEditRow] = useState(null);
+  const [editRowIndex, setEditRowIndex] = useState(null);
 
   useEffect(() => {
     const truckNo = location?.state?.truck?.TruckNo;
-    if (truckNo) fetchTruckDetails(truckNo);
-  }, [location]);
+    if (!truckNo) return;
+
+    const fetchTruckDetails = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
+        const { master, details } = res.data;
+
+        setFormData({
+          truckNo: master.TruckNo || '',
+          transactionDate: master.TransactionDate?.split('T')[0] || '',
+          cityName: master.CityName || '',
+          transporter: master.Transporter || '',
+          amountPerTon: master.AmountPerTon || '',
+          truckWeight: master.TruckWeight || '',
+          deliverPoint: master.DeliverPoint || '',
+          remarks: master.Remarks || ''
+        });
+
+        setTableData(details.map(row => ({
+          detailId: row.TruckTransactionDetailsId,
+          plantName: row.PlantName,
+          loadingSlipNo: row.LoadingSlipNo,
+          qty: row.Qty,
+          priority: row.Priority,
+          remarks: row.Remarks,
+          freight: row.Freight
+        })));
+      } catch (err) {
+        console.error('Error loading truck details:', err);
+      }
+    };
+
+    fetchTruckDetails();
+  }, [location?.state?.truck]);
 
   useEffect(() => {
     axios.get(`${API_URL}/api/plants`)
-      .then(res => {
-        const data = res.data?.plants || res.data || [];
-        setPlantList(data);
-      })
+      .then(res => setPlantList(res.data))
       .catch(err => console.error('Error fetching plants:', err));
   }, []);
 
-  const fetchTruckDetails = async (truckNo) => {
-    try {
-      const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
-      const { master, details } = res.data;
-      setFormData({
-        transactionId: master.transactionid,
-        truckNo: master.truckno,
-        transactionDate: master.transactiondate?.split('T')[0] || '',
-        cityName: master.cityname,
-        transporter: master.transporter,
-        amountPerTon: master.amountperton,
-        truckWeight: master.truckweight,
-        deliverPoint: master.deliverpoint,
-        remarks: master.remarks
-      });
-      setTableData(details.map(row => ({
-        detailId: row.detailid,
-        plantName: row.plantname,
-        loadingSlipNo: row.loadingslipno,
-        qty: row.qty,
-        priority: row.priority,
-        remarks: row.remarks,
-        freight: row.freight
-      })));
-    } catch (err) {
-      if (err.response?.status === 409) {
-        setMessage('🚫 Truck is already in transport. Please complete Check-Out first.');
-      } else if (err.response?.status === 404) {
-        setMessage('Truck not found. You can create a new transaction.');
-      } else {
-        console.error('Error loading truck details:', err);
-        setMessage('❌ Failed to load truck details.');
-      }
-    }
-  };
-
   const handleChange = (e) => {
-    let { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const processedValue = (type === 'date' || type === 'number') ? value : value.toUpperCase();
+    setFormData({ ...formData, [name]: processedValue });
+
     if (name === 'truckNo') {
-      value = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-      let formatted = '';
-      if (value.length > 0) formatted += value.substring(0, 2);
-      if (value.length > 2) formatted += '-' + value.substring(2, 4);
-      if (value.length > 4) formatted += '-' + value.substring(4, 6);
-      if (value.length > 6) formatted += '-' + value.substring(6, 10);
-      setFormData({ ...formData, truckNo: formatted });
-    } else {
-      setFormData({ ...formData, [name]: value });
+      checkTruckNoExists(processedValue);
     }
   };
 
   const handleNewRowChange = (e) => {
-    setNewRow({ ...newRow, [e.target.name]: e.target.value });
+    const { name, value, type } = e.target;
+    const processedValue = (type === 'number') ? value : value.toUpperCase();
+    setNewRow({ ...newRow, [name]: processedValue });
   };
 
   const addOrUpdateRow = () => {
     if (!newRow.plantName || !newRow.loadingSlipNo || !newRow.qty) return;
-    if (editingIndex !== null) {
+    if (newRow.priority) {
+      const duplicate = tableData.some((row, idx) => row.priority === newRow.priority && idx !== editRowIndex);
+      if (duplicate) {
+        setPriorityError('This priority already exists in another row.');
+        return;
+      }
+    }
+    setPriorityError('');
+    if (editRowIndex !== null) {
       const updated = [...tableData];
-      updated[editingIndex] = { ...newRow };
+      updated[editRowIndex] = { ...newRow };
       setTableData(updated);
-      setEditingIndex(null);
+      setEditRow(null);
+      setEditRowIndex(null);
     } else {
       setTableData([...tableData, { ...newRow, detailId: null }]);
     }
@@ -2528,43 +2531,65 @@ export default function TruckTransaction() {
   };
 
   const handleEditRow = (idx) => {
+    setEditRowIndex(idx);
     setNewRow({ ...tableData[idx] });
-    setEditingIndex(idx);
   };
 
   const handleDeleteRow = (idx) => {
-    setTableData(tableData.filter((_, i) => i !== idx));
-    setEditingIndex(null);
+    const updated = tableData.filter((_, i) => i !== idx);
+    setTableData(updated);
+    setEditRow(null);
+    setEditRowIndex(null);
     setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
   };
 
   const handleSubmit = async () => {
+    if (truckNoError) {
+      setMessage('❌ ' + truckNoError);
+      return;
+    }
+    let dataToSubmit = [...tableData];
+    const isNewRowFilled = Object.values(newRow).some(val => val && val.trim?.() !== '');
+    if (isNewRowFilled) {
+      dataToSubmit.push({ ...newRow, detailId: null });
+    }
+    const priorities = dataToSubmit.map(row => row.priority).filter(Boolean);
+    const hasDuplicatePriority = priorities.length !== new Set(priorities).size;
+    if (hasDuplicatePriority) {
+      setMessage('❌ This priority is already written.');
+      return;
+    }
+
     try {
-      let dataToSubmit = [...tableData];
-      const isNewRowFilled = Object.values(newRow).some(val => val && val.trim?.() !== '');
-      if (isNewRowFilled) {
-        dataToSubmit.push({ ...newRow, detailId: null });
-      }
-      const response = await axios.post(`${API_URL}/api/truck-transaction`, { formData, tableData: dataToSubmit });
+      const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+        formData,
+        tableData: dataToSubmit
+      });
+
       if (response.data.success) {
         setMessage('✅ Transaction saved successfully!');
-        setFormData({
-          transactionId: null,
-          truckNo: '', transactionDate: '', cityName: '', transporter: '',
-          amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: ''
-        });
-        setTableData([]);
         setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
+        setTableData([]);
       } else {
         setMessage('❌ Error saving transaction.');
       }
     } catch (error) {
-      if (error.response?.status === 409) {
-        setMessage('🚫 Truck is already in transport. Please complete Check-Out first.');
+      console.error('Submit error:', error);
+      setMessage('❌ Server error while submitting data.');
+    }
+  };
+
+  const checkTruckNoExists = async (truckNo) => {
+    if (!truckNo) return;
+    try {
+      const res = await axios.get(`${API_URL}/api/check-truck-exists/${truckNo}`);
+      if (res.data.exists) {
+        setTruckNoError('This number already exists.');
       } else {
-        console.error('Submit error:', error);
-        setMessage('❌ Server error while submitting data.');
+        setTruckNoError('');
       }
+    } catch (err) {
+      setTruckNoError('Error checking truck number.');
     }
   };
 
@@ -2572,23 +2597,11 @@ export default function TruckTransaction() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-gray-50 py-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
+      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
         <h1 className="text-3xl font-bold text-center text-slate-800 mb-8 tracking-wide">Truck Transaction</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div>
-            <label className="font-medium text-slate-700 mb-1 block">Truck No</label>
-            <input
-              type="text"
-              name="truckNo"
-              maxLength={13}
-              value={formData.truckNo}
-              onChange={handleChange}
-              placeholder="e.g., GJ-01-AB-1234"
-              className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            />
-          </div>
-          {['transactionDate', 'cityName', 'transporter'].map((field, idx) => (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          {['truckNo', 'transactionDate', 'cityName', 'transporter'].map((field, idx) => (
             <div key={idx}>
               <label className="font-medium text-slate-700 mb-1 block capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
               <input
@@ -2596,8 +2609,10 @@ export default function TruckTransaction() {
                 name={field}
                 value={formData[field]}
                 onChange={handleChange}
+                placeholder={field === 'truckNo' ? 'e.g., GJ-01-AB-1234' : ''}
                 className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
+              {field === 'truckNo' && truckNoError && <div className="text-red-500 text-sm mt-1">{truckNoError}</div>}
             </div>
           ))}
         </div>
@@ -2625,8 +2640,8 @@ export default function TruckTransaction() {
                   <td className="p-2">{row.remarks}</td>
                   <td className="p-2">{row.freight}</td>
                   <td className="p-2 flex gap-2 justify-center">
-                    <button className="bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full shadow hover:scale-105" onClick={() => handleEditRow(idx)}>Update</button>
-                    <button className="bg-red-300 text-red-900 px-3 py-1 rounded-full shadow hover:scale-105" onClick={() => handleDeleteRow(idx)}>Cancel</button>
+                    <button className="bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full shadow hover:scale-105" onClick={() => handleEditRow(idx)}>Edit</button>
+                    <button className="bg-red-300 text-red-900 px-3 py-1 rounded-full shadow hover:scale-105" onClick={() => handleDeleteRow(idx)}>Delete</button>
                   </td>
                 </tr>
               ))}
@@ -2642,6 +2657,9 @@ export default function TruckTransaction() {
                 {['loadingSlipNo', 'qty', 'priority', 'remarks'].map((name) => (
                   <td key={name} className="p-2">
                     <input name={name} value={newRow[name]} onChange={handleNewRowChange} className="w-full p-2 border border-slate-300 rounded-lg" />
+                    {name === "priority" && priorityError && editRowIndex === null && (
+                      <div className="text-red-500 text-xs">{priorityError}</div>
+                    )}
                   </td>
                 ))}
                 <td className="p-2">
@@ -2657,7 +2675,7 @@ export default function TruckTransaction() {
         </div>
 
         <button onClick={addOrUpdateRow} className="bg-yellow-400 text-yellow-900 font-semibold px-4 py-2 rounded-full shadow hover:scale-105 mb-6">
-          {editingIndex !== null ? 'Update Row' : 'Add Row'}
+          {editRowIndex !== null ? 'Update Row' : 'Add Row'}
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -2680,5 +2698,7 @@ export default function TruckTransaction() {
   );
 }
 
-//
+export default TruckTransaction;
+
+
 
