@@ -2135,6 +2135,8 @@
 //   );
 // }/////////////////////full work prority set baki hai 
 
+
+// Final full TruckTransactionTable with priority validation, plant hide logic, and Toastify popup
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -2184,6 +2186,15 @@ export default function TruckTransactionTable({ plantList }) {
   };
 
   const updateRow = () => {
+    const isPriorityDuplicate = tableData.some(
+      (row, idx) =>
+        row.priority === editRowData.priority && idx !== editingIndex
+    );
+    if (isPriorityDuplicate) {
+      toast.error("This priority number already selected");
+      return;
+    }
+
     const updatedData = [...tableData];
     updatedData[editingIndex] = editRowData;
     setTableData(updatedData);
