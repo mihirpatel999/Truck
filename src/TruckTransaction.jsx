@@ -2680,5 +2680,5 @@ export default function TruckTransaction() {
   );
 }
 
-
+//
 
