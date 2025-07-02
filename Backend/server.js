@@ -24,95 +24,7 @@ app.use(bodyParser.json());
 
 
 
-// app.post('/api/login', async (req, res) => {
-//   const { username, password } = req.body;
-
-//   if (!username || !password) {
-//     return res.status(400).json({ success: false, message: "Username and password are required" });
-//   }
-
-//   try {
-//     const result = await pool.query(
-//       'SELECT Username, Role, AllowedPlants FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2',
-//       [username, password]
-//     );
-
-//     if (result.rows.length > 0) {
-//       const user = result.rows[0];
-//       res.json({
-//         success: true,
-//         message: "Login successful",
-//         role: user.role,
-//         username: user.username,
-//         allowedPlants: user.allowedplants,
-//       });
-//     } else {
-//       res.status(401).json({ success: false, message: "Invalid credentials" });
-//     }
-//   } catch (err) {
-//     console.error("SQL error:", err);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// });
-
-
-// // 🔐 Login API
-// // app.post("/api/login", async (req, res) => {
-// //   const { username, password } = req.body;
-// //   try {
-// //     const result = await pool.query(
-// //       "SELECT * FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2",
-// //       [username, password]
-// //     );
-// //     if (result.rows.length > 0) {
-// //       res.json({ success: true, message: "Login successful" });
-// //     } else {
-// //       res.status(401).json({ success: false, message: "Invalid credentials" });
-// //     }
-// //   } catch (err) {
-// //     console.error("SQL error:", err);
-// //     res.status(500).json({ success: false, message: "Server error" });
-// //   }
-// // });
-//////////////////////////////////////////////////////////////////////////////////////////////////
-// app.post('/api/login', async (req, res) => {
-//   const { username, password } = req.body;
-
-//   console.log("Login attempt:", username, password);
-
-//   if (!username || !password) {
-//     return res.status(400).json({ success: false, message: "Username and password are required" });
-//   }
-
-//   try {
-//     const pool = await getPool();
-//     const result = await pool
-//       .request()
-//       .input('username', sql.NVarChar, username)
-//       .input('password', sql.NVarChar, password)
-//       .query(
-//         'SELECT Username, Role, AllowedPlants FROM Users WHERE Username = @username AND Password = @password'
-//       );
-
-//     if (result.recordset.length > 0) {
-//       const user = result.recordset[0];
-//       res.json({
-//         success: true,
-//         message: "Login successful",
-//         role: user.Role,
-//         username: user.Username,
-//         allowedPlants: user.AllowedPlants
-//       });
-//     } else {
-//       res.status(401).json({ success: false, message: "Invalid credentials" });
-//     }
-//   } catch (err) {
-//     console.error("SQL error:", err);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// });
-
-
+/////////////////////////////////////////////////////log in api///////////////////////////////////////////////////////////////////////////////////////
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -140,48 +52,13 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
 
 
-// app.get('/api/plants', async (req, res) => {
-//   const userId = req.headers['userid'];
-//   const role = req.headers['role'] || 'admin';
-
-//   try {
-//     if (role.toLowerCase() === 'admin') {
-//       const result = await pool.query('SELECT plantid, plantname FROM plantmaster');
-//       return res.json(result.rows);
-//     }
-
-//     // ✅ For staff: fetch allowedplants from users table
-//     const userResult = await pool.query('SELECT allowedplants FROM users WHERE userid = $1', [userId]);
-//     if (userResult.rowCount === 0) {
-//       return res.status(404).json({ error: 'User not found' });
-//     }
-
-//     const allowedPlants = userResult.rows[0].allowedplants;
-//     if (!allowedPlants || allowedPlants.trim() === '') {
-//       return res.json([]); // No access
-//     }
-
-//     // Convert "7,11" => [7, 11]
-//     const plantIdArray = allowedPlants.split(',').map(id => parseInt(id.trim())).filter(Boolean);
-
-//     const placeholders = plantIdArray.map((_, i) => `$${i + 1}`).join(',');
-//     const plantQuery = `SELECT plantid, plantname FROM plantmaster WHERE plantid IN (${placeholders})`;
-
-//     const plantResult = await pool.query(plantQuery, plantIdArray);
-//     res.json(plantResult.rows);
-
-//   } catch (error) {
-//     console.error('Error fetching plants:', error);
-//     res.status(500).json({ error: 'Error fetching plants' });
-//   }
-// });///////////////////working api
-
-
+/////////////////////////////////////////////////////////////////////////////////plant master api///////////////////////////////////////////////////////////////////////////////////////////////////////
 app.get('/api/plants', async (req, res) => {
   const userId = req.headers['userid'];
   const role = req.headers['role'] || 'admin';
@@ -215,7 +92,7 @@ app.get('/api/plants', async (req, res) => {
   }
 });
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -277,7 +154,7 @@ app.get('/api/plant-master', async (req, res) => {
 
 
 
-// ✅ Soft delete plant by setting isdeleted = 1
+// ✅ Soft delete plant by setting isdeleted = 1/////////////////////////////////////////////////////////////////////////////////////////////////
 app.delete('/api/plant-master/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -297,11 +174,11 @@ app.delete('/api/plant-master/:id', async (req, res) => {
     res.status(500).json({ error: '❌ Failed to delete plant' });
   }
 });
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ✅ Create new plant master record
 app.post('/api/plant-master', async (req, res) => {
   const { plantName, plantAddress, contactPerson, mobileNo, remarks } = req.body;
@@ -359,296 +236,10 @@ app.get('/api/plantmaster/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch plant' });
   }
 });
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// 🚚 Truck Transaction API
-// app.post("/api/truck-transaction", async (req, res) => {
-//   const { formData, tableData } = req.body;
-//   const client = await pool.connect();
-//   try {
-//     await client.query('BEGIN');
-//     // Insert into TruckTransactionMaster
-//     const insertMain = await client.query(
-//       `INSERT INTO TruckTransactionMaster
-//         (TruckNo, TransactionDate, CityName, Transporter, AmountPerTon, TruckWeight, DeliverPoint, Remarks, CreatedAt)
-//         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-//         RETURNING TransactionID`,
-//       [
-//         formData.truckNo,
-//         formData.transactionDate,
-//         formData.cityName,
-//         formData.transporter,
-//         formData.amountPerTon,
-//         formData.truckWeight,
-//         formData.deliverPoint,
-//         formData.remarks
-//       ]
-//     );
-//     const transactionId = insertMain.rows[0].transactionid;
-
-//     // Insert into TruckTransactionDetails
-//     for (const row of tableData) {
-//       const plantResult = await client.query(
-//         `SELECT PlantId FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
-//         [row.plantName]
-//       );
-//       const plantId = plantResult.rows[0]?.plantid;
-//       if (!plantId) {
-//         throw new Error(`Plant not found: ${row.plantName}`);
-//       }
-//       await client.query(
-//         `INSERT INTO TruckTransactionDetails
-//           (TransactionID, PlantId, LoadingSlipNo, Qty, Priority, Remarks, Freight)
-//           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-//         [
-//           transactionId,
-//           plantId,
-//           row.loadingSlipNo,
-//           row.qty,
-//           row.priority,
-//           row.remarks || "",
-//           row.freight
-//         ]
-//       );
-//     }
-//     await client.query('COMMIT');
-//     res.json({ success: true });
-//   } catch (error) {
-//     await client.query('ROLLBACK');
-//     console.error("Transaction failed:", error);
-//     res.status(500).json({ success: false, error: error.message });
-//   } finally {
-//     client.release();
-//   }
-// });
-
-////////////////////////////////////////////////
-
-// app.post("/api/truck-transaction", async (req, res) => {
-//   const { formData, tableData } = req.body;
-
-//   try {
-
-//     await pool.query("BEGIN");
-
-//     let transactionId;
-
-//     // Step 1: Check if truck exists (case-insensitive)
-//     const checkTruck = await pool.query(
-//       `SELECT transactionid FROM trucktransactionmaster WHERE TRIM(LOWER(truckno)) = TRIM(LOWER($1))`,
-//       [formData.truckNo]
-//     );
-
-//     if (checkTruck.rows.length > 0) {
-//       transactionId = checkTruck.rows[0].transactionid;
-
-//       await pool.query(
-//         `
-//         UPDATE trucktransactionmaster SET
-//           transactiondate = $1,
-//           cityname = $2,
-//           transporter = $3,
-//           amountperton = $4,
-//           truckweight = $5,
-//           deliverpoint = $6,
-//           remarks = $7
-//         WHERE transactionid = $8
-//       `,
-//         [
-//           formData.transactionDate,
-//           formData.cityName,
-//           formData.transporter,
-//           formData.amountPerTon,
-//           formData.truckWeight,
-//           formData.deliverPoint,
-//           formData.remarks,
-//           transactionId
-//         ]
-//       );
-//     } else {
-//       const insertResult = await pool.query(
-//         `
-//         INSERT INTO trucktransactionmaster
-//           (truckno, transactiondate, cityname, transporter, amountperton, truckweight, deliverpoint, remarks, createdat)
-//         VALUES
-//           ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-//         RETURNING transactionid
-//       `,
-//         [
-//           formData.truckNo,
-//           formData.transactionDate,
-//           formData.cityName,
-//           formData.transporter,
-//           formData.amountPerTon,
-//           formData.truckWeight,
-//           formData.deliverPoint,
-//           formData.remarks
-//         ]
-//       );
-
-//       transactionId = insertResult.rows[0].transactionid;
-//     }
-
-//     // Step 2: Handle details
-//     const filteredTableData = tableData.filter(row => row.plantName && row.plantName.trim() !== "");
-
-//     // Delete existing details
-//     await pool.query(
-//       `DELETE FROM trucktransactiondetails WHERE transactionid = $1`,
-//       [transactionId]
-//     );
-
-//     // Re-insert details
-//     for (const row of filteredTableData) {
-//       const plantResult = await pool.query(
-//         `SELECT plantid FROM plantmaster WHERE LOWER(TRIM(plantname)) = LOWER(TRIM($1))`,
-//         [row.plantName]
-//       );
-
-//       const plantId = plantResult.rows[0]?.plantid;
-//       if (!plantId) throw new Error(`Plant not found: ${row.plantName}`);
-
-//       await pool.query(
-//         `
-//         INSERT INTO trucktransactiondetails
-//           (transactionid, plantid, loadingslipno, qty, priority, remarks, freight)
-//         VALUES
-//           ($1, $2, $3, $4, $5, $6, $7)
-//       `,
-//         [
-//           transactionId,
-//           plantId,
-//           row.loadingSlipNo,
-//           row.qty,
-//           row.priority,
-//           row.remarks || "",
-//           row.freight
-//         ]
-//       );
-//     }
-
-//     await pool.query("COMMIT");
-//     res.json({ success: true, transactionId });
-
-//   } catch (err) {
-//     console.error("❌ Transaction failed:", err);
-//     await pool.query("ROLLBACK");
-//     res.status(500).json({ success: false, error: err.message });
-//   }
-// });/////////////////////////////////////////working code ///////////////////////////
-
-// app.post("/api/truck-transaction", async (req, res) => {
-//   const { formData, tableData } = req.body;
-
-//   const client = await pool.connect();
-
-//   try {
-//     await client.query("BEGIN");
-
-//     let transactionId = formData.transactionId;
-
-//     if (transactionId) {
-//       // Existing record - Update everything including truck number
-//       await client.query(
-//         `
-//         UPDATE trucktransactionmaster SET
-//           truckno = $1,
-//           transactiondate = $2,
-//           cityname = $3,
-//           transporter = $4,
-//           amountperton = $5,
-//           truckweight = $6,
-//           deliverpoint = $7,
-//           remarks = $8
-//         WHERE transactionid = $9
-//       `,
-//         [
-//           formData.truckNo,
-//           formData.transactionDate,
-//           formData.cityName,
-//           formData.transporter,
-//           formData.amountPerTon,
-//           formData.truckWeight,
-//           formData.deliverPoint,
-//           formData.remarks,
-//           transactionId
-//         ]
-//       );
-//     } else {
-//       // New Record - Insert
-//       const insertResult = await client.query(
-//         `
-//         INSERT INTO trucktransactionmaster
-//           (truckno, transactiondate, cityname, transporter, amountperton, truckweight, deliverpoint, remarks, createdat)
-//         VALUES
-//           ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-//         RETURNING transactionid
-//       `,
-//         [
-//           formData.truckNo,
-//           formData.transactionDate,
-//           formData.cityName,
-//           formData.transporter,
-//           formData.amountPerTon,
-//           formData.truckWeight,
-//           formData.deliverPoint,
-//           formData.remarks
-//         ]
-//       );
-
-//       transactionId = insertResult.rows[0].transactionid;
-//     }
-
-//     // Step 2: Handle details
-//     const filteredTableData = tableData.filter(row => row.plantName && row.plantName.trim() !== "");
-
-//     // Delete existing details
-//     await client.query(
-//       `DELETE FROM trucktransactiondetails WHERE transactionid = $1`,
-//       [transactionId]
-//     );
-
-//     // Re-insert details
-//     for (const row of filteredTableData) {
-//       const plantResult = await client.query(
-//         `SELECT plantid FROM plantmaster WHERE LOWER(TRIM(plantname)) = LOWER(TRIM($1))`,
-//         [row.plantName]
-//       );
-
-//       const plantId = plantResult.rows[0]?.plantid;
-//       if (!plantId) throw new Error(`Plant not found: ${row.plantName}`);
-
-//       await client.query(
-//         `
-//         INSERT INTO trucktransactiondetails
-//           (transactionid, plantid, loadingslipno, qty, priority, remarks, freight)
-//         VALUES
-//           ($1, $2, $3, $4, $5, $6, $7)
-//       `,
-//         [
-//           transactionId,
-//           plantId,
-//           row.loadingSlipNo,
-//           row.qty,
-//           row.priority,
-//           row.remarks || "",
-//           row.freight
-//         ]
-//       );
-//     }
-
-//     await client.query("COMMIT");
-//     res.json({ success: true, transactionId });
-
-//   } catch (err) {
-//     console.error("❌ Transaction failed:", err);
-//     await client.query("ROLLBACK");
-//     res.status(500).json({ success: false, error: err.message });
-//   } finally {
-//     client.release();
-//   }
-// });
-
+///////////////////////////////////////////////////////////////////////////////truck transaction api///////////////////////////////////////////////////////////////////////////////////////////////////////
 app.post("/api/truck-transaction", async (req, res) => {
   const { formData, tableData } = req.body;
   const truckNo = formData.truckNo.trim().toLowerCase();
@@ -774,15 +365,13 @@ app.post("/api/truck-transaction", async (req, res) => {
   } finally {
     client.release();
   }
-});  ///////////////final api hai bus kuch prority vala chang baki hai
+});  ///////////////final api hai bus kuch prority vala chang baki hai////////////////////////////////////////////////////////////////////////
 
 
 
 
 
-
-
-// 🚚 Fetch Truck Numbers API (CASE INSENSITIVE)
+// 🚚 Fetch Truck Numbers API (CASE INSENSITIVE)/////////////////////////////////////////////////////////////////////
 app.get("/api/trucks", async (req, res) => {
   const { plantName } = req.query;
   try {
@@ -803,7 +392,11 @@ app.get("/api/trucks", async (req, res) => {
   }
 });
 
-// // 🚚 Update Truck Status API (CASE INSENSITIVE)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+// // 🚚 Update Truck Status API (CASE INSENSITIVE)/////////////////////////////////////////////
 app.post("/api/update-truck-status", async (req, res) => {
   const { truckNo, plantName, type } = req.body;
   const client = await pool.connect();
@@ -907,7 +500,7 @@ app.post("/api/update-truck-status", async (req, res) => {
   } finally {
     client.release();
   }
-});///// workingggg
+});///// workingggg///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1237,7 +830,7 @@ app.post('/api/user-master', async (req, res) => {
 
 
 //////////////////////////////////////////////////////////////////////
-
+// GET all truck transactions find
 app.get('/api/truck-find', async (req, res) => {
   try {
     const result = await pool.query(`
@@ -1254,170 +847,6 @@ app.get('/api/truck-find', async (req, res) => {
 });
 
 
-// app.get('/api/truck-transaction/:truckNo', async (req, res) => {
-//   const { truckNo } = req.params;
-
-//   try {
-//     // Step 1: Fetch master data
-//     const masterQuery = `
-//       SELECT 
-//         "TransactionID", "TruckNo", "TransactionDate", "CityName", 
-//         "Transporter", "AmountPerTon", "DeliverPoint", 
-//         "TruckWeight", "Remarks"
-//       FROM "TruckTransactionMaster"
-//       WHERE TRIM(LOWER("TruckNo")) = TRIM(LOWER($1))
-//     `;
-
-//     const masterResult = await pool.query(masterQuery, [truckNo]);
-
-//     if (masterResult.rows.length === 0) {
-//       console.log('⚠️ No truck found for:', truckNo);
-//       return res.status(404).json({ error: 'Truck not found' });
-//     }
-
-//     const masterData = masterResult.rows[0];
-//     console.log('✅ Master Data:', masterData);
-
-//     // Step 2: Fetch details by TransactionID
-//     const detailQuery = `
-//       SELECT 
-//         d."PlantId", 
-//         p."PlantName",
-//         d."LoadingSlipNo", d."Qty", d."Priority", 
-//         d."Remarks", d."Freight"
-//       FROM "TruckTransactionDetails" d
-//       LEFT JOIN "PlantMaster" p ON d."PlantId" = p."PlantId"
-//       WHERE d."TransactionID" = $1
-//     `;
-
-//     const detailResult = await pool.query(detailQuery, [masterData.TransactionID]);
-
-//     const detailsData = detailResult.rows;
-//     console.log(`✅ Loaded ${detailsData.length} detail rows`);
-
-//     res.json({ master: masterData, details: detailsData });
-
-//   } catch (err) {
-//     console.error('❌ Fetch error:', err);
-//     res.status(500).json({ error: 'Server error', message: err.message });
-//   }
-// });
-
-
-// app.get('/api/truck-transaction/:truckNo', async (req, res) => {
-//   let { truckNo } = req.params;
-
-//   // Sanitize truckNo
-//   truckNo = truckNo.trim().toLowerCase();
-
-//   try {
-//     // Master Data Query
-//     const masterQuery = `
-//   SELECT 
-//     "transactionid", "truckno", "transactiondate", "cityname", 
-//     "transporter", "amountperton", "deliverpoint", 
-//     "truckweight", "remarks"
-//   FROM trucktransactionmaster
-//   WHERE TRIM(LOWER("truckno")) = TRIM(LOWER($1))
-// `;
-
-
-//     const masterResult = await pool.query(masterQuery, [truckNo]);
-
-//     if (masterResult.rows.length === 0) {
-//       console.log(`⚠️ Truck not found for: ${truckNo}`);
-//       return res.status(404).json({ message: 'Truck not found' });
-//     }
-
-//     const masterData = masterResult.rows[0];
-
-//     // Details Data Query
-//     const detailQuery = `
-//   SELECT 
-//     d."plantid", 
-//     p."plantname",
-//     d."loadingslipno", d."qty", d."priority", 
-//     d."remarks", d."freight"
-//   FROM trucktransactiondetails d
-//   LEFT JOIN plantmaster p ON d."plantid" = p."plantid"
-//   WHERE d."transactionid" = $1
-// `;
-
-
-//     const detailResult = await pool.query(detailQuery, [masterData.TransactionID]);
-
-//     const detailsData = detailResult.rows;
-
-//     console.log(`✅ Found truck: ${truckNo}, Details count: ${detailsData.length}`);
-
-//     res.json({
-//       master: masterData,
-//       details: detailsData
-//     });
-
-//   } catch (err) {
-//     console.error('❌ Error fetching truck details:', err);
-//     res.status(500).json({ message: 'Server Error' });
-//   }
-// });
-
-
-// app.get('/api/truck-transaction/:truckNo', async (req, res) => {
-//   let { truckNo } = req.params;
-
-//   // Sanitize truckNo
-//   truckNo = truckNo.trim().toLowerCase();
-
-//   try {
-//     // Master Data Query
-//     const masterQuery = `
-//       SELECT 
-//         transactionid, truckno, transactiondate, cityname, 
-//         transporter, amountperton, deliverpoint, 
-//         truckweight, remarks
-//       FROM trucktransactionmaster
-//       WHERE TRIM(LOWER(truckno)) = TRIM(LOWER($1))
-//     `;
-
-//     const masterResult = await pool.query(masterQuery, [truckNo]);
-
-//     if (masterResult.rows.length === 0) {
-//       console.log(`⚠️ Truck not found for: ${truckNo}`);
-//       return res.status(404).json({ message: 'Truck not found' });
-//     }
-
-//     const masterData = masterResult.rows[0];
-
-//     // Details Data Query
-//     const detailQuery = `
-//       SELECT 
-//         d.plantid, 
-//         p.plantname,
-//         d.loadingslipno, d.qty, d.priority, 
-//         d.remarks, d.freight
-//       FROM trucktransactiondetails d
-//       LEFT JOIN plantmaster p ON d.plantid = p.plantid
-//       WHERE d.transactionid = $1
-
-      
-//     `;
-
-//     const detailResult = await pool.query(detailQuery, [masterData.transactionid]);
-
-//     const detailsData = detailResult.rows;
-
-//     console.log(`✅ Found truck: ${truckNo}, Details count: ${detailsData.length}`);
-
-//     res.json({
-//       master: masterData,
-//       details: detailsData
-//     });
-
-//   } catch (err) {
-//     console.error('❌ Error fetching truck details:', err);
-//     res.status(500).json({ message: 'Server Error' });
-//   }
-// });///////////////////////////////////working code plant name aa raha hai //////////////////////////
 
 app.get('/api/truck-transaction/:truckNo', async (req, res) => {
   let { truckNo } = req.params;
@@ -1488,261 +917,7 @@ app.get('/api/truck-transaction/:truckNo', async (req, res) => {
 });
 
 
-
-// app.get('/api/truck-transaction/:truckNo', async (req, res) => {
-//   let { truckNo } = req.params;
-
-//   truckNo = truckNo.trim().toLowerCase();
-
-//   try {
-//     const masterQuery = `
-//       SELECT 
-//         transactionid AS "transactionId", 
-//         truckno AS "truckNo", 
-//         transactiondate AS "transactionDate", 
-//         cityname AS "cityName", 
-//         transporter, 
-//         amountperton AS "amountPerTon", 
-//         deliverpoint AS "deliverPoint", 
-//         truckweight AS "truckWeight", 
-//         remarks
-//       FROM trucktransactionmaster
-//       WHERE TRIM(LOWER(truckno)) = TRIM(LOWER($1))
-//     `;
-
-//     const masterResult = await pool.query(masterQuery, [truckNo]);
-
-//     if (masterResult.rows.length === 0) {
-//       console.log(`⚠️ Truck not found for: ${truckNo}`);
-//       return res.status(404).json({ message: 'Truck not found' });
-//     }
-
-//     const masterData = masterResult.rows[0];
-
-//     const detailQuery = `
-//       SELECT 
-//         d.plantid AS "plantId", 
-//         p.plantname AS "plantName",
-//         d.loadingslipno AS "loadingSlipNo", 
-//         d.qty, 
-//         d.priority, 
-//         d.remarks, 
-//         d.freight
-//       FROM trucktransactiondetails d
-//       LEFT JOIN plantmaster p ON d.plantid = p.plantid
-//       WHERE d.transactionid = $1
-//     `;
-
-//     const detailResult = await pool.query(detailQuery, [masterData.transactionId]);
-
-//     const detailsData = detailResult.rows;
-
-//     console.log(`✅ Found truck: ${truckNo}, Details count: ${detailsData.length}`);
-
-//     res.json({
-//       master: masterData,
-//       details: detailsData
-//     });
-
-//   } catch (err) {
-//     console.error('❌ Error fetching truck details:', err);
-//     res.status(500).json({ message: 'Server Error' });
-//   }
-// });
-
-/////////////////////////////////////////////////////////////////////////
-
-// app.get('/api/truck-transaction/:truckNo', async (req, res) => {
-//   let { truckNo } = req.params;
-
-//   // Sanitize truckNo
-//   truckNo = truckNo.trim().toLowerCase();
-
-//   try {
-//     // Master Data Query
-//     const masterQuery = `
-//       SELECT 
-//         transactionid, truckno, transactiondate, cityname, 
-//         transporter, amountperton, deliverpoint, 
-//         truckweight, remarks
-//       FROM trucktransactionmaster
-//       WHERE TRIM(LOWER(truckno)) = TRIM(LOWER($1))
-//     `;
-
-//     const masterResult = await pool.query(masterQuery, [truckNo]);
-
-//     if (masterResult.rows.length === 0) {
-//       console.log(`⚠️ Truck not found for: ${truckNo}`);
-//       return res.status(404).json({ message: 'Truck not found' });
-//     }
-
-//     const masterData = masterResult.rows[0];
-
-//     // Details Data Query - Yeh part sahi kar diya hai
-//     const detailQuery = `
-//       SELECT 
-//         d.plantid, 
-//         COALESCE(p.plantname, '') AS plantname,
-//         d.loadingslipno, d.qty, d.priority, 
-//         d.remarks, d.freight
-//       FROM trucktransactiondetails d
-//       LEFT JOIN plantmaster p ON d.plantid = p.plantid
-//       WHERE d.transactionid = $1
-//     `;
-
-//     const detailResult = await pool.query(detailQuery, [masterData.transactionid]);
-
-//     const detailsData = detailResult.rows;
-
-//     console.log(`✅ Found truck: ${truckNo}, Details count: ${detailsData.length}`);
-
-//     res.json({
-//       master: masterData,
-//       details: detailsData
-//     });
-
-//   } catch (err) {
-//     console.error('❌ Error fetching truck details:', err);
-//     res.status(500).json({ message: 'Server Error' });
-//   }
-// });
-
-// app.get('/api/users', async (req, res) => {
-//   try {
-//     const result = await pool.query('SELECT username, password, role FROM users');
-//     res.json(result.rows);
-//   } catch (err) {
-//     console.error('Error fetching users:', err);
-//     res.status(500).json({ message: 'Error fetching users.' });
-//   }
-// });
-
-// app.delete('/api/users/:username', async (req, res) => {
-//   const { username } = req.params;
-//   try {
-//     const result = await pool.query(
-//       'DELETE FROM users WHERE username = $1',
-//       [username]
-//     );
-
-//     if (result.rowCount === 0) {
-//       return res.status(404).json({ message: 'User not found.' });
-//     }
-
-//     res.json({ message: 'User deleted successfully.' });
-//   } catch (err) {
-//     console.error('Error deleting user:', err);
-//     res.status(500).json({ message: 'Error deleting user.' });
-//   }
-// });
-
-
-// // PUT /api/users/:username
-// app.put('/api/users/:username', async (req, res) => {
-//   const { username } = req.params;
-//   const { username: newUsername, password, role } = req.body; // <-- lowercase here
-
-//   try {
-//     const result = await pool.query(
-//       `UPDATE users 
-//        SET username = $1, password = $2, role = $3 
-//        WHERE username = $4`,
-//       [newUsername, password, role, username]
-//     );
-
-//     if (result.rowCount === 0) {
-//       return res.status(404).json({ message: 'User not found.' });
-//     }
-
-//     res.json({ message: 'User updated successfully.' });
-//   } catch (err) {
-//     console.error('Error updating user:', err);
-//     res.status(500).json({ message: 'Error updating user.' });
-//   }
-// });////////////////////working apis
-
-// app.get('/api/users', async (req, res) => {
-//   try {
-//     const usersResult = await pool.query(
-//       'SELECT "userid", "username", "password", "role", "contactnumber", "allowedplants" FROM users'
-//     );
-
-//     const plantsResult = await pool.query(
-//       'SELECT "plantid", "plantname" FROM plantmaster'
-//     );
-
-//     const plantsMap = {};
-//     plantsResult.rows.forEach(plant => {
-//       plantsMap[plant.plantid] = plant.plantname;
-//     });
-
-//     const processedUsers = usersResult.rows.map(user => {
-//       let allowedPlantNames = '';
-//       if (user.allowedplants && user.allowedplants.trim() !== '') {
-//         const plantIds = user.allowedplants.split(',').map(id => id.trim());
-//         const plantNames = plantIds.map(id => plantsMap[parseInt(id)]).filter(Boolean);
-//         allowedPlantNames = plantNames.join(', ');
-//       }
-
-//       return {
-//         ...user,
-//         allowedPlantNames
-//       };
-//     });
-
-//     res.json(processedUsers);
-//   } catch (err) {
-//     console.error('Error fetching users:', err);
-//     res.status(500).json({ message: 'Error fetching users.' });
-//   }
-// });
-
-// app.delete('/api/users/:username', async (req, res) => {
-//   const { username } = req.params;
-//   try {
-//     const result = await pool.query(
-//       'DELETE FROM users WHERE "username" = $1',
-//       [username]
-//     );
-
-//     if (result.rowCount === 0) {
-//       return res.status(404).json({ message: 'User not found.' });
-//     }
-
-//     res.json({ message: 'User deleted successfully.' });
-//   } catch (err) {
-//     console.error('Error deleting user:', err);
-//     res.status(500).json({ message: 'Error deleting user.' });
-//   }
-// });
-
-// app.put('/api/users/:username', async (req, res) => {
-//   const { username } = req.params;
-//   const { username: newUsername, password, role, contactnumber, allowedplants } = req.body;
-
-//   try {
-//     const result = await pool.query(
-//       `UPDATE users
-//        SET "username" = $1,
-//            "password" = $2,
-//            "role" = $3,
-//            "contactnumber" = $4,
-//            "allowedplants" = $5
-//        WHERE "username" = $6`,
-//       [newUsername, password, role, contactnumber, allowedplants, username]
-//     );
-
-//     if (result.rowCount === 0) {
-//       return res.status(404).json({ message: 'User not found.' });
-//     }
-
-//     res.json({ message: 'User updated successfully.' });
-//   } catch (err) {
-//     console.error('Error updating user:', err);
-//     res.status(500).json({ message: 'Error updating user.' });
-//   }
-// });
-
+// Get all users
 app.get('/api/users', async (req, res) => {
   try {
     const result = await pool.query(
