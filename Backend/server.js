@@ -502,49 +502,60 @@ app.post("/api/update-truck-status", async (req, res) => {
   }
 });///// workingggg///////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 app.get('/api/check-priority-status', async (req, res) => {
-  const { truckNo } = req.query;
+  const { truckNo, plantName } = req.query;
   const client = await pool.connect();
 
   try {
+    // Get the latest active transaction
     const transRes = await client.query(`
-      SELECT TransactionID 
-      FROM TruckTransactionMaster
+      SELECT TransactionID FROM TruckTransactionMaster
       WHERE TruckNo = $1 AND Completed = 0
-      ORDER BY TransactionID DESC 
-      LIMIT 1
+      ORDER BY TransactionID DESC LIMIT 1
     `, [truckNo]);
 
     if (transRes.rows.length === 0) {
-      return res.json({ hasPriority1: false });
+      return res.json({ hasPending: false });
     }
 
-    const transactionId = parseInt(transRes.rows[0].transactionid); // ensure it's integer
+    const transactionId = String(transRes.rows[0].transactionid);
 
+    // Get all rows with check statuses
     const detailRes = await client.query(`
-      SELECT 
-        d.checkinstatus::int AS checkinstatus,
-        d.checkoutstatus::int AS checkoutstatus,
-        p.plantname
-      FROM trucktransactiondetails d
-      JOIN plantmaster p ON d.plantid::int = p.plantid::int
-      WHERE d.transactionid = $1 AND d.priority::int = 1
-      LIMIT 1
+      SELECT d.Priority, d.CheckInStatus, d.CheckOutStatus, p.PlantName
+      FROM TruckTransactionDetails d
+      JOIN PlantMaster p ON d.PlantId = p.PlantId
+      WHERE d.TransactionID = $1
     `, [transactionId]);
 
     if (detailRes.rows.length === 0) {
-      return res.json({ hasPriority1: false });
+      return res.json({ hasPending: false });
     }
 
-    const { checkinstatus, checkoutstatus, plantname } = detailRes.rows[0];
-    const priority1Completed = checkinstatus === 1 && checkoutstatus === 1;
+    const sorted = detailRes.rows.sort((a, b) => a.priority - b.priority);
 
-    return res.json({
-      hasPriority1: true,
-      priority1Completed,
-      priority1Plant: plantname
+    // Find the lowest pending priority
+    const pending = sorted.find(row => row.checkinstatus !== 1 || row.checkoutstatus !== 1);
+
+    if (!pending) {
+      return res.json({ hasPending: false });
+    }
+
+    const currentRow = sorted.find(row => row.plantname.toLowerCase() === plantName.toLowerCase());
+
+    if (!currentRow) {
+      return res.status(400).json({ error: 'Current plant not found in transaction' });
+    }
+
+    const canProceed = currentRow.priority === pending.priority;
+
+    res.json({
+      hasPending: true,
+      canProceed,
+      nextPriority: pending.priority,
+      nextPlant: pending.plantname,
     });
+
   } catch (err) {
     console.error('Priority status error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -552,6 +563,7 @@ app.get('/api/check-priority-status', async (req, res) => {
     client.release();
   }
 });
+
 
 
 /////////////////////////////////////////////////////////////////////////
