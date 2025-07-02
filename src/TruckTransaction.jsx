@@ -1881,7 +1881,7 @@
 //   );
 // }/////////// working code with cancel button and redirect to truckfind page
 
-// import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import CancelButton from './CancelButton';
