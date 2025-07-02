@@ -2134,7 +2134,6 @@
 //     </div>
 //   );
 // }/////////////////////full work prority set baki hai 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
@@ -2228,13 +2227,6 @@ export default function TruckTransaction() {
 
   const addOrUpdateRow = () => {
     if (!newRow.plantName || !newRow.loadingSlipNo || !newRow.qty) return;
-
-    const duplicatePlant = tableData.some((row, idx) => row.plantName === newRow.plantName && idx !== editingIndex);
-    if (duplicatePlant) {
-      setMessage('🚫 Same plant already added!');
-      return;
-    }
-
     if (editingIndex !== null) {
       const updated = [...tableData];
       updated[editingIndex] = { ...newRow };
@@ -2262,18 +2254,8 @@ export default function TruckTransaction() {
       let dataToSubmit = [...tableData];
       const isNewRowFilled = Object.values(newRow).some(val => val && val.trim?.() !== '');
       if (isNewRowFilled) {
-        if (!newRow.plantName || !newRow.loadingSlipNo || !newRow.qty) {
-          setMessage('🚫 Please complete the row before submitting.');
-          return;
-        }
-        const duplicatePlant = tableData.some(row => row.plantName === newRow.plantName);
-        if (duplicatePlant) {
-          setMessage('🚫 Same plant already added!');
-          return;
-        }
         dataToSubmit.push({ ...newRow, detailId: null });
       }
-
       const response = await axios.post(`${API_URL}/api/truck-transaction`, { formData, tableData: dataToSubmit });
       if (response.data.success) {
         setMessage('✅ Transaction saved successfully!');
@@ -2296,6 +2278,8 @@ export default function TruckTransaction() {
       }
     }
   };
+
+  const selectedPlants = tableData.map(row => row.plantName);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-gray-50 py-8">
@@ -2360,14 +2344,14 @@ export default function TruckTransaction() {
               ))}
               <tr className="bg-slate-100">
                 <td className="p-2">
-                  {tableData.length === 0 ? (
-                    <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange} className="w-full p-2 border border-slate-300 rounded-lg">
-                      <option value="">Select</option>
-                      {plantList.map((p, i) => (<option key={i} value={p.plantname}>{p.plantname}</option>))}
-                    </select>
-                  ) : (
-                    <span className="text-slate-400 italic">-</span>
-                  )}
+                  <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange} className="w-full p-2 border border-slate-300 rounded-lg">
+                    <option value="">Select</option>
+                    {plantList
+                      .filter(p => !selectedPlants.includes(p.plantname))
+                      .map((p, i) => (
+                        <option key={i} value={p.plantname}>{p.plantname}</option>
+                      ))}
+                  </select>
                 </td>
                 {['loadingSlipNo', 'qty', 'priority', 'remarks'].map((name) => (
                   <td key={name} className="p-2">
