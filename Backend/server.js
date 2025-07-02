@@ -537,6 +537,118 @@ app.get('/api/plantmaster/:id', async (req, res) => {
 //   }
 // });/////////////////////////////////////////working code ///////////////////////////
 
+// app.post("/api/truck-transaction", async (req, res) => {
+//   const { formData, tableData } = req.body;
+
+//   const client = await pool.connect();
+
+//   try {
+//     await client.query("BEGIN");
+
+//     let transactionId = formData.transactionId;
+
+//     if (transactionId) {
+//       // Existing record - Update everything including truck number
+//       await client.query(
+//         `
+//         UPDATE trucktransactionmaster SET
+//           truckno = $1,
+//           transactiondate = $2,
+//           cityname = $3,
+//           transporter = $4,
+//           amountperton = $5,
+//           truckweight = $6,
+//           deliverpoint = $7,
+//           remarks = $8
+//         WHERE transactionid = $9
+//       `,
+//         [
+//           formData.truckNo,
+//           formData.transactionDate,
+//           formData.cityName,
+//           formData.transporter,
+//           formData.amountPerTon,
+//           formData.truckWeight,
+//           formData.deliverPoint,
+//           formData.remarks,
+//           transactionId
+//         ]
+//       );
+//     } else {
+//       // New Record - Insert
+//       const insertResult = await client.query(
+//         `
+//         INSERT INTO trucktransactionmaster
+//           (truckno, transactiondate, cityname, transporter, amountperton, truckweight, deliverpoint, remarks, createdat)
+//         VALUES
+//           ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+//         RETURNING transactionid
+//       `,
+//         [
+//           formData.truckNo,
+//           formData.transactionDate,
+//           formData.cityName,
+//           formData.transporter,
+//           formData.amountPerTon,
+//           formData.truckWeight,
+//           formData.deliverPoint,
+//           formData.remarks
+//         ]
+//       );
+
+//       transactionId = insertResult.rows[0].transactionid;
+//     }
+
+//     // Step 2: Handle details
+//     const filteredTableData = tableData.filter(row => row.plantName && row.plantName.trim() !== "");
+
+//     // Delete existing details
+//     await client.query(
+//       `DELETE FROM trucktransactiondetails WHERE transactionid = $1`,
+//       [transactionId]
+//     );
+
+//     // Re-insert details
+//     for (const row of filteredTableData) {
+//       const plantResult = await client.query(
+//         `SELECT plantid FROM plantmaster WHERE LOWER(TRIM(plantname)) = LOWER(TRIM($1))`,
+//         [row.plantName]
+//       );
+
+//       const plantId = plantResult.rows[0]?.plantid;
+//       if (!plantId) throw new Error(`Plant not found: ${row.plantName}`);
+
+//       await client.query(
+//         `
+//         INSERT INTO trucktransactiondetails
+//           (transactionid, plantid, loadingslipno, qty, priority, remarks, freight)
+//         VALUES
+//           ($1, $2, $3, $4, $5, $6, $7)
+//       `,
+//         [
+//           transactionId,
+//           plantId,
+//           row.loadingSlipNo,
+//           row.qty,
+//           row.priority,
+//           row.remarks || "",
+//           row.freight
+//         ]
+//       );
+//     }
+
+//     await client.query("COMMIT");
+//     res.json({ success: true, transactionId });
+
+//   } catch (err) {
+//     console.error("❌ Transaction failed:", err);
+//     await client.query("ROLLBACK");
+//     res.status(500).json({ success: false, error: err.message });
+//   } finally {
+//     client.release();
+//   }
+// });
+
 app.post("/api/truck-transaction", async (req, res) => {
   const { formData, tableData } = req.body;
   const truckNo = formData.truckNo.trim().toLowerCase();
@@ -662,10 +774,36 @@ app.post("/api/truck-transaction", async (req, res) => {
   } finally {
     client.release();
   }
-});  ///////////////final api hai bus kuch prority vala chang baki hai 
+});  ///////////////final api hai bus kuch prority vala chang baki hai
 
 
-// 🚚 Update Truck Status API (CASE INSENSITIVE)
+
+
+
+
+
+// 🚚 Fetch Truck Numbers API (CASE INSENSITIVE)
+app.get("/api/trucks", async (req, res) => {
+  const { plantName } = req.query;
+  try {
+    const result = await pool.query(
+      `SELECT DISTINCT m.TruckNo
+       FROM PlantMaster p
+       JOIN TruckTransactionDetails d ON p.PlantID = d.PlantId
+       JOIN TruckTransactionMaster m ON d.TransactionId = m.TransactionID
+       WHERE LOWER(TRIM(p.PlantName)) = LOWER(TRIM($1))
+         AND d.CheckInStatus = 0
+         AND m.Completed = 0`,
+      [plantName]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching truck numbers:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// // 🚚 Update Truck Status API (CASE INSENSITIVE)
 app.post("/api/update-truck-status", async (req, res) => {
   const { truckNo, plantName, type } = req.body;
   const client = await pool.connect();
@@ -770,7 +908,6 @@ app.post("/api/update-truck-status", async (req, res) => {
     client.release();
   }
 });///// workingggg
-
 
 
 
