@@ -2134,77 +2134,47 @@
 //     </div>
 //   );
 // }/////////////////////full work prority set baki hai 
+
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
 import CancelButton from './CancelButton';
+import { toast } from 'react-toastify';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function TruckTransaction() {
-  const location = useLocation();
-
   const [formData, setFormData] = useState({
     transactionId: null,
-    truckNo: '', transactionDate: '', cityName: '', transporter: '',
-    amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: ''
+    truckNo: '',
+    transactionDate: '',
+    cityName: '',
+    transporter: '',
+    amountPerTon: '',
+    truckWeight: '',
+    deliverPoint: '',
+    remarks: ''
   });
 
   const [plantList, setPlantList] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   const [newRow, setNewRow] = useState({
-    detailId: null, plantName: '', loadingSlipNo: '', qty: '',
-    priority: '', remarks: '', freight: 'To Pay'
+    detailId: null,
+    plantName: '',
+    loadingSlipNo: '',
+    qty: '',
+    priority: '',
+    remarks: '',
+    freight: 'To Pay'
   });
   const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    const truckNo = location?.state?.truckNo;
-    if (truckNo) fetchTruckDetails(truckNo);
-  }, [location?.state?.truckNo]);
 
   useEffect(() => {
     axios.get(`${API_URL}/api/plants`)
       .then(res => setPlantList(res.data))
       .catch(err => console.error('Error fetching plants:', err));
   }, []);
-
-  const fetchTruckDetails = async (truckNo) => {
-    try {
-      const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
-      const { master, details } = res.data;
-      setFormData({
-        transactionId: master.transactionid,
-        truckNo: master.truckno,
-        transactionDate: master.transactiondate?.split('T')[0] || '',
-        cityName: master.cityname,
-        transporter: master.transporter,
-        amountPerTon: master.amountperton,
-        truckWeight: master.truckweight,
-        deliverPoint: master.deliverpoint,
-        remarks: master.remarks
-      });
-      setTableData(details.map(row => ({
-        detailId: row.detailid,
-        plantName: row.plantname,
-        loadingSlipNo: row.loadingslipno,
-        qty: row.qty,
-        priority: row.priority,
-        remarks: row.remarks,
-        freight: row.freight
-      })));
-    } catch (err) {
-      if (err.response?.status === 409) {
-        setMessage('🚫 Truck is already in transport. Please complete Check-Out first.');
-      } else if (err.response?.status === 404) {
-        setMessage('Truck not found. You can create a new transaction.');
-      } else {
-        console.error('Error loading truck details:', err);
-        setMessage('❌ Failed to load truck details.');
-      }
-    }
-  };
 
   const handleChange = (e) => {
     let { name, value } = e.target;
@@ -2226,7 +2196,20 @@ export default function TruckTransaction() {
   };
 
   const addOrUpdateRow = () => {
-    if (!newRow.plantName || !newRow.loadingSlipNo || !newRow.qty) return;
+    if (!newRow.plantName || !newRow.loadingSlipNo || !newRow.qty || !newRow.priority) {
+      toast.warn("Please fill all required fields including Priority.");
+      return;
+    }
+
+    const isDuplicatePriority = tableData.some((row, idx) =>
+      row.priority === newRow.priority && idx !== editingIndex
+    );
+
+    if (isDuplicatePriority) {
+      toast.error(`Priority ${newRow.priority} is already assigned.`);
+      return;
+    }
+
     if (editingIndex !== null) {
       const updated = [...tableData];
       updated[editingIndex] = { ...newRow };
@@ -2235,6 +2218,7 @@ export default function TruckTransaction() {
     } else {
       setTableData([...tableData, { ...newRow, detailId: null }]);
     }
+
     setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
   };
 
@@ -2261,8 +2245,14 @@ export default function TruckTransaction() {
         setMessage('✅ Transaction saved successfully!');
         setFormData({
           transactionId: null,
-          truckNo: '', transactionDate: '', cityName: '', transporter: '',
-          amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: ''
+          truckNo: '',
+          transactionDate: '',
+          cityName: '',
+          transporter: '',
+          amountPerTon: '',
+          truckWeight: '',
+          deliverPoint: '',
+          remarks: ''
         });
         setTableData([]);
         setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
@@ -2280,7 +2270,7 @@ export default function TruckTransaction() {
   };
 
   const selectedPlants = tableData.map(row => row.plantName);
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-gray-50 py-8">
       <CancelButton />
@@ -2347,7 +2337,7 @@ export default function TruckTransaction() {
                   <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange} className="w-full p-2 border border-slate-300 rounded-lg">
                     <option value="">Select</option>
                     {plantList
-                      .filter(p => !selectedPlants.includes(p.plantname))
+                      .filter(p => !selectedPlants.includes(p.plantname) || p.plantname === newRow.plantName)
                       .map((p, i) => (
                         <option key={i} value={p.plantname}>{p.plantname}</option>
                       ))}
