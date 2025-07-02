@@ -2415,14 +2415,13 @@
 
 //
 
-
-// TruckTransaction.jsx – Final Version
+// TruckTransaction.jsx – Tailwind + Live API
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import CancelButton from './CancelButton';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = 'https://truck-api-render.onrender.com';
 
 export default function TruckTransaction() {
   const location = useLocation();
@@ -2478,14 +2477,8 @@ export default function TruckTransaction() {
         freight: row.freight
       })));
     } catch (err) {
-      if (err.response?.status === 409) {
-        setMessage('🚫 Truck is already in transport. Please complete Check-Out first.');
-      } else if (err.response?.status === 404) {
-        setMessage('Truck not found. You can create a new transaction.');
-      } else {
-        console.error('Error loading truck details:', err);
-        setMessage('❌ Failed to load truck details.');
-      }
+      setMessage('❌ Failed to load truck details.');
+      console.error('Error loading truck details:', err);
     }
   };
 
@@ -2527,6 +2520,7 @@ export default function TruckTransaction() {
     } else {
       setTableData([...tableData, { ...newRow, detailId: null }]);
     }
+
     setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
   };
 
@@ -2548,6 +2542,7 @@ export default function TruckTransaction() {
       if (isNewRowFilled) {
         dataToSubmit.push({ ...newRow, detailId: null });
       }
+
       const response = await axios.post(`${API_URL}/api/truck-transaction`, { formData, tableData: dataToSubmit });
       if (response.data.success) {
         setMessage('✅ Transaction saved successfully!');
@@ -2561,14 +2556,12 @@ export default function TruckTransaction() {
         setMessage('❌ Error saving transaction.');
       }
     } catch (error) {
-      if (error.response?.status === 409) {
-        setMessage('🚫 Truck is already in transport. Please complete Check-Out first.');
-      } else {
-        console.error('Submit error:', error);
-        setMessage('❌ Server error while submitting data.');
-      }
+      console.error('Submit error:', error);
+      setMessage('❌ Server error while submitting data.');
     }
   };
+
+  const usedPlants = tableData.map(row => row.plantName);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-gray-50 py-8">
@@ -2619,43 +2612,50 @@ export default function TruckTransaction() {
             <tbody>
               {tableData.map((row, idx) => (
                 <tr key={idx} className="bg-white even:bg-slate-50">
-                  <td className="p-2">{row.plantName}</td>
-                  <td className="p-2">{row.loadingSlipNo}</td>
-                  <td className="p-2">{row.qty}</td>
-                  <td className="p-2">{row.priority}</td>
-                  <td className="p-2">{row.remarks}</td>
-                  <td className="p-2">{row.freight}</td>
-                  <td className="p-2 flex gap-2 justify-center">
-                    <button className="bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full shadow hover:scale-105" onClick={() => handleEditRow(idx)}>Edit</button>
-                    <button className="bg-red-300 text-red-900 px-3 py-1 rounded-full shadow hover:scale-105" onClick={() => handleDeleteRow(idx)}>Delete</button>
+                  <td>{row.plantName}</td>
+                  <td>{row.loadingSlipNo}</td>
+                  <td>{row.qty}</td>
+                  <td>{row.priority}</td>
+                  <td>{row.remarks}</td>
+                  <td>{row.freight}</td>
+                  <td className="flex gap-2 justify-center p-2">
+                    <button className="bg-yellow-300 px-3 py-1 rounded" onClick={() => handleEditRow(idx)}>Edit</button>
+                    <button className="bg-red-300 px-3 py-1 rounded" onClick={() => handleDeleteRow(idx)}>Delete</button>
                   </td>
                 </tr>
               ))}
               <tr className="bg-slate-100">
-                <td className="p-2">
-                  <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange} className="w-full p-2 border border-slate-300 rounded-lg">
+                <td>
+                  <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange}
+                    className="w-full p-2 border border-slate-300 rounded-lg">
                     <option value="">Select</option>
-                    {plantList.map((p, i) => (<option key={i} value={p.plantname}>{p.plantname}</option>))}
+                    {plantList
+                      .filter(p => !usedPlants.includes(p.plantname) || p.plantname === newRow.plantName)
+                      .map((p, i) => (
+                        <option key={i} value={p.plantname}>{p.plantname}</option>
+                      ))}
                   </select>
                 </td>
-                {['loadingSlipNo', 'qty', 'priority', 'remarks'].map((name) => (
-                  <td key={name} className="p-2">
-                    <input name={name} value={newRow[name]} onChange={handleNewRowChange} className="w-full p-2 border border-slate-300 rounded-lg" />
+                {["loadingSlipNo", "qty", "priority", "remarks"].map((name) => (
+                  <td key={name}>
+                    <input name={name} value={newRow[name]} onChange={handleNewRowChange}
+                      className="w-full p-2 border border-slate-300 rounded-lg" />
                   </td>
                 ))}
-                <td className="p-2">
-                  <select name="freight" value={newRow.freight} onChange={handleNewRowChange} className="w-full p-2 border border-slate-300 rounded-lg">
+                <td>
+                  <select name="freight" value={newRow.freight} onChange={handleNewRowChange}
+                    className="w-full p-2 border border-slate-300 rounded-lg">
                     <option value="To Pay">To Pay</option>
                     <option value="Paid">Paid</option>
                   </select>
                 </td>
-                <td className="p-2 text-center">-</td>
+                <td></td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <button onClick={addOrUpdateRow} className="bg-yellow-400 text-yellow-900 font-semibold px-4 py-2 rounded-full shadow hover:scale-105 mb-6">
+        <button onClick={addOrUpdateRow} className="bg-yellow-400 px-4 py-2 rounded shadow hover:bg-yellow-500 mb-6">
           {editingIndex !== null ? 'Update Row' : 'Add Row'}
         </button>
 
@@ -2663,15 +2663,19 @@ export default function TruckTransaction() {
           {['amountPerTon', 'deliverPoint', 'truckWeight'].map((field, idx) => (
             <div key={idx}>
               <label className="font-medium text-slate-700 mb-1 block capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
-              <input name={field} value={formData[field]} onChange={handleChange} className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+              <input name={field} value={formData[field]} onChange={handleChange}
+                className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
             </div>
           ))}
         </div>
 
         <label className="font-medium text-slate-700 mb-1 block">Remarks</label>
-        <textarea name="remarks" value={formData.remarks} onChange={handleChange} rows="3" className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-4"></textarea>
+        <textarea name="remarks" value={formData.remarks} onChange={handleChange} rows="3"
+          className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-4"></textarea>
 
-        <button onClick={handleSubmit} className="bg-green-500 text-white font-semibold px-6 py-2 rounded-full shadow hover:scale-105">Submit</button>
+        <button onClick={handleSubmit} className="bg-green-500 text-white px-6 py-2 rounded shadow hover:bg-green-600">
+          Submit
+        </button>
 
         {message && <p className="text-center text-green-600 text-lg font-semibold mt-4">{message}</p>}
       </div>
