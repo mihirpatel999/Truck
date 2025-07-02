@@ -2441,11 +2441,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './TruckTransaction.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-function TruckTransaction() {
+export default function TruckTransaction() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -2553,9 +2552,7 @@ function TruckTransaction() {
   const handleUpdateRow = () => {
     if (!editRow.plantName || !editRow.loadingSlipNo || !editRow.qty) return;
     if (editRow.priority) {
-      const duplicate = tableData.some((row, idx) =>
-        row.priority === editRow.priority && idx !== editRowIndex
-      );
+      const duplicate = tableData.some((row, idx) => row.priority === editRow.priority && idx !== editRowIndex);
       if (duplicate) {
         setPriorityError('This priority already exists in another row.');
         return;
@@ -2602,9 +2599,7 @@ function TruckTransaction() {
       return;
     }
     try {
-      const response = await axios.post(`${API_URL}/api/truck-transaction`, {
-        formData, tableData: dataToSubmit
-      });
+      const response = await axios.post(`${API_URL}/api/truck-transaction`, { formData, tableData: dataToSubmit });
       if (response.data.success) {
         setMessage('✅ Transaction saved successfully!');
         setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
@@ -2630,22 +2625,19 @@ function TruckTransaction() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-gray-50 py-8">
-      <CancelButton />
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
         <h1 className="text-3xl font-bold text-center text-slate-800 mb-8 tracking-wide">Truck Transaction</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div>
-            <label className="font-medium text-slate-700 mb-1 block">Truck No</label>
-            <input type="text" name="truckNo" maxLength={13} value={formData.truckNo} onChange={handleChange}
-              placeholder="e.g., GJ-01-AB-1234"
-              className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
-          </div>
-          {['transactionDate', 'cityName', 'transporter'].map((field) => (
-            <div key={field}>
-              <label className="font-medium text-slate-700 mb-1 block capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
-              <input type={field === 'transactionDate' ? 'date' : 'text'}
-                name={field} value={formData[field]} onChange={handleChange}
+          {[
+            { label: 'Truck No', name: 'truckNo' },
+            { label: 'Transaction Date', name: 'transactionDate', type: 'date' },
+            { label: 'City Name', name: 'cityName' },
+            { label: 'Transporter', name: 'transporter' }
+          ].map(({ label, name, type = 'text' }) => (
+            <div key={name}>
+              <label className="font-medium text-slate-700 mb-1 block">{label}</label>
+              <input type={type} name={name} value={formData[name]} onChange={handleChange}
                 className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
             </div>
           ))}
@@ -2666,115 +2658,80 @@ function TruckTransaction() {
             </thead>
             <tbody>
               {tableData.map((row, idx) => (
-                <tr key={idx} className="bg-white even:bg-slate-50">
-                  {editingIndex === idx ? (
-                    <>
-                      <td className="p-2">
-                        <select name="plantName" value={row.plantName} onChange={(e) => handleRowChange(idx, e)}
-                          className="w-full p-2 border border-slate-300 rounded-lg">
-                          <option value="">Select</option>
-                          {plantList
-                            .filter(p => !selectedPlants.includes(p.plantname) || p.plantname === row.plantName)
-                            .map((p, i) => (
-                              <option key={i} value={p.plantname}>{p.plantname}</option>
-                            ))}
-                        </select>
+                editRowIndex === idx ? (
+                  <tr key={idx} className="bg-white">
+                    <td className="p-2">
+                      <select name="plantName" value={editRow.plantName} onChange={handleEditRowChange}
+                        className="w-full p-2 border border-slate-300 rounded-lg">
+                        <option value="">Select</option>
+                        {plantList
+                          .filter(p => !tableData.some((r, i) => r.plantName === p.PlantName && i !== idx) || p.PlantName === row.plantName)
+                          .map((p, i) => (
+                            <option key={i} value={p.PlantName}>{p.PlantName}</option>
+                          ))}
+                      </select>
+                    </td>
+                    {['loadingSlipNo', 'qty', 'priority', 'remarks'].map(name => (
+                      <td key={name} className="p-2">
+                        <input name={name} value={editRow[name]} onChange={handleEditRowChange}
+                          className="w-full p-2 border border-slate-300 rounded-lg" />
                       </td>
-                      {['loadingSlipNo', 'qty', 'priority', 'remarks'].map(name => (
-                        <td key={name} className="p-2">
-                          <input name={name} value={row[name]} onChange={(e) => handleRowChange(idx, e)}
-                            className="w-full p-2 border border-slate-300 rounded-lg" />
-                        </td>
-                      ))}
-                      <td className="p-2">
-                        <select name="freight" value={row.freight} onChange={(e) => handleRowChange(idx, e)}
-                          className="w-full p-2 border border-slate-300 rounded-lg">
-                          <option value="To Pay">To Pay</option>
-                          <option value="Paid">Paid</option>
-                        </select>
-                      </td>
-                      <td className="p-2 text-center">
-                        <button onClick={() => handleUpdateRow(idx)}
-                          className="bg-green-400 text-green-900 px-3 py-1 rounded-full shadow hover:scale-105">Update</button>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td className="p-2">{row.plantName}</td>
-                      <td className="p-2">{row.loadingSlipNo}</td>
-                      <td className="p-2">{row.qty}</td>
-                      <td className="p-2">{row.priority}</td>
-                      <td className="p-2">{row.remarks}</td>
-                      <td className="p-2">{row.freight}</td>
-                      <td className="p-2 flex gap-2 justify-center">
-                        <button onClick={() => handleEditRow(idx)}
-                          className="bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full shadow hover:scale-105">Edit</button>
-                        <button onClick={() => handleDeleteRow(idx)}
-                          className="bg-red-300 text-red-900 px-3 py-1 rounded-full shadow hover:scale-105">Delete</button>
-                      </td>
-                    </>
-                  )}
-                </tr>
+                    ))}
+                    <td className="p-2">
+                      <select name="freight" value={editRow.freight} onChange={handleEditRowChange}
+                        className="w-full p-2 border border-slate-300 rounded-lg">
+                        <option value="To Pay">To Pay</option>
+                        <option value="Paid">Paid</option>
+                      </select>
+                    </td>
+                    <td className="p-2 flex gap-2 justify-center">
+                      <button onClick={handleUpdateRow} className="bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full shadow hover:scale-105">Update</button>
+                      <button onClick={handleCancelEdit} className="bg-red-300 text-red-900 px-3 py-1 rounded-full shadow hover:scale-105">Cancel</button>
+                    </td>
+                  </tr>
+                ) : (
+                  <tr key={idx} className="bg-white even:bg-slate-50">
+                    <td className="p-2">{row.plantName}</td>
+                    <td className="p-2">{row.loadingSlipNo}</td>
+                    <td className="p-2">{row.qty}</td>
+                    <td className="p-2">{row.priority}</td>
+                    <td className="p-2">{row.remarks}</td>
+                    <td className="p-2">{row.freight}</td>
+                    <td className="p-2 flex gap-2 justify-center">
+                      <button onClick={() => handleEditRow(idx)} className="bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full shadow hover:scale-105">Edit</button>
+                      <button onClick={() => handleDeleteRow(idx)} className="bg-red-300 text-red-900 px-3 py-1 rounded-full shadow hover:scale-105">Delete</button>
+                    </td>
+                  </tr>
+                )
               ))}
-              <tr className="bg-slate-100">
-                <td className="p-2">
-                  <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange}
-                    className="w-full p-2 border border-slate-300 rounded-lg">
-                    <option value="">Select</option>
-                    {plantList
-                      .filter(p => !selectedPlants.includes(p.plantname))
-                      .map((p, i) => (
-                        <option key={i} value={p.plantname}>{p.plantname}</option>
-                      ))}
-                  </select>
-                </td>
-                {['loadingSlipNo', 'qty', 'priority', 'remarks'].map(name => (
-                  <td key={name} className="p-2">
-                    <input name={name} value={newRow[name]} onChange={handleNewRowChange}
-                      className="w-full p-2 border border-slate-300 rounded-lg" />
-                  </td>
-                ))}
-                <td className="p-2">
-                  <select name="freight" value={newRow.freight} onChange={handleNewRowChange}
-                    className="w-full p-2 border border-slate-300 rounded-lg">
-                    <option value="To Pay">To Pay</option>
-                    <option value="Paid">Paid</option>
-                  </select>
-                </td>
-                <td className="p-2 text-center">-</td>
-              </tr>
             </tbody>
           </table>
         </div>
 
-        <button onClick={addOrUpdateRow}
-          className="bg-yellow-400 text-yellow-900 font-semibold px-4 py-2 rounded-full shadow hover:scale-105 mb-6">
-          Add Row
-        </button>
+        <button onClick={addOrUpdateRow} className="bg-yellow-400 text-yellow-900 font-semibold px-4 py-2 rounded-full shadow hover:scale-105 mb-6">Add Row</button>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          {['amountPerTon', 'deliverPoint', 'truckWeight'].map((field) => (
-            <div key={field}>
-              <label className="font-medium text-slate-700 mb-1 block capitalize">{field.replace(/([A-Z])/g, ' $1')}</label>
-              <input name={field} value={formData[field]} onChange={handleChange}
+          {[
+            { label: 'Amount Per Ton', name: 'amountPerTon' },
+            { label: 'Deliver Point', name: 'deliverPoint' },
+            { label: 'Truck Weight (In Ton)', name: 'truckWeight' }
+          ].map(({ label, name }) => (
+            <div key={name}>
+              <label className="font-medium text-slate-700 mb-1 block">{label}</label>
+              <input name={name} value={formData[name]} onChange={handleChange}
                 className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400" />
             </div>
           ))}
         </div>
 
         <label className="font-medium text-slate-700 mb-1 block">Remarks</label>
-        <textarea name="remarks" value={formData.remarks} onChange={handleChange} rows="3"
-          className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-4"></textarea>
+        <textarea name="remarks" value={formData.remarks} onChange={handleChange}
+          className="w-full p-3 border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 mb-4" rows="3" />
 
-        <button onClick={handleSubmit}
-          className="bg-green-500 text-white font-semibold px-6 py-2 rounded-full shadow hover:scale-105">
-          Submit
-        </button>
+        <button onClick={handleSubmit} className="bg-green-500 text-white font-semibold px-6 py-2 rounded-full shadow hover:scale-105">Submit</button>
 
         {message && <p className="text-center text-green-600 text-lg font-semibold mt-4">{message}</p>}
       </div>
     </div>
   );
 }
-
-
