@@ -2568,6 +2568,8 @@ export default function TruckTransaction() {
     }
   };
 
+  const selectedPlantNames = tableData.map(row => row.plantName);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-gray-50 py-8">
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
@@ -2623,8 +2625,8 @@ export default function TruckTransaction() {
                   <td className="p-2">{row.remarks}</td>
                   <td className="p-2">{row.freight}</td>
                   <td className="p-2 flex gap-2 justify-center">
-                    <button className="bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full shadow hover:scale-105" onClick={() => handleEditRow(idx)}>Edit</button>
-                    <button className="bg-red-300 text-red-900 px-3 py-1 rounded-full shadow hover:scale-105" onClick={() => handleDeleteRow(idx)}>Delete</button>
+                    <button className="bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full shadow hover:scale-105" onClick={() => handleEditRow(idx)}>Update</button>
+                    <button className="bg-red-300 text-red-900 px-3 py-1 rounded-full shadow hover:scale-105" onClick={() => handleDeleteRow(idx)}>Cancel</button>
                   </td>
                 </tr>
               ))}
@@ -2632,7 +2634,9 @@ export default function TruckTransaction() {
                 <td className="p-2">
                   <select name="plantName" value={newRow.plantName} onChange={handleNewRowChange} className="w-full p-2 border border-slate-300 rounded-lg">
                     <option value="">Select</option>
-                    {plantList.map((p, i) => (<option key={i} value={p.PlantName || p.plantname}>{p.PlantName || p.plantname}</option>))}
+                    {plantList.filter(p => !selectedPlantNames.includes(p.PlantName || p.plantname)).map((p, i) => (
+                      <option key={i} value={p.PlantName || p.plantname}>{p.PlantName || p.plantname}</option>
+                    ))}
                   </select>
                 </td>
                 {['loadingSlipNo', 'qty', 'priority', 'remarks'].map((name) => (
