@@ -502,7 +502,55 @@ app.post("/api/update-truck-status", async (req, res) => {
   }
 });///// workingggg///////////////////////////////////////////////////////////////////////////////////////////////////
 
+// ✅ Priority 1 Check Status API
+app.get('/api/check-priority-status', async (req, res) => {
+  const { truckNo } = req.query;
+  const client = await pool.connect();
+  try {
+    const transRes = await client.query(`
+      SELECT TransactionID FROM TruckTransactionMaster
+      WHERE TruckNo = $1 AND Completed = 0
+      ORDER BY TransactionID DESC LIMIT 1
+    `, [truckNo]);
 
+    if (transRes.rows.length === 0) {
+      return res.json({ hasPriority1: false });
+    }
+
+    const transactionId = transRes.rows[0].transactionid;
+
+    const detailRes = await client.query(`
+      SELECT d.CheckInStatus, d.CheckOutStatus, p.PlantName
+      FROM TruckTransactionDetails d
+      JOIN PlantMaster p ON d.PlantId = p.PlantId
+      WHERE d.TransactionID = $1 AND d.Priority = 1
+      LIMIT 1
+    `, [transactionId]);
+
+    if (detailRes.rows.length === 0) {
+      return res.json({ hasPriority1: false });
+    }
+
+    const { CheckInStatus, CheckOutStatus, PlantName } = detailRes.rows[0];
+    const priority1Completed = CheckInStatus === 1 && CheckOutStatus === 1;
+
+    return res.json({
+      hasPriority1: true,
+      priority1Completed,
+      priority1Plant: PlantName
+    });
+  } catch (err) {
+    console.error('Priority status error:', err);
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    client.release();
+  }
+});
+
+
+
+
+/////////////////////////////////////////////////////////////////////////
 
 // // 🚚 Truck Report API (for report page) — place this **after** your other APIs
 // app.get('/api/truck-report', async (req, res) => {

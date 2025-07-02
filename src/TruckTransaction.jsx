@@ -2785,6 +2785,6 @@ export default function TruckTransaction() {
       </div>
     </div>
   );
-}
+}/////////////////////////////////////////////////////////fullyyy working code/////////////
 
 
