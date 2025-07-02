@@ -2438,35 +2438,70 @@
 //////
 
 
-// TruckTransaction.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
-import CancelButton from './CancelButton';
+import { useNavigate, useLocation } from 'react-router-dom';
+import './TruckTransaction.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function TruckTransaction() {
+function TruckTransaction() {
+  const navigate = useNavigate();
   const location = useLocation();
 
   const [formData, setFormData] = useState({
-    transactionId: null, truckNo: '', transactionDate: '', cityName: '',
-    transporter: '', amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: ''
+    truckNo: '', transactionDate: '', cityName: '', transporter: '',
+    amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: ''
   });
 
   const [plantList, setPlantList] = useState([]);
   const [tableData, setTableData] = useState([]);
-  const [editingIndex, setEditingIndex] = useState(null);
   const [newRow, setNewRow] = useState({
     detailId: null, plantName: '', loadingSlipNo: '', qty: '',
     priority: '', remarks: '', freight: 'To Pay'
   });
   const [message, setMessage] = useState('');
+  const [truckNoError, setTruckNoError] = useState('');
+  const [priorityError, setPriorityError] = useState('');
+  const [editRow, setEditRow] = useState(null);
+  const [editRowIndex, setEditRowIndex] = useState(null);
 
   useEffect(() => {
-    const truckNo = location?.state?.truckNo;
-    if (truckNo) fetchTruckDetails(truckNo);
-  }, [location?.state?.truckNo]);
+    const truckNo = location?.state?.truck?.TruckNo;
+    if (!truckNo) return;
+
+    const fetchTruckDetails = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
+        const { master, details } = res.data;
+
+        setFormData({
+          truckNo: master.TruckNo || '',
+          transactionDate: master.TransactionDate?.split('T')[0] || '',
+          cityName: master.CityName || '',
+          transporter: master.Transporter || '',
+          amountPerTon: master.AmountPerTon || '',
+          truckWeight: master.TruckWeight || '',
+          deliverPoint: master.DeliverPoint || '',
+          remarks: master.Remarks || ''
+        });
+
+        setTableData(details.map(row => ({
+          detailId: row.TruckTransactionDetailsId,
+          plantName: row.PlantName,
+          loadingSlipNo: row.LoadingSlipNo,
+          qty: row.Qty,
+          priority: row.Priority,
+          remarks: row.Remarks,
+          freight: row.Freight
+        })));
+      } catch (err) {
+        console.error('Error loading truck details:', err);
+      }
+    };
+
+    fetchTruckDetails();
+  }, [location?.state?.truck]);
 
   useEffect(() => {
     axios.get(`${API_URL}/api/plants`)
@@ -2474,123 +2509,125 @@ export default function TruckTransaction() {
       .catch(err => console.error('Error fetching plants:', err));
   }, []);
 
-  const fetchTruckDetails = async (truckNo) => {
-    try {
-      const res = await axios.get(`${API_URL}/api/truck-transaction/${truckNo}`);
-      const { master, details } = res.data;
-      setFormData({
-        transactionId: master.transactionid,
-        truckNo: master.truckno,
-        transactionDate: master.transactiondate?.split('T')[0] || '',
-        cityName: master.cityname,
-        transporter: master.transporter,
-        amountPerTon: master.amountperton,
-        truckWeight: master.truckweight,
-        deliverPoint: master.deliverpoint,
-        remarks: master.remarks
-      });
-      setTableData(details.map(row => ({
-        detailId: row.detailid,
-        plantName: row.plantname,
-        loadingSlipNo: row.loadingslipno,
-        qty: row.qty,
-        priority: row.priority,
-        remarks: row.remarks,
-        freight: row.freight
-      })));
-    } catch (err) {
-      if (err.response?.status === 409) {
-        setMessage('🚫 Truck is already in transport. Please complete Check-Out first.');
-      } else if (err.response?.status === 404) {
-        setMessage('Truck not found. You can create a new transaction.');
-      } else {
-        console.error('Error loading truck details:', err);
-        setMessage('❌ Failed to load truck details.');
-      }
-    }
-  };
-
   const handleChange = (e) => {
-    let { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const processedValue = (type === 'date' || type === 'number') ? value : value.toUpperCase();
+    setFormData({ ...formData, [name]: processedValue });
+
     if (name === 'truckNo') {
-      value = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-      let formatted = '';
-      if (value.length > 0) formatted += value.substring(0, 2);
-      if (value.length > 2) formatted += '-' + value.substring(2, 4);
-      if (value.length > 4) formatted += '-' + value.substring(4, 6);
-      if (value.length > 6) formatted += '-' + value.substring(6, 10);
-      setFormData({ ...formData, truckNo: formatted });
-    } else {
-      setFormData({ ...formData, [name]: value });
+      checkTruckNoExists(processedValue);
     }
   };
 
   const handleNewRowChange = (e) => {
-    setNewRow({ ...newRow, [e.target.name]: e.target.value });
-  };
-
-  const handleRowChange = (idx, e) => {
-    const updated = [...tableData];
-    updated[idx][e.target.name] = e.target.value;
-    setTableData(updated);
-  };
-
-  const handleEditRow = (idx) => {
-    setEditingIndex(idx);
-  };
-
-  const handleUpdateRow = (idx) => {
-    setEditingIndex(null);
-  };
-
-  const handleDeleteRow = (idx) => {
-    setTableData(tableData.filter((_, i) => i !== idx));
-    setEditingIndex(null);
+    const { name, value, type } = e.target;
+    const processedValue = (type === 'number') ? value : value.toUpperCase();
+    setNewRow({ ...newRow, [name]: processedValue });
   };
 
   const addOrUpdateRow = () => {
-    if (!newRow.plantName || !newRow.loadingSlipNo || !newRow.qty) {
-      alert("Please fill required fields.");
-      return;
+    if (!newRow.plantName || !newRow.loadingSlipNo || !newRow.qty) return;
+    if (newRow.priority) {
+      const duplicate = tableData.some(row => row.priority === newRow.priority);
+      if (duplicate) {
+        setPriorityError('This priority already exists in another row.');
+        return;
+      }
     }
-
-    const selectedPlants = tableData.map(r => r.plantName);
-    if (selectedPlants.includes(newRow.plantName)) {
-      alert(`Plant ${newRow.plantName} is already selected.`);
-      return;
-    }
-
+    setPriorityError('');
     setTableData([...tableData, { ...newRow, detailId: null }]);
     setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
   };
 
+  const handleEditRow = (idx) => {
+    setEditRow({ ...tableData[idx] });
+    setEditRowIndex(idx);
+  };
+
+  const handleEditRowChange = (e) => {
+    const { name, value, type } = e.target;
+    const processedValue = (type === 'number') ? value : value.toUpperCase();
+    setEditRow({ ...editRow, [name]: processedValue });
+  };
+
+  const handleUpdateRow = () => {
+    if (!editRow.plantName || !editRow.loadingSlipNo || !editRow.qty) return;
+    if (editRow.priority) {
+      const duplicate = tableData.some((row, idx) =>
+        row.priority === editRow.priority && idx !== editRowIndex
+      );
+      if (duplicate) {
+        setPriorityError('This priority already exists in another row.');
+        return;
+      }
+    }
+    setPriorityError('');
+    const updated = [...tableData];
+    updated[editRowIndex] = { ...editRow };
+    setTableData(updated);
+    setEditRow(null);
+    setEditRowIndex(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditRow(null);
+    setEditRowIndex(null);
+    setPriorityError('');
+  };
+
+  const handleDeleteRow = (idx) => {
+    const updated = tableData.filter((_, i) => i !== idx);
+    setTableData(updated);
+    if (editRowIndex === idx) {
+      setEditRow(null);
+      setEditRowIndex(null);
+    }
+    setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
+  };
+
   const handleSubmit = async () => {
+    if (truckNoError) {
+      setMessage('❌ ' + truckNoError);
+      return;
+    }
+    let dataToSubmit = [...tableData];
+    const isNewRowFilled = Object.values(newRow).some(val => val && val.trim?.() !== '');
+    if (isNewRowFilled) {
+      dataToSubmit.push({ ...newRow, detailId: null });
+    }
+    const priorities = dataToSubmit.map(row => row.priority).filter(Boolean);
+    const hasDuplicatePriority = priorities.length !== new Set(priorities).size;
+    if (hasDuplicatePriority) {
+      setMessage('❌ This priority is already written.');
+      return;
+    }
     try {
-      const response = await axios.post(`${API_URL}/api/truck-transaction`, { formData, tableData });
+      const response = await axios.post(`${API_URL}/api/truck-transaction`, {
+        formData, tableData: dataToSubmit
+      });
       if (response.data.success) {
         setMessage('✅ Transaction saved successfully!');
-        setFormData({
-          transactionId: null, truckNo: '', transactionDate: '', cityName: '',
-          transporter: '', amountPerTon: '', truckWeight: '', deliverPoint: '', remarks: ''
-        });
+        setNewRow({ detailId: null, plantName: '', loadingSlipNo: '', qty: '', priority: '', remarks: '', freight: 'To Pay' });
         setTableData([]);
       } else {
         setMessage('❌ Error saving transaction.');
       }
     } catch (error) {
-      if (error.response?.status === 409) {
-        setMessage('🚫 Truck is already in transport. Please complete Check-Out first.');
-      } else {
-        console.error('Submit error:', error);
-        setMessage('❌ Server error while submitting data.');
-      }
+      console.error('Submit error:', error);
+      setMessage('❌ Server error while submitting data.');
     }
   };
 
-  const selectedPlants = tableData.map((r, idx) => idx === editingIndex ? null : r.plantName);
+  const checkTruckNoExists = async (truckNo) => {
+    if (!truckNo) return;
+    try {
+      const res = await axios.get(`${API_URL}/api/check-truck-exists/${truckNo}`);
+      setTruckNoError(res.data.exists ? 'This number already exists.' : '');
+    } catch (err) {
+      setTruckNoError('Error checking truck number.');
+    }
+  };
 
-
-  
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-gray-50 py-8">
       <CancelButton />
