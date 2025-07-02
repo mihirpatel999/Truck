@@ -503,31 +503,33 @@ app.post("/api/update-truck-status", async (req, res) => {
 });///// workingggg///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// ✅ GET /api/check-priority-status
 app.get('/api/check-priority-status', async (req, res) => {
   const { truckNo } = req.query;
   const client = await pool.connect();
 
   try {
-    // Step 1: Find latest incomplete transaction
     const transRes = await client.query(`
-      SELECT TransactionID FROM TruckTransactionMaster
+      SELECT TransactionID 
+      FROM TruckTransactionMaster
       WHERE TruckNo = $1 AND Completed = 0
-      ORDER BY TransactionID DESC LIMIT 1
+      ORDER BY TransactionID DESC 
+      LIMIT 1
     `, [truckNo]);
 
     if (transRes.rows.length === 0) {
       return res.json({ hasPriority1: false });
     }
 
-    const transactionId = transRes.rows[0].transactionid;
+    const transactionId = parseInt(transRes.rows[0].transactionid); // ensure it's integer
 
-    // Step 2: Get Priority 1 record
     const detailRes = await client.query(`
-      SELECT d.checkinstatus, d.checkoutstatus, p.plantname
+      SELECT 
+        d.checkinstatus::int AS checkinstatus,
+        d.checkoutstatus::int AS checkoutstatus,
+        p.plantname
       FROM trucktransactiondetails d
-      JOIN plantmaster p ON d.plantid = p.plantid
-      WHERE d.transactionid = $1 AND d.priority = 1
+      JOIN plantmaster p ON d.plantid::int = p.plantid::int
+      WHERE d.transactionid = $1 AND d.priority::int = 1
       LIMIT 1
     `, [transactionId]);
 
@@ -541,7 +543,7 @@ app.get('/api/check-priority-status', async (req, res) => {
     return res.json({
       hasPriority1: true,
       priority1Completed,
-      priority1Plant: plantname,
+      priority1Plant: plantname
     });
   } catch (err) {
     console.error('Priority status error:', err);
