@@ -4559,6 +4559,8 @@
 
 // export default GateKeeper;/////////////////////////////////////////////FULLY FINAL VERSION BY NIL CODE /////////////////////////////////////////
 
+
+// 🚀 Final GateKeeper.jsx with Plant Priority Logic and No Design Change
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -4583,7 +4585,6 @@ function GateKeeper() {
   const [truckNumbers, setTruckNumbers] = useState([]);
   const [checkedInTrucks, setCheckedInTrucks] = useState([]);
   const [quantityPanels, setQuantityPanels] = useState([]);
-  const [priority1Pending, setPriority1Pending] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -4609,7 +4610,6 @@ function GateKeeper() {
 
   useEffect(() => {
     if (!selectedPlant) return;
-    
     axios.get(`${API_URL}/api/trucks?plantName=${selectedPlant}`)
       .then(res => setTruckNumbers(res.data))
       .catch(err => console.error('Error fetching trucks:', err));
@@ -4640,10 +4640,6 @@ function GateKeeper() {
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
       setQuantityPanels(quantityRes.data);
       setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
-
-      // Check for pending priority 1
-      const hasPendingPriority1 = quantityRes.data.some(q => q.priority === 1 && !q.checkedout);
-      setPriority1Pending(hasPendingPriority1);
     } catch (err) {
       console.error('Error fetching data:', err);
       setFormData(prev => ({ ...prev, remarks: 'No remarks available or error fetching remarks.' }));
@@ -4659,12 +4655,14 @@ function GateKeeper() {
     if (!selectedPlant) return toast.warn('Please select a plant first.');
     if (!truckNo) return toast.warn('🚛 Please select a truck number.');
 
-    if (type === 'Check In' && checkedInTrucks.some(t => getTruckNo(t) === truckNo)) {
-      return toast.error('🚫 This truck is already checked in!');
-    }
+    // 🚫 Priority Restriction Logic
+    if (type === 'Check In') {
+      const pendingPriorityOne = quantityPanels.some(p => Number(p.priority) === 1 && Number(p.checkinstatus) === 0);
+      const currentPlant = quantityPanels.find(p => p.plantname?.toLowerCase() === selectedPlant.toLowerCase());
 
-    if (priority1Pending && type === 'Check In') {
-      return toast.error('🚫 Truck already in transport. Complete Check-Out for priority 1 plant first.');
+      if (pendingPriorityOne && currentPlant && Number(currentPlant.priority) > 1) {
+        return toast.error('🚫 Priority 1 plant not checked-in. Please complete Priority 1 first.');
+      }
     }
 
     try {
@@ -4698,7 +4696,6 @@ function GateKeeper() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 p-6">
       <CancelButton />
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-    
         <div className="space-y-4">
           <select value={selectedPlant} onChange={handlePlantChange} className="w-full border rounded px-4 py-2">
             <option value="">Select Plant</option>
@@ -4706,6 +4703,7 @@ function GateKeeper() {
               <option key={i} value={getPlantName(plant)}>{getPlantName(plant)}</option>
             ))}
           </select>
+
           <div className="bg-blue-100 rounded p-4 h-64 overflow-y-auto">
             <h3 className="font-bold text-blue-700">Truck List</h3>
             {truckNumbers.length === 0 && <p className="text-gray-400 italic">No trucks available</p>}

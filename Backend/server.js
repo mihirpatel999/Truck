@@ -1053,11 +1053,10 @@ app.get("/api/trucks", async (req, res) => {
 //   }
 // });///// workingggg
 
-
-// 🚚 Final Correct Truck Status API (CASE INSENSITIVE, FULL FINAL)
 app.post("/api/update-truck-status", async (req, res) => {
   const { truckNo, plantName, type } = req.body;
   const client = await pool.connect();
+
   try {
     // 1. Get TransactionID
     const transactionResult = await client.query(
@@ -1075,7 +1074,7 @@ app.post("/api/update-truck-status", async (req, res) => {
 
     const transactionId = transactionResult.rows[0].transactionid;
 
-    // 2. Get PlantId (CASE INSENSITIVE)
+    // 2. Get PlantId
     const plantResult = await client.query(
       `SELECT PlantId FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
       [plantName]
@@ -1087,9 +1086,9 @@ app.post("/api/update-truck-status", async (req, res) => {
 
     const plantId = plantResult.rows[0].plantid;
 
-    // 3. Get current status
+    // 3. Get current status of this plant
     const statusResult = await client.query(
-      `SELECT CheckInStatus, CheckOutStatus
+      `SELECT CheckInStatus, CheckOutStatus, Priority
        FROM TruckTransactionDetails
        WHERE PlantId = $1 AND TransactionID = $2`,
       [plantId, transactionId]
@@ -1099,10 +1098,25 @@ app.post("/api/update-truck-status", async (req, res) => {
       return res.status(404).json({ message: "❌ Truck detail not found for this plant" });
     }
 
-    const status = statusResult.rows[0];
+    const { checkinstatus, checkoutstatus, priority } = statusResult.rows[0];
 
-    // 4. Update check-in or check-out
-    if (type === "Check In" && status.checkinstatus === 0) {
+    // 4. Priority 1 Validation: Agar priority 1 plants ka checkout pending hai, to higher priority plants ka kuch bhi allow mat karo
+    if (Number(priority) > 1) {
+      const pendingPriority1 = await client.query(
+        `SELECT 1
+         FROM TruckTransactionDetails
+         WHERE TransactionID = $1 AND Priority = 1 AND CheckOutStatus = 0
+         LIMIT 1`,
+        [transactionId]
+      );
+
+      if (pendingPriority1.rows.length > 0) {
+        return res.status(400).json({ message: "🚫 Truck already in transport. Complete Priority 1 plant first." });
+      }
+    }
+
+    // 5. Normal Check-In/Check-Out Logic
+    if (type === "Check In" && checkinstatus === 0) {
       await client.query(
         `UPDATE TruckTransactionDetails
          SET CheckInStatus = 1, CheckInTime = CURRENT_TIMESTAMP
@@ -1112,10 +1126,10 @@ app.post("/api/update-truck-status", async (req, res) => {
     }
 
     if (type === "Check Out") {
-      if (status.checkinstatus === 0) {
+      if (checkinstatus === 0) {
         return res.status(400).json({ message: "❌ Please Check In first before Check Out" });
       }
-      if (status.checkoutstatus === 0) {
+      if (checkoutstatus === 0) {
         await client.query(
           `UPDATE TruckTransactionDetails
            SET CheckOutStatus = 1, CheckOutTime = CURRENT_TIMESTAMP
@@ -1125,13 +1139,13 @@ app.post("/api/update-truck-status", async (req, res) => {
       }
     }
 
-    // 5. Recheck updated status
+    // 6. Recheck updated status
     const allStatusResult = await client.query(
       `SELECT COUNT(*) AS totalplants,
               SUM(CASE WHEN CheckInStatus = 1 THEN 1 ELSE 0 END) AS checkedin,
               SUM(CASE WHEN CheckOutStatus = 1 THEN 1 ELSE 0 END) AS checkedout
-         FROM TruckTransactionDetails
-         WHERE TransactionID = $1`,
+       FROM TruckTransactionDetails
+       WHERE TransactionID = $1`,
       [transactionId]
     );
 
@@ -1148,8 +1162,9 @@ app.post("/api/update-truck-status", async (req, res) => {
       return res.json({ message: "✅ All plants processed. Truck process completed." });
     }
 
-    // 6. Return success for single action
+    // 7. Return success for single action
     return res.json({ message: `✅ ${type} successful` });
+
   } catch (error) {
     console.error("Status update error:", error);
     res.status(500).json({ error: "Server error" });
@@ -1157,7 +1172,6 @@ app.post("/api/update-truck-status", async (req, res) => {
     client.release();
   }
 });
-
 
 
 

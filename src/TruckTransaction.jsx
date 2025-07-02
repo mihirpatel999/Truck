@@ -2135,7 +2135,6 @@
 //   );
 // }/////////////////////full work prority set baki hai 
 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import CancelButton from './CancelButton';
@@ -2204,6 +2203,15 @@ export default function TruckTransaction() {
     const isDuplicatePriority = tableData.some((row, idx) =>
       row.priority === newRow.priority && idx !== editingIndex
     );
+
+    const isPriorityOneExist = tableData.some((row, idx) =>
+      Number(row.priority) === 1 && idx !== editingIndex
+    );
+
+    if (Number(newRow.priority) === 1 && isPriorityOneExist) {
+      toast.error(`Priority 1 is already assigned. Only one row can have Priority 1.`);
+      return;
+    }
 
     if (isDuplicatePriority) {
       toast.error(`Priority ${newRow.priority} is already assigned.`);
