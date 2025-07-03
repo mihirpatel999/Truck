@@ -569,6 +569,45 @@ app.get('/api/check-priority-status', async (req, res) => {
   }
 });/////////////  working api for priority status check /////////////////////////////////////////////////////////
 
+app.get('/api/finished-plant', async (req, res) => {
+  const { truckNo } = req.query;
+  const client = await pool.connect();
+
+  try {
+    const transRes = await client.query(`
+      SELECT TransactionID 
+      FROM TruckTransactionMaster 
+      WHERE TruckNo = $1 AND Completed = 0 
+      ORDER BY TransactionID DESC LIMIT 1
+    `, [truckNo]);
+
+    if (transRes.rows.length === 0) {
+      return res.json({ lastFinished: null });
+    }
+
+    const transactionId = transRes.rows[0].transactionid;
+
+    const finishedRes = await client.query(`
+      SELECT p.PlantName, d.Priority
+      FROM TruckTransactionDetails d
+      JOIN PlantMaster p ON d.PlantId = p.PlantId
+      WHERE d.TransactionID = $1 AND d.CheckInStatus = 1 AND d.CheckOutStatus = 1
+      ORDER BY d.Priority DESC
+      LIMIT 1
+    `, [transactionId]);
+
+    if (finishedRes.rows.length === 0) {
+      return res.json({ lastFinished: null });
+    }
+
+    res.json({ lastFinished: finishedRes.rows[0].plantname });
+  } catch (error) {
+    console.error('Error in /api/finished-plant:', error);
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    client.release();
+  }
+});
 
 
 /////////////////////////////////////////////////////////////////////////
