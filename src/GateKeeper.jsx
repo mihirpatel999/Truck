@@ -461,6 +461,10 @@
 // export default GateKeeper;//////////// refrech done 
 
 
+// ✅ Final version of GateKeeper.jsx with these updates:
+// 1. Quantity chart bars sorted by priority (left to right)
+// 2. Added "From" and "Next" plant info below truck image
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -485,6 +489,8 @@ function GateKeeper() {
   const [truckNumbers, setTruckNumbers] = useState([]);
   const [checkedInTrucks, setCheckedInTrucks] = useState([]);
   const [quantityPanels, setQuantityPanels] = useState([]);
+  const [fromPlant, setFromPlant] = useState('Unknown');
+  const [nextPlant, setNextPlant] = useState('');
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -538,10 +544,19 @@ function GateKeeper() {
         params: { plantName: selectedPlant, truckNo }
       });
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
-      setQuantityPanels(quantityRes.data);
+      const sortedByPriority = [...quantityRes.data].sort((a, b) => a.priority - b.priority);
+      setQuantityPanels(sortedByPriority);
       setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
+      // set from/next
+      const pendingRes = await axios.get(`${API_URL}/api/check-priority-status`, {
+        params: { truckNo, plantName: selectedPlant }
+      });
+      setNextPlant(pendingRes.data.nextPlant || '');
+      const currentIndex = sortedByPriority.findIndex(p => p.plantname?.toLowerCase() === selectedPlant.toLowerCase());
+      const from = sortedByPriority.slice(0, currentIndex).filter(p => p.checkinstatus && p.checkoutstatus).pop();
+      setFromPlant(from?.plantname || 'Unknown');
     } catch (err) {
-      console.error('Error fetching data:', err);
+      console.error('Error fetching truck data:', err);
       setFormData(prev => ({ ...prev, remarks: 'No remarks available or error fetching remarks.' }));
     }
   };
@@ -551,10 +566,8 @@ function GateKeeper() {
   const handleSubmit = async (type) => {
     const { truckNo, dispatchDate, invoiceNo } = formData;
     const role = localStorage.getItem('role');
-
     if (!selectedPlant) return toast.warn('Please select a plant first.');
     if (!truckNo) return toast.warn('🚛 Please select a truck number.');
-
     try {
       const priorityRes = await axios.get(`${API_URL}/api/check-priority-status`, {
         params: { truckNo, plantName: selectedPlant }
@@ -568,11 +581,9 @@ function GateKeeper() {
       toast.error('❌ Error checking priority status');
       return;
     }
-
     if (type === 'Check In' && checkedInTrucks.some(t => getTruckNo(t) === truckNo)) {
       return toast.error('🚫 This truck is already checked in!');
     }
-
     try {
       const response = await axios.post(`${API_URL}/api/update-truck-status`, {
         truckNo,
@@ -582,7 +593,6 @@ function GateKeeper() {
         invoiceNo,
         quantity: quantityPanels.reduce((acc, p) => acc + (p.quantity || 0), 0),
       });
-
       if (response.data.message?.includes('✅')) {
         setTruckNumbers(prev => prev.filter(t => getTruckNo(t) !== truckNo));
         if (type === 'Check Out') {
@@ -590,7 +600,6 @@ function GateKeeper() {
         } else {
           setCheckedInTrucks(prev => [...prev, { TruckNo: truckNo }]);
         }
-
         toast.success(response.data.message);
         setFormData(prev => ({ ...prev, truckNo: '' }));
         setQuantityPanels([]);
@@ -604,8 +613,6 @@ function GateKeeper() {
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0), 0);
-
-  const sortedPanels = [...quantityPanels].sort((a, b) => a.priority - b.priority);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 p-6">
@@ -636,14 +643,14 @@ function GateKeeper() {
         <div className="space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
             <div className="absolute bottom-[51px] left-[50px] h-[75px] w-[calc(100%-170px)] max-w-[370px] flex items-end gap-[2px] z-10">
-              {sortedPanels.map((panel, index) => {
+              {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
                 const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500'];
                 return (
                   <div
                     key={index}
                     className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md transition-transform transform hover:scale-105 hover:shadow-lg cursor-pointer`}
-                    style={{ height: `${height}%`, width: `${100 / sortedPanels.length}%` }}
+                    style={{ height: `${height}%`, width: `${100 / quantityPanels.length}%` }}
                     title={`${panel.plantname}: ${panel.quantity}`}
                   >
                     <div className="flex items-center gap-[2px]">
@@ -663,19 +670,10 @@ function GateKeeper() {
             />
           </div>
 
-          {/* 🚀 Source and Destination Panel */}
-          <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-            <div className="bg-slate-100 p-2 rounded shadow text-center">
-              <strong>From:</strong> {sortedPanels.find(p => p.priority === 1)?.plantname || 'Unknown'}
-            </div>
-            <div className="bg-slate-100 p-2 rounded shadow text-center">
-              <strong>Next:</strong> {
-                (() => {
-                  const nextPlant = sortedPanels.find(p => p.plantname !== selectedPlant);
-                  return nextPlant ? nextPlant.plantname : 'All plants visited ✅';
-                })()
-              }
-            </div>
+          {/* 👇 NEW: Source and Destination */}
+          <div className="flex gap-4 justify-between text-sm font-semibold">
+            <div className="bg-gray-100 px-4 py-2 rounded w-1/2">From: {fromPlant}</div>
+            <div className="bg-gray-100 px-4 py-2 rounded w-1/2 text-right">Next: {nextPlant}</div>
           </div>
 
           <input name="truckNo" value={formData.truckNo} onChange={handleChange} placeholder="Truck No" className="w-full border px-4 py-2 rounded" />

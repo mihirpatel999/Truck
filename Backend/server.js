@@ -567,7 +567,7 @@ app.get('/api/check-priority-status', async (req, res) => {
   } finally {
     client.release();
   }
-});
+});/////////////  working api for priority status check /////////////////////////////////////////////////////////
 
 
 
@@ -800,6 +800,59 @@ app.get('/api/fetch-remarks', async (req, res) => {
 
 
 // ✅ Truck quantity per plant chart API
+// app.get('/api/truck-plant-quantities', async (req, res) => {
+//   const { truckNo } = req.query;
+
+//   try {
+//     const result = await pool.query(`
+//       SELECT 
+//         p.PlantName,
+//         SUM(ttd.Qty) AS quantity
+//       FROM TruckTransactionDetails ttd
+//       JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
+//       JOIN PlantMaster p ON ttd.PlantID = p.PlantID
+//       WHERE LOWER(ttm.TruckNo) = LOWER($1)
+//         AND ttm.Completed = 0
+//       GROUP BY p.PlantName
+//       ORDER BY p.PlantName
+//     `, [truckNo]);
+
+//     res.json(result.rows);
+//   } catch (error) {
+//     console.error('Error fetching truck quantities:', error);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+
+// app.post('/api/users', async (req, res) => {
+//   const { username, password, contactNumber, moduleRights, allowedPlants } = req.body;
+
+//   if (!username || !password || !contactNumber) {
+//     return res.status(400).json({ message: 'Username, password, and contact number are required.' });
+//   }
+
+//   try {
+//     const roleString = moduleRights.join(',');
+//     const plantsString = allowedPlants.join(',');
+
+//     console.log('👉 Incoming Data:', {
+//       username, password, contactNumber, roleString, plantsString
+//     });
+
+//     await pool.query(
+//       `INSERT INTO Users (Username, Password, ContactNumber, Role, AllowedPlants)
+//        VALUES ($1, $2, $3, $4, $5)`,
+//       [username, password, contactNumber, roleString, plantsString]
+//     );
+
+//     res.status(201).json({ message: 'User created successfully.' });
+//   } catch (err) {
+//     console.error('❌ Error creating user:', err); // ← important fix
+//     res.status(500).json({ message: 'Error creating user.' });
+//   }
+// });//////////////////workingggg
+
 app.get('/api/truck-plant-quantities', async (req, res) => {
   const { truckNo } = req.query;
 
@@ -807,14 +860,15 @@ app.get('/api/truck-plant-quantities', async (req, res) => {
     const result = await pool.query(`
       SELECT 
         p.PlantName,
-        SUM(ttd.Qty) AS quantity
+        SUM(ttd.Qty) AS quantity,
+        MIN(ttd.Priority) AS priority
       FROM TruckTransactionDetails ttd
       JOIN TruckTransactionMaster ttm ON ttd.TransactionID = ttm.TransactionID
       JOIN PlantMaster p ON ttd.PlantID = p.PlantID
       WHERE LOWER(ttm.TruckNo) = LOWER($1)
         AND ttm.Completed = 0
       GROUP BY p.PlantName
-      ORDER BY p.PlantName
+      ORDER BY priority
     `, [truckNo]);
 
     res.json(result.rows);
@@ -824,34 +878,6 @@ app.get('/api/truck-plant-quantities', async (req, res) => {
   }
 });
 
-
-app.post('/api/users', async (req, res) => {
-  const { username, password, contactNumber, moduleRights, allowedPlants } = req.body;
-
-  if (!username || !password || !contactNumber) {
-    return res.status(400).json({ message: 'Username, password, and contact number are required.' });
-  }
-
-  try {
-    const roleString = moduleRights.join(',');
-    const plantsString = allowedPlants.join(',');
-
-    console.log('👉 Incoming Data:', {
-      username, password, contactNumber, roleString, plantsString
-    });
-
-    await pool.query(
-      `INSERT INTO Users (Username, Password, ContactNumber, Role, AllowedPlants)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [username, password, contactNumber, roleString, plantsString]
-    );
-
-    res.status(201).json({ message: 'User created successfully.' });
-  } catch (err) {
-    console.error('❌ Error creating user:', err); // ← important fix
-    res.status(500).json({ message: 'Error creating user.' });
-  }
-});
 
 
 ////////////////////////////////////////
