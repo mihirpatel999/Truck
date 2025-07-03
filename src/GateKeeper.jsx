@@ -1001,17 +1001,17 @@ function GateKeeper() {
     axios.get(`${API_URL}/api/plants`, {
       headers: { userid: userId, role }
     })
-      .then(res => {
-        const filtered = res.data.filter(plant => {
-          const pid = String(plant.PlantID || plant.PlantId || plant.plantid || '');
-          return allowedPlants.includes(pid) || role?.toLowerCase() === 'admin';
-        });
-        setPlantList(filtered);
-      })
-      .catch(err => {
-        console.error('❌ Error fetching plants:', err);
-        toast.error('Failed to fetch plant list');
+    .then(res => {
+      const filtered = res.data.filter(plant => {
+        const pid = String(plant.PlantID || plant.PlantId || plant.plantid || '');
+        return allowedPlants.includes(pid) || role?.toLowerCase() === 'admin';
       });
+      setPlantList(filtered);
+    })
+    .catch(err => {
+      console.error('❌ Error fetching plants:', err);
+      toast.error('Failed to fetch plant list');
+    });
   }, []);
 
   useEffect(() => {
@@ -1052,11 +1052,10 @@ function GateKeeper() {
         params: { plantName: selectedPlant, truckNo }
       });
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
-     const sorted = [...quantityRes.data].sort((a, b) => a.priority - b.priority);
-const reversed = sorted.reverse(); // 🔁 reverse so that priority 1 is near the cabin
-setQuantityPanels(reversed);
-
+      let sorted = [...quantityRes.data].sort((a, b) => a.priority - b.priority);
+      sorted = sorted.reverse();
       setQuantityPanels(sorted);
+
       setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
 
       const currentIndex = sorted.findIndex(p => p.plantname === selectedPlant);
@@ -1126,17 +1125,6 @@ setQuantityPanels(reversed);
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0), 0);
-  
-const selectedIndex = sorted.findIndex(p => p.plantname === selectedPlant);
-const rotated = [...sorted];
-if (selectedIndex >= 0) {
-  const first = rotated.splice(selectedIndex, 1);
-  rotated.unshift(...first);
-}
-rotated.reverse(); // <-- This makes chart show priority 1 near the truck cabin
-setQuantityPanels(rotated);
-
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 p-6">
       <CancelButton />
