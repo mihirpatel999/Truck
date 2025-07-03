@@ -964,7 +964,6 @@
 
 ////////////////////////////////
 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -1001,17 +1000,17 @@ function GateKeeper() {
     axios.get(`${API_URL}/api/plants`, {
       headers: { userid: userId, role }
     })
-    .then(res => {
-      const filtered = res.data.filter(plant => {
-        const pid = String(plant.PlantID || plant.PlantId || plant.plantid || '');
-        return allowedPlants.includes(pid) || role?.toLowerCase() === 'admin';
+      .then(res => {
+        const filtered = res.data.filter(plant => {
+          const pid = String(plant.PlantID || plant.PlantId || plant.plantid || '');
+          return allowedPlants.includes(pid) || role?.toLowerCase() === 'admin';
+        });
+        setPlantList(filtered);
+      })
+      .catch(err => {
+        console.error('❌ Error fetching plants:', err);
+        toast.error('Failed to fetch plant list');
       });
-      setPlantList(filtered);
-    })
-    .catch(err => {
-      console.error('❌ Error fetching plants:', err);
-      toast.error('Failed to fetch plant list');
-    });
   }, []);
 
   useEffect(() => {
@@ -1052,10 +1051,21 @@ function GateKeeper() {
         params: { plantName: selectedPlant, truckNo }
       });
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
+      
+      // Sort by priority ascending
       let sorted = [...quantityRes.data].sort((a, b) => a.priority - b.priority);
-      sorted = sorted.reverse();
-      setQuantityPanels(sorted);
 
+      // Rotate so selectedPlant comes first
+      const selectedIndex = sorted.findIndex(p => p.plantname === selectedPlant);
+      if (selectedIndex >= 0) {
+        const first = sorted.splice(selectedIndex, 1);
+        sorted.unshift(...first);
+      }
+
+      // Reverse so priority 1 near cabin
+      sorted = sorted.reverse();
+
+      setQuantityPanels(sorted);
       setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
 
       const currentIndex = sorted.findIndex(p => p.plantname === selectedPlant);
@@ -1125,6 +1135,7 @@ function GateKeeper() {
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0), 0);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 p-6">
       <CancelButton />
@@ -1156,15 +1167,14 @@ function GateKeeper() {
         <div className="space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
             <div className="absolute bottom-[51px] left-[50px] h-[75px] w-[calc(100%-170px)] max-w-[370px] flex items-end gap-[2px] z-10">
-              {rotatedPanels.map((panel, index) => {
+              {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
                 const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500'];
                 return (
                   <div
                     key={index}
                     className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md transition-transform transform hover:scale-105 hover:shadow-lg cursor-pointer`}
-                   style={{ height: `${height}%`, width: `${100 / rotatedPanels.length}%` }}
-
+                   style={{ height: `${height}%`, width: `${100 / quantityPanels.length}%` }}
                     title={`${panel.plantname}: ${panel.quantity}`}
                   >
                     <div className="flex items-center gap-[2px]">
@@ -1214,4 +1224,3 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
-
