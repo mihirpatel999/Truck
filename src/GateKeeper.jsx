@@ -1016,6 +1016,17 @@ function GateKeeper() {
 
   useEffect(() => {
     if (!selectedPlant) return;
+
+    setFormData(prev => ({
+      ...prev,
+      truckNo: '',
+      dispatchDate: new Date().toISOString().split('T')[0],
+      invoiceNo: '',
+      remarks: 'This is a system-generated remark.'
+    }));
+    setCheckedInTrucks([]);
+    setQuantityPanels([]);
+
     axios.get(`${API_URL}/api/trucks?plantName=${selectedPlant}`)
       .then(res => setTruckNumbers(res.data))
       .catch(err => console.error('Error fetching trucks:', err));
@@ -1025,23 +1036,13 @@ function GateKeeper() {
       .catch(err => console.error('Error fetching checked-in trucks:', err));
   }, [selectedPlant]);
 
-  const getTruckNo = truck => truck.TruckNo || '';
+  const getTruckNo = truck => truck.TruckNo || truck.truckno || truck.truck_no || '';
+  const getPlantName = plant => typeof plant === 'string' ? plant : (plant.PlantName || plant.plantname || 'Unknown');
 
-  const getPlantName = plant =>
-    typeof plant === 'string' ? plant : (plant.PlantName || plant.plantname || 'Unknown');
-
-  const handleChange = (e) =>
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handlePlantChange = (e) => {
     setSelectedPlant(e.target.value);
-    setCheckedInTrucks([]);
-    setQuantityPanels([]);
-    setFormData(prev => ({
-      ...prev,
-      truckNo: '',
-      dispatchDate: new Date().toISOString().split('T')[0]
-    }));
   };
 
   const handleTruckSelect = async (truckNo) => {
@@ -1053,20 +1054,14 @@ function GateKeeper() {
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
       const sorted = [...quantityRes.data].sort((a, b) => a.priority - b.priority);
       setQuantityPanels(sorted);
-      setFormData(prev => ({
-        ...prev,
-        remarks: remarksRes.data.remarks || 'No remarks available.'
-      }));
+      setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
 
       const currentIndex = sorted.findIndex(p => p.plantname === selectedPlant);
       setFromPlant(currentIndex > 0 ? sorted[currentIndex - 1]?.plantname : '—');
       setNextPlant(currentIndex >= 0 && currentIndex < sorted.length - 1 ? sorted[currentIndex + 1]?.plantname : '—');
     } catch (err) {
       console.error('Error fetching data:', err);
-      setFormData(prev => ({
-        ...prev,
-        remarks: 'No remarks available or error fetching remarks.'
-      }));
+      setFormData(prev => ({ ...prev, remarks: 'No remarks available or error fetching remarks.' }));
     }
   };
 
@@ -1210,7 +1205,6 @@ function GateKeeper() {
             ))}
           </ul>
         </div>
-
       </div>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
     </div>
@@ -1218,3 +1212,4 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
+
