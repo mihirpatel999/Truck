@@ -59,38 +59,38 @@ app.post('/api/login', async (req, res) => {
 
 
 /////////////////////////////////////////////////////////////////////////////////plant master api///////////////////////////////////////////////////////////////////////////////////////////////////////
-app.get('/api/plants', async (req, res) => {
-  const userId = req.headers['userid'];
-  const role = req.headers['role'] || 'admin';
+// app.get('/api/plants', async (req, res) => {
+//   const userId = req.headers['userid'];
+//   const role = req.headers['role'] || 'admin';
 
-  try {
-    if (role.toLowerCase() === 'admin') {
-      const result = await pool.query('SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0');
-      return res.json(result.rows);
-    }
+//   try {
+//     if (role.toLowerCase() === 'admin') {
+//       const result = await pool.query('SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0');
+//       return res.json(result.rows);
+//     }
 
-    const userResult = await pool.query('SELECT allowedplants FROM users WHERE userid = $1', [userId]);
-    if (userResult.rowCount === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+//     const userResult = await pool.query('SELECT allowedplants FROM users WHERE userid = $1', [userId]);
+//     if (userResult.rowCount === 0) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
 
-    const allowedPlants = userResult.rows[0].allowedplants;
-    if (!allowedPlants || allowedPlants.trim() === '') {
-      return res.json([]);
-    }
+//     const allowedPlants = userResult.rows[0].allowedplants;
+//     if (!allowedPlants || allowedPlants.trim() === '') {
+//       return res.json([]);
+//     }
 
-    const plantIdArray = allowedPlants.split(',').map(id => parseInt(id.trim())).filter(Boolean);
-    const placeholders = plantIdArray.map((_, i) => `$${i + 1}`).join(',');
-    const plantQuery = `SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0 AND plantid IN (${placeholders})`;
+//     const plantIdArray = allowedPlants.split(',').map(id => parseInt(id.trim())).filter(Boolean);
+//     const placeholders = plantIdArray.map((_, i) => `$${i + 1}`).join(',');
+//     const plantQuery = `SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0 AND plantid IN (${placeholders})`;
 
-    const plantResult = await pool.query(plantQuery, plantIdArray);
-    res.json(plantResult.rows);
+//     const plantResult = await pool.query(plantQuery, plantIdArray);
+//     res.json(plantResult.rows);
 
-  } catch (error) {
-    console.error('Error fetching plants:', error);
-    res.status(500).json({ error: 'Error fetching plants' });
-  }
-});
+//   } catch (error) {
+//     console.error('Error fetching plants:', error);
+//     res.status(500).json({ error: 'Error fetching plants' });
+//   }
+// });
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
