@@ -25,39 +25,12 @@ app.use(bodyParser.json());
 
 
 /////////////////////////////////////////////////////log in api///////////////////////////////////////////////////////////////////////////////////////
-// app.post('/api/login', async (req, res) => {
-//   const { username, password } = req.body;
-
-//   try {
-//     const result = await pool.query(
-//       'SELECT Username, Role, AllowedPlants FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2',
-//       [username, password]
-//     );
-
-//     if (result.rows.length > 0) {
-//       const user = result.rows[0];
-//       res.json({
-//         success: true,
-//         message: "Login successful",
-//         role: user.role,
-//         username: user.username,
-//         allowedPlants: user.allowedplants
-//       });
-//     } else {
-//       res.status(401).json({ success: false, message: "Invalid credentials" });
-//     }
-//   } catch (err) {
-//     console.error("SQL error:", err);
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// });////////////////done login api working fine
-
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
     const result = await pool.query(
-      'SELECT UserId, Username, Role, AllowedPlants FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2',
+      'SELECT Username, Role, AllowedPlants FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2',
       [username, password]
     );
 
@@ -68,8 +41,7 @@ app.post('/api/login', async (req, res) => {
         message: "Login successful",
         role: user.role,
         username: user.username,
-        allowedPlants: user.allowedplants,
-        userid: user.userid    // Ye zaruri hai
+        allowedPlants: user.allowedplants
       });
     } else {
       res.status(401).json({ success: false, message: "Invalid credentials" });
@@ -78,7 +50,7 @@ app.post('/api/login', async (req, res) => {
     console.error("SQL error:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
-});
+});////////////////done login api working fine
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,81 +60,29 @@ app.post('/api/login', async (req, res) => {
 
 
 /////////////////////////////////////////////////////////////////////////////////plant master api///////////////////////////////////////////////////////////////////////////////////////////////////////
-//  app.get('/api/plants', async (req, res) => {
-//   const userId = req.headers['userid'];
-//   const role = req.headers['role'] || 'admin';
-
-//   try {
-//     if (role.toLowerCase() === 'admin') {
-//       const result = await pool.query('SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0');
-//       return res.json(result.rows);
-//     }
-
-//     const userResult = await pool.query('SELECT allowedplants FROM users WHERE userid = $1', [userId]);
-//     if (userResult.rowCount === 0) {
-//       return res.status(404).json({ error: 'User not found' });
-//     }
-
-//     const allowedPlants = userResult.rows[0].allowedplants;
-//     if (!allowedPlants || allowedPlants.trim() === '') {
-//       return res.json([]);
-//     }
-
-//     const plantIdArray = allowedPlants.split(',').map(id => parseInt(id.trim())).filter(Boolean);
-//     const placeholders = plantIdArray.map((_, i) => `$${i + 1}`).join(',');
-//     const plantQuery = `SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0 AND plantid IN (${placeholders})`;
-
-//     const plantResult = await pool.query(plantQuery, plantIdArray);
-//     res.json(plantResult.rows);
-
-//   } catch (error) {
-//     console.error('Error fetching plants:', error);
-//     res.status(500).json({ error: 'Error fetching plants' });
-//   }
-// });////////////////////////////////final working code 
-
-
-
-app.get('/api/plants', async (req, res) => {
+ app.get('/api/plants', async (req, res) => {
   const userId = req.headers['userid'];
   const role = req.headers['role'] || 'admin';
 
   try {
-    if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
-    }
-
     if (role.toLowerCase() === 'admin') {
-      const result = await pool.query('SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0 ORDER BY plantname');
+      const result = await pool.query('SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0');
       return res.json(result.rows);
     }
 
     const userResult = await pool.query('SELECT allowedplants FROM users WHERE userid = $1', [userId]);
-
     if (userResult.rowCount === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
 
     const allowedPlants = userResult.rows[0].allowedplants;
-
     if (!allowedPlants || allowedPlants.trim() === '') {
       return res.json([]);
     }
 
     const plantIdArray = allowedPlants.split(',').map(id => parseInt(id.trim())).filter(Boolean);
-
-    if (plantIdArray.length === 0) {
-      return res.json([]);
-    }
-
     const placeholders = plantIdArray.map((_, i) => `$${i + 1}`).join(',');
-
-    const plantQuery = `
-      SELECT plantid, plantname 
-      FROM plantmaster 
-      WHERE isdeleted = 0 AND plantid IN (${placeholders}) 
-      ORDER BY plantname
-    `;
+    const plantQuery = `SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0 AND plantid IN (${placeholders})`;
 
     const plantResult = await pool.query(plantQuery, plantIdArray);
     res.json(plantResult.rows);
@@ -171,7 +91,9 @@ app.get('/api/plants', async (req, res) => {
     console.error('Error fetching plants:', error);
     res.status(500).json({ error: 'Error fetching plants' });
   }
-});
+});////////////////////////////////final working code 
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -934,10 +856,10 @@ app.post('/api/users', async (req, res) => {
 ////////////////////////////////////////
 
 // // // GET all plants
-// app.get('/api/plants', async (req, res) => {
-//   const result = await pool.query('SELECT * FROM plant_master ORDER BY plantname');
-//   res.json(result.rows);
-// });//////////////////////////////plant fetch all kar raha hai ye niche edit hoga
+app.get('/api/plants', async (req, res) => {
+  const result = await pool.query('SELECT * FROM plant_master ORDER BY plantname');
+  res.json(result.rows);
+});//////////////////////////////plant fetch all kar raha hai ye niche edit hoga
 
 
 /////////////////////////////////////////////////

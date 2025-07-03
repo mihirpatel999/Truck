@@ -1561,7 +1561,7 @@
 //       </div>
 //     </div>
 //   );
-// }//////////////////////////////////sssssssss
+// }
 
 
 
@@ -1585,16 +1585,19 @@ export default function TruckSchedule() {
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     const role = localStorage.getItem('role') || 'admin';
+    const allowedPlantsRaw = localStorage.getItem('allowedPlants') || '';
+    const allowedPlants = allowedPlantsRaw.split(',').map(p => p.trim()).filter(Boolean);
 
     axios.get(`${API_URL}/api/plants`, {
-      headers: {
-        userid: userId,
-        role: role
-      }
+      headers: { userid: userId, role }
     })
       .then(res => {
-        setPlantList(res.data);
-        setSelectedPlants(res.data.map(p => p.plantid.toString()));
+        const filtered = res.data.filter(plant => {
+          const pid = String(plant.PlantID || plant.PlantId || plant.plantid || '');
+          return allowedPlants.includes(pid) || role.toLowerCase() === 'admin';
+        });
+        setPlantList(filtered);
+        setSelectedPlants(filtered.map(p => String(p.plantid)));
       })
       .catch(() => setError('Failed to load plants'));
   }, []);
@@ -1605,7 +1608,7 @@ export default function TruckSchedule() {
     );
 
   const selectAll = () =>
-    setSelectedPlants(plantList.map(p => p.plantid.toString()));
+    setSelectedPlants(plantList.map(p => String(p.plantid)));
 
   const deselectAll = () => setSelectedPlants([]);
 
@@ -1671,7 +1674,9 @@ export default function TruckSchedule() {
             <button
               key={btn}
               onClick={() => fetchData(btn, truckSearch)}
-              className={`px-3 py-1 rounded font-semibold text-xs ${status === btn ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-700'}`}
+              className={`px-3 py-1 rounded font-semibold text-xs ${
+                status === btn ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-700'
+              }`}
             >
               {btn}
             </button>
@@ -1714,8 +1719,8 @@ export default function TruckSchedule() {
             <label key={p.plantid} className="flex items-center gap-1 text-sm">
               <input
                 type="checkbox"
-                checked={selectedPlants.includes(p.plantid.toString())}
-                onChange={() => togglePlant(p.plantid.toString())}
+                checked={selectedPlants.includes(String(p.plantid))}
+                onChange={() => togglePlant(String(p.plantid))}
               />
               {p.plantname}
             </label>
