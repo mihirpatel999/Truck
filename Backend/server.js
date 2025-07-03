@@ -30,7 +30,8 @@ app.post('/api/login', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'SELECT Username, Role, AllowedPlants FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2',
+      // 'SELECT Username, Role, AllowedPlants FROM Users WHERE LOWER(Username) = LOWER($1) AND Password = $2',
+      'SELECT "username", "role", "allowedplants" FROM "users" WHERE LOWER("username") = LOWER($1) AND "password" = $2 AND ("isdelete" = 0 OR "isdelete" IS NULL)',
       [username, password]
     );
 
