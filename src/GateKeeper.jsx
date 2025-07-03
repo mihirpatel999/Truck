@@ -460,6 +460,9 @@
 
 // export default GateKeeper;//////////// refrech done 
 
+
+
+// GateKeeper.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -484,7 +487,7 @@ function GateKeeper() {
   const [truckNumbers, setTruckNumbers] = useState([]);
   const [checkedInTrucks, setCheckedInTrucks] = useState([]);
   const [quantityPanels, setQuantityPanels] = useState([]);
-  const [sourcePlant, setSourcePlant] = useState('');
+  const [plantFlow, setPlantFlow] = useState({});
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -492,20 +495,18 @@ function GateKeeper() {
     const allowedPlantsRaw = localStorage.getItem('allowedPlants') || '';
     const allowedPlants = allowedPlantsRaw.split(',').map(p => p.trim()).filter(Boolean);
 
-    axios.get(`${API_URL}/api/plants`, {
-      headers: { userid: userId, role }
-    })
-    .then(res => {
-      const filtered = res.data.filter(plant => {
-        const pid = String(plant.PlantID || plant.PlantId || plant.plantid || '');
-        return allowedPlants.includes(pid) || role?.toLowerCase() === 'admin';
+    axios.get(`${API_URL}/api/plants`, { headers: { userid: userId, role } })
+      .then(res => {
+        const filtered = res.data.filter(plant => {
+          const pid = String(plant.PlantID || plant.PlantId || plant.plantid || '');
+          return allowedPlants.includes(pid) || role?.toLowerCase() === 'admin';
+        });
+        setPlantList(filtered);
+      })
+      .catch(err => {
+        console.error('❌ Error fetching plants:', err);
+        toast.error('Failed to fetch plant list');
       });
-      setPlantList(filtered);
-    })
-    .catch(err => {
-      console.error('❌ Error fetching plants:', err);
-      toast.error('Failed to fetch plant list');
-    });
   }, []);
 
   useEffect(() => {
@@ -529,7 +530,6 @@ function GateKeeper() {
     setCheckedInTrucks([]);
     setQuantityPanels([]);
     setFormData(prev => ({ ...prev, truckNo: '', dispatchDate: new Date().toISOString().split('T')[0] }));
-    setSourcePlant('');
   };
 
   const handleTruckSelect = async (truckNo) => {
@@ -539,20 +539,19 @@ function GateKeeper() {
       const remarksRes = await axios.get(`${API_URL}/api/fetch-remarks`, {
         params: { plantName: selectedPlant, truckNo }
       });
-
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
-      const sourceRes = await axios.get(`${API_URL}/api/get-truck-origin`, {
-        params: { truckNo }
-      });
-
       setQuantityPanels(quantityRes.data);
-      setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
-      setSourcePlant(sourceRes.data?.sourcePlant || 'Unknown');
 
+      const sorted = [...quantityRes.data].sort((a, b) => a.priority - b.priority);
+      const fromPlant = sorted.find(p => p.priority === 1)?.plantname || 'Unknown';
+      const toPlant = sorted.find(p => p.priority > 1)?.plantname || '—';
+
+      setPlantFlow(prev => ({ ...prev, [truckNo]: { from: fromPlant, to: toPlant } }));
+
+      setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
     } catch (err) {
       console.error('Error fetching data:', err);
       setFormData(prev => ({ ...prev, remarks: 'No remarks available or error fetching remarks.' }));
-      setSourcePlant('Unknown');
     }
   };
 
@@ -561,7 +560,6 @@ function GateKeeper() {
   const handleSubmit = async (type) => {
     const { truckNo, dispatchDate, invoiceNo } = formData;
     const role = localStorage.getItem('role');
-
     if (!selectedPlant) return toast.warn('Please select a plant first.');
     if (!truckNo) return toast.warn('🚛 Please select a truck number.');
 
@@ -569,9 +567,7 @@ function GateKeeper() {
       const priorityRes = await axios.get(`${API_URL}/api/check-priority-status`, {
         params: { truckNo, plantName: selectedPlant }
       });
-
       const { hasPending, canProceed, nextPriority, nextPlant } = priorityRes.data;
-
       if (hasPending && !canProceed) {
         return toast.error(`🚫 Priority ${nextPriority} at ${nextPlant} must be completed first.`);
       }
@@ -597,12 +593,14 @@ function GateKeeper() {
 
       if (response.data.message?.includes('✅')) {
         setTruckNumbers(prev => prev.filter(t => getTruckNo(t) !== truckNo));
-        if (type === 'Check In') setCheckedInTrucks(prev => [...prev, { TruckNo: truckNo }]);
-        else setCheckedInTrucks(prev => prev.filter(t => getTruckNo(t) !== truckNo));
+        if (type === 'Check Out') {
+          setCheckedInTrucks(prev => prev.filter(t => getTruckNo(t) !== truckNo));
+        } else {
+          setCheckedInTrucks(prev => [...prev, { TruckNo: truckNo }]);
+        }
         toast.success(response.data.message);
         setFormData(prev => ({ ...prev, truckNo: '' }));
         setQuantityPanels([]);
-        setSourcePlant('');
       } else {
         toast.error(response.data.message || 'Failed to update status');
       }
@@ -618,6 +616,7 @@ function GateKeeper() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 p-6">
       <CancelButton />
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Left Panel */}
         <div className="space-y-4">
           <select value={selectedPlant} onChange={handlePlantChange} className="w-full border rounded px-4 py-2">
             <option value="">Select Plant</option>
@@ -629,18 +628,23 @@ function GateKeeper() {
             <h3 className="font-bold text-blue-700">Truck List</h3>
             {truckNumbers.length === 0 && <p className="text-gray-400 italic">No trucks available</p>}
             <ul>
-              {truckNumbers.map((t, i) => (
-                <li key={i} onClick={() => handleTruckSelect(getTruckNo(t))} className="cursor-pointer hover:text-blue-600">
-                  🚛 {getTruckNo(t)}
-                </li>
-              ))}
+              {truckNumbers.map((t, i) => {
+                const truckNo = getTruckNo(t);
+                const from = plantFlow[truckNo]?.from;
+                return (
+                  <li key={i} onClick={() => handleTruckSelect(truckNo)} className="cursor-pointer hover:text-blue-600">
+                    🚛 {truckNo} {from && <span className="text-sm text-gray-500 ml-1">(From: {from})</span>}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
 
+        {/* Center Panel */}
         <div className="space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
-            <div className="absolute bottom-[51px] left-[50px] h-[75px] w-[80px] flex items-end gap-[2px] z-10" style={{ width: 'calc(100% - 170px)', maxWidth: '370px' }}>
+            <div className="absolute bottom-[51px] left-[50px] h-[75px] w-[calc(100%-170px)] max-w-[370px] flex items-end gap-[2px] z-10">
               {quantityPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
                 const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500'];
@@ -660,7 +664,12 @@ function GateKeeper() {
                 );
               })}
             </div>
-            <img src={truckImage} alt="Truck" className="absolute bottom-0 left-0 w-full h-auto object-contain z-0" style={{ height: '65%' }} />
+            <img
+              src={truckImage}
+              alt="Truck"
+              className="absolute bottom-0 left-0 w-full h-auto object-contain z-0"
+              style={{ height: '65%' }}
+            />
           </div>
 
           <input name="truckNo" value={formData.truckNo} onChange={handleChange} placeholder="Truck No" className="w-full border px-4 py-2 rounded" />
@@ -671,35 +680,22 @@ function GateKeeper() {
             <button onClick={() => handleSubmit('Check In')} className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Check In</button>
             <button onClick={() => handleSubmit('Check Out')} className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">Check Out</button>
           </div>
-
-          {/* ✅ Plant Info Table */}
-          {formData.truckNo && (
-            <div className="mt-2 border border-gray-300 rounded text-sm">
-              <table className="w-full">
-                <tbody>
-                  <tr>
-                    <td className="font-semibold px-2 py-1 border-r border-gray-200">Coming From</td>
-                    <td className="px-2 py-1 text-blue-700">{sourcePlant}</td>
-                  </tr>
-                  <tr>
-                    <td className="font-semibold px-2 py-1 border-r border-gray-200">Going To</td>
-                    <td className="px-2 py-1 text-green-700">{selectedPlant}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
 
+        {/* Right Panel */}
         <div className="bg-green-100 rounded p-4 h-full overflow-y-auto">
           <h3 className="font-bold text-green-700 mb-2">Checked In Trucks</h3>
           {checkedInTrucks.length === 0 && <p className="text-gray-400 italic">No checked-in trucks</p>}
           <ul>
-            {checkedInTrucks.map((t, i) => (
-              <li key={i} onClick={() => handleCheckedInClick(getTruckNo(t))} className="cursor-pointer hover:text-green-600">
-                ✓ {getTruckNo(t)}
-              </li>
-            ))}
+            {checkedInTrucks.map((t, i) => {
+              const truckNo = getTruckNo(t);
+              const to = plantFlow[truckNo]?.to;
+              return (
+                <li key={i} onClick={() => handleCheckedInClick(truckNo)} className="cursor-pointer hover:text-green-600">
+                  ✓ {truckNo} {to && <span className="text-sm text-gray-500 ml-1">(To: {to})</span>}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
