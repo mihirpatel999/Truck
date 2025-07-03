@@ -460,8 +460,6 @@
 
 // export default GateKeeper;//////////// refrech done 
 
-
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
@@ -486,10 +484,7 @@ function GateKeeper() {
   const [truckNumbers, setTruckNumbers] = useState([]);
   const [checkedInTrucks, setCheckedInTrucks] = useState([]);
   const [quantityPanels, setQuantityPanels] = useState([]);
-
-  // NEW: Mapping truck number to source/destination plant names
-  const [truckSources, setTruckSources] = useState({});
-  const [truckDestinations, setTruckDestinations] = useState({});
+  const [sourcePlant, setSourcePlant] = useState('');
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -516,16 +511,12 @@ function GateKeeper() {
   useEffect(() => {
     if (!selectedPlant) return;
     axios.get(`${API_URL}/api/trucks?plantName=${selectedPlant}`)
-      .then(res => {
-        setTruckNumbers(res.data);
-        res.data.forEach(t => fetchTruckSource(getTruckNo(t)));
-      });
+      .then(res => setTruckNumbers(res.data))
+      .catch(err => console.error('Error fetching trucks:', err));
 
     axios.get(`${API_URL}/api/checked-in-trucks?plantName=${selectedPlant}`)
-      .then(res => {
-        setCheckedInTrucks(res.data);
-        res.data.forEach(t => fetchTruckDestination(getTruckNo(t)));
-      });
+      .then(res => setCheckedInTrucks(res.data))
+      .catch(err => console.error('Error fetching checked-in trucks:', err));
   }, [selectedPlant]);
 
   const getTruckNo = truck => truck.TruckNo || truck.truckno || truck.truck_no || '';
@@ -538,42 +529,34 @@ function GateKeeper() {
     setCheckedInTrucks([]);
     setQuantityPanels([]);
     setFormData(prev => ({ ...prev, truckNo: '', dispatchDate: new Date().toISOString().split('T')[0] }));
+    setSourcePlant('');
   };
 
   const handleTruckSelect = async (truckNo) => {
     setFormData(prev => ({ ...prev, truckNo }));
+
     try {
       const remarksRes = await axios.get(`${API_URL}/api/fetch-remarks`, {
         params: { plantName: selectedPlant, truckNo }
       });
+
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
+      const sourceRes = await axios.get(`${API_URL}/api/get-truck-origin`, {
+        params: { truckNo }
+      });
+
       setQuantityPanels(quantityRes.data);
       setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
+      setSourcePlant(sourceRes.data?.sourcePlant || 'Unknown');
+
     } catch (err) {
       console.error('Error fetching data:', err);
       setFormData(prev => ({ ...prev, remarks: 'No remarks available or error fetching remarks.' }));
+      setSourcePlant('Unknown');
     }
   };
 
   const handleCheckedInClick = (truckNo) => handleTruckSelect(truckNo);
-
-  const fetchTruckSource = async (truckNo) => {
-    try {
-      const res = await axios.get(`${API_URL}/api/truck-source-plant`, { params: { truckNo } });
-      setTruckSources(prev => ({ ...prev, [truckNo]: res.data.sourcePlant }));
-    } catch {
-      setTruckSources(prev => ({ ...prev, [truckNo]: '' }));
-    }
-  };
-
-  const fetchTruckDestination = async (truckNo) => {
-    try {
-      const res = await axios.get(`${API_URL}/api/truck-destination-plant`, { params: { truckNo } });
-      setTruckDestinations(prev => ({ ...prev, [truckNo]: res.data.destinationPlant }));
-    } catch {
-      setTruckDestinations(prev => ({ ...prev, [truckNo]: '' }));
-    }
-  };
 
   const handleSubmit = async (type) => {
     const { truckNo, dispatchDate, invoiceNo } = formData;
@@ -614,15 +597,12 @@ function GateKeeper() {
 
       if (response.data.message?.includes('✅')) {
         setTruckNumbers(prev => prev.filter(t => getTruckNo(t) !== truckNo));
-        if (type === 'Check In') {
-          setCheckedInTrucks(prev => [...prev, { TruckNo: truckNo }]);
-          fetchTruckDestination(truckNo);
-        } else {
-          setCheckedInTrucks(prev => prev.filter(t => getTruckNo(t) !== truckNo));
-        }
+        if (type === 'Check In') setCheckedInTrucks(prev => [...prev, { TruckNo: truckNo }]);
+        else setCheckedInTrucks(prev => prev.filter(t => getTruckNo(t) !== truckNo));
         toast.success(response.data.message);
         setFormData(prev => ({ ...prev, truckNo: '' }));
         setQuantityPanels([]);
+        setSourcePlant('');
       } else {
         toast.error(response.data.message || 'Failed to update status');
       }
@@ -638,7 +618,6 @@ function GateKeeper() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 p-6">
       <CancelButton />
       <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Left Panel */}
         <div className="space-y-4">
           <select value={selectedPlant} onChange={handlePlantChange} className="w-full border rounded px-4 py-2">
             <option value="">Select Plant</option>
@@ -650,19 +629,15 @@ function GateKeeper() {
             <h3 className="font-bold text-blue-700">Truck List</h3>
             {truckNumbers.length === 0 && <p className="text-gray-400 italic">No trucks available</p>}
             <ul>
-              {truckNumbers.map((t, i) => {
-                const truckNo = getTruckNo(t);
-                return (
-                  <li key={i} onClick={() => handleTruckSelect(truckNo)} className="cursor-pointer hover:text-blue-600">
-                    🚛 {truckNo} <span className="text-xs text-gray-500">({truckSources[truckNo] || '...'})</span>
-                  </li>
-                );
-              })}
+              {truckNumbers.map((t, i) => (
+                <li key={i} onClick={() => handleTruckSelect(getTruckNo(t))} className="cursor-pointer hover:text-blue-600">
+                  🚛 {getTruckNo(t)}
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        {/* Middle Panel */}
         <div className="space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
             <div className="absolute bottom-[51px] left-[50px] h-[75px] w-[80px] flex items-end gap-[2px] z-10" style={{ width: 'calc(100% - 170px)', maxWidth: '370px' }}>
@@ -670,9 +645,15 @@ function GateKeeper() {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
                 const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500'];
                 return (
-                  <div key={index} className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md`} style={{ height: `${height}%`, width: `${100 / quantityPanels.length}%` }} title={`${panel.plantname}: ${panel.quantity}`}>
+                  <div
+                    key={index}
+                    className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md transition-transform transform hover:scale-105 hover:shadow-lg cursor-pointer`}
+                    style={{ height: `${height}%`, width: `${100 / quantityPanels.length}%` }}
+                    title={`${panel.plantname}: ${panel.quantity}`}
+                  >
                     <div className="flex items-center gap-[2px]">
-                      <span>📦</span><span>{panel.quantity}</span>
+                      <span>📦</span>
+                      <span>{panel.quantity}</span>
                     </div>
                     <div className="whitespace-nowrap text-[8px]">{panel.plantname}</div>
                   </div>
@@ -681,6 +662,7 @@ function GateKeeper() {
             </div>
             <img src={truckImage} alt="Truck" className="absolute bottom-0 left-0 w-full h-auto object-contain z-0" style={{ height: '65%' }} />
           </div>
+
           <input name="truckNo" value={formData.truckNo} onChange={handleChange} placeholder="Truck No" className="w-full border px-4 py-2 rounded" />
           <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange} className="w-full border px-4 py-2 rounded" />
           <input name="invoiceNo" value={formData.invoiceNo} onChange={handleChange} placeholder="Invoice No" className="w-full border px-4 py-2 rounded" />
@@ -689,21 +671,35 @@ function GateKeeper() {
             <button onClick={() => handleSubmit('Check In')} className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Check In</button>
             <button onClick={() => handleSubmit('Check Out')} className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">Check Out</button>
           </div>
+
+          {/* ✅ Plant Info Table */}
+          {formData.truckNo && (
+            <div className="mt-2 border border-gray-300 rounded text-sm">
+              <table className="w-full">
+                <tbody>
+                  <tr>
+                    <td className="font-semibold px-2 py-1 border-r border-gray-200">Coming From</td>
+                    <td className="px-2 py-1 text-blue-700">{sourcePlant}</td>
+                  </tr>
+                  <tr>
+                    <td className="font-semibold px-2 py-1 border-r border-gray-200">Going To</td>
+                    <td className="px-2 py-1 text-green-700">{selectedPlant}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
-        {/* Right Panel */}
         <div className="bg-green-100 rounded p-4 h-full overflow-y-auto">
           <h3 className="font-bold text-green-700 mb-2">Checked In Trucks</h3>
           {checkedInTrucks.length === 0 && <p className="text-gray-400 italic">No checked-in trucks</p>}
           <ul>
-            {checkedInTrucks.map((t, i) => {
-              const truckNo = getTruckNo(t);
-              return (
-                <li key={i} onClick={() => handleCheckedInClick(truckNo)} className="cursor-pointer hover:text-green-600">
-                  ✓ {truckNo} <span className="text-xs text-gray-500">→ {truckDestinations[truckNo] || '...'}</span>
-                </li>
-              );
-            })}
+            {checkedInTrucks.map((t, i) => (
+              <li key={i} onClick={() => handleCheckedInClick(getTruckNo(t))} className="cursor-pointer hover:text-green-600">
+                ✓ {getTruckNo(t)}
+              </li>
+            ))}
           </ul>
         </div>
       </div>
@@ -713,4 +709,3 @@ function GateKeeper() {
 }
 
 export default GateKeeper;
-
