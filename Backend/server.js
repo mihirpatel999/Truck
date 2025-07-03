@@ -90,7 +90,62 @@ app.post('/api/login', async (req, res) => {
 //     console.error('Error fetching plants:', error);
 //     res.status(500).json({ error: 'Error fetching plants' });
 //   }
-// });
+// });///////////////////////////////final working code 
+
+app.get('/api/plants', async (req, res) => {
+  const userId = req.headers['userid'];
+  const role = req.headers['role'] || 'admin';
+
+  try {
+    if (role.toLowerCase() === 'admin') {
+      const result = await pool.query(
+        'SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0 ORDER BY plantname'
+      );
+      return res.json(result.rows);
+    }
+
+    const userResult = await pool.query(
+      'SELECT allowedplants FROM users WHERE userid = $1',
+      [userId]
+    );
+
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const allowedPlants = userResult.rows[0].allowedplants;
+
+    if (!allowedPlants || allowedPlants.trim() === '') {
+      return res.json([]); // No allowed plants
+    }
+
+    const plantIdArray = allowedPlants
+      .split(',')
+      .map(id => parseInt(id.trim()))
+      .filter(id => !isNaN(id)); // Filter valid numbers only
+
+    if (plantIdArray.length === 0) {
+      return res.json([]);
+    }
+
+    const placeholders = plantIdArray.map((_, i) => `$${i + 1}`).join(',');
+
+    const plantQuery = `
+      SELECT plantid, plantname
+      FROM plantmaster
+      WHERE isdeleted = 0 AND plantid IN (${placeholders})
+      ORDER BY plantname
+    `;
+
+    const plantResult = await pool.query(plantQuery, plantIdArray);
+    res.json(plantResult.rows);
+
+  } catch (error) {
+    console.error('Error fetching plants:', error);
+    res.status(500).json({ error: 'Error fetching plants' });
+  }
+});
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -852,61 +907,11 @@ app.post('/api/users', async (req, res) => {
 ////////////////////////////////////////
 
 // // GET all plants
-// app.get('/api/plants', async (req, res) => {
-//   const result = await pool.query('SELECT * FROM plant_master ORDER BY plantname');
-//   res.json(result.rows);
-// });//////////////////////////////plant fetch all kar raha hai ye niche edit hoga
-
 app.get('/api/plants', async (req, res) => {
-  const { userid, role } = req.headers;
+  const result = await pool.query('SELECT * FROM plant_master ORDER BY plantname');
+  res.json(result.rows);
+});//////////////////////////////plant fetch all kar raha hai ye niche edit hoga
 
-  if (!userid || !role) {
-    return res.status(400).json({ error: 'Missing userid or role' });
-  }
-
-  try {
-    let query = '';
-    let values = [];
-
-    if (role.toLowerCase() === 'admin') {
-      // Admin ko sabhi plants milenge
-      query = 'SELECT plantid, plantname FROM plantmaster ORDER BY plantname';
-    } else {
-      // Normal user ke allowed plants
-      const userRes = await pool.query(
-        'SELECT allowedplants FROM users WHERE userid = $1',
-        [userid]
-      );
-
-      if (userRes.rows.length === 0) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-
-      const allowed = userRes.rows[0].allowedplants;
-
-      if (!allowed) {
-        return res.json([]); // Agar allowedplants blank hai to koi plant mat do
-      }
-
-      const allowedArray = allowed.split(',').map(id => id.trim()).filter(Boolean);
-
-      if (allowedArray.length === 0) {
-        return res.json([]);
-      }
-
-      const placeholders = allowedArray.map((_, i) => `$${i + 1}`).join(',');
-
-      query = `SELECT plantid, plantname FROM plantmaster WHERE plantid IN (${placeholders}) ORDER BY plantname`;
-      values = allowedArray;
-    }
-
-    const result = await pool.query(query, values);
-    res.json(result.rows);
-  } catch (err) {
-    console.error('Error fetching plants:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
 
 /////////////////////////////////////////////////
 // POST new user
