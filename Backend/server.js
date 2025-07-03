@@ -992,7 +992,7 @@ app.get('/api/users', async (req, res) => {
   try {
     const result = await pool.query(
       // 'SELECT "userid", "username", "password", "role", "contactnumber", "allowedplants" FROM users'
-      'SELECT "userid", "username", "password", "role", "contactnumber", "allowedplants" FROM users WHERE "IsDelete" = 0'
+      'SELECT "userid", "username", "password", "role", "contactnumber", "allowedplants" FROM users WHERE "isdelete" = 0'
     );
     res.json(result.rows); // return plant IDs (e.g., "7,11")
   } catch (err) {
