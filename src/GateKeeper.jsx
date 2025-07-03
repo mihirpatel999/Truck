@@ -1123,10 +1123,12 @@ function GateKeeper() {
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0), 0);
-  const startIndex = quantityPanels.findIndex(p => p.plantname === selectedPlant);
-  const rotatedPanels = startIndex > 0
-  ? [...quantityPanels.slice(startIndex), ...quantityPanels.slice(0, startIndex)]
-  : quantityPanels;
+const selectedIndex = quantityPanels.findIndex(p => p.plantname === selectedPlant);
+const rotatedPanels = [...quantityPanels];
+if (selectedIndex >= 0) {
+  const first = rotatedPanels.splice(selectedIndex, 1); // remove selected plant
+  rotatedPanels.unshift(...first); // bring it to front
+}
 
 
   return (
