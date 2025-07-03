@@ -1167,7 +1167,8 @@ function GateKeeper() {
                   <div
                     key={index}
                     className={`flex flex-col items-center justify-end text-white text-[10px] ${bgColors[index % bgColors.length]} rounded-t-md transition-transform transform hover:scale-105 hover:shadow-lg cursor-pointer`}
-                    style={{ height: `${height}%`, width: `${100 / quantityPanels.length}%` }}
+                   style={{ height: `${height}%`, width: `${100 / rotatedPanels.length}%` }}
+
                     title={`${panel.plantname}: ${panel.quantity}`}
                   >
                     <div className="flex items-center gap-[2px]">
