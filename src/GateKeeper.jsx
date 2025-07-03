@@ -1123,6 +1123,11 @@ function GateKeeper() {
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0), 0);
+  const startIndex = quantityPanels.findIndex(p => p.plantname === selectedPlant);
+  const rotatedPanels = startIndex > 0
+  ? [...quantityPanels.slice(startIndex), ...quantityPanels.slice(0, startIndex)]
+  : quantityPanels;
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 p-6">
@@ -1155,7 +1160,7 @@ function GateKeeper() {
         <div className="space-y-4">
           <div className="relative h-56 w-full bg-blue-200 rounded-lg overflow-hidden shadow-md">
             <div className="absolute bottom-[51px] left-[50px] h-[75px] w-[calc(100%-170px)] max-w-[370px] flex items-end gap-[2px] z-10">
-              {quantityPanels.map((panel, index) => {
+              {rotatedPanels.map((panel, index) => {
                 const height = maxQty ? (panel.quantity / maxQty) * 100 : 0;
                 const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500'];
                 return (
