@@ -1126,7 +1126,7 @@ setQuantityPanels(reversed);
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0), 0);
-  const sorted = [...quantityPanels].sort((a, b) => a.priority - b.priority);
+  
 const selectedIndex = sorted.findIndex(p => p.plantname === selectedPlant);
 const rotated = [...sorted];
 if (selectedIndex >= 0) {
