@@ -1002,19 +1002,42 @@ app.get('/api/users', async (req, res) => {
 
 
 //
+// app.delete('/api/users/:username', async (req, res) => {
+//   const { username } = req.params;
+//   try {
+//     const result = await pool.query(
+//       'DELETE FROM users WHERE "username" = $1',
+//       [username]
+//     );
+
+//     if (result.rowCount === 0) {
+//       return res.status(404).json({ message: 'User not found.' });
+//     }
+
+//     res.json({ message: 'User deleted successfully.' });
+//   } catch (err) {
+//     console.error('Error deleting user:', err);
+//     res.status(500).json({ message: 'Error deleting user.' });
+//   }
+// });///////////////////perment delect ke liye 
+
 app.delete('/api/users/:username', async (req, res) => {
   const { username } = req.params;
+
   try {
+    // Update the IsDelete field to 1 (soft delete)
     const result = await pool.query(
-      'DELETE FROM users WHERE "username" = $1',
+      'UPDATE Users SET IsDelete = 1 WHERE "username" = $1 RETURNING *',
       [username]
     );
 
+    // Check if any rows were updated (if the user was found and updated)
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    res.json({ message: 'User deleted successfully.' });
+    // Success message
+    res.json({ message: 'User soft deleted successfully.' });
   } catch (err) {
     console.error('Error deleting user:', err);
     res.status(500).json({ message: 'Error deleting user.' });
