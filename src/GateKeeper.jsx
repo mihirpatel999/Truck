@@ -1052,7 +1052,10 @@ function GateKeeper() {
         params: { plantName: selectedPlant, truckNo }
       });
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
-      const sorted = [...quantityRes.data].sort((a, b) => a.priority - b.priority);
+     const sorted = [...quantityRes.data].sort((a, b) => a.priority - b.priority);
+const reversed = sorted.reverse(); // 🔁 reverse so that priority 1 is near the cabin
+setQuantityPanels(reversed);
+
       setQuantityPanels(sorted);
       setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
 
@@ -1123,12 +1126,15 @@ function GateKeeper() {
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0), 0);
-const selectedIndex = quantityPanels.findIndex(p => p.plantname === selectedPlant);
-const rotatedPanels = [...quantityPanels];
+  const sorted = [...quantityPanels].sort((a, b) => a.priority - b.priority);
+const selectedIndex = sorted.findIndex(p => p.plantname === selectedPlant);
+const rotated = [...sorted];
 if (selectedIndex >= 0) {
-  const first = rotatedPanels.splice(selectedIndex, 1); // remove selected plant
-  rotatedPanels.unshift(...first); // bring it to front
+  const first = rotated.splice(selectedIndex, 1);
+  rotated.unshift(...first);
 }
+rotated.reverse(); // <-- This makes chart show priority 1 near the truck cabin
+setQuantityPanels(rotated);
 
 
   return (
