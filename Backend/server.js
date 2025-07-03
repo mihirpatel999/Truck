@@ -851,12 +851,64 @@ app.post('/api/users', async (req, res) => {
 
 ////////////////////////////////////////
 
-// GET all plants
+// // GET all plants
+// app.get('/api/plants', async (req, res) => {
+//   const result = await pool.query('SELECT * FROM plant_master ORDER BY plantname');
+//   res.json(result.rows);
+// });//////////////////////////////plant fetch all kar raha hai ye niche edit hoga
+
 app.get('/api/plants', async (req, res) => {
-  const result = await pool.query('SELECT * FROM plant_master ORDER BY plantname');
-  res.json(result.rows);
+  const { userid, role } = req.headers;
+
+  if (!userid || !role) {
+    return res.status(400).json({ error: 'Missing userid or role' });
+  }
+
+  try {
+    let query = '';
+    let values = [];
+
+    if (role.toLowerCase() === 'admin') {
+      // Admin ko sabhi plants milenge
+      query = 'SELECT plantid, plantname FROM plantmaster ORDER BY plantname';
+    } else {
+      // Normal user ke allowed plants
+      const userRes = await pool.query(
+        'SELECT allowedplants FROM users WHERE userid = $1',
+        [userid]
+      );
+
+      if (userRes.rows.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const allowed = userRes.rows[0].allowedplants;
+
+      if (!allowed) {
+        return res.json([]); // Agar allowedplants blank hai to koi plant mat do
+      }
+
+      const allowedArray = allowed.split(',').map(id => id.trim()).filter(Boolean);
+
+      if (allowedArray.length === 0) {
+        return res.json([]);
+      }
+
+      const placeholders = allowedArray.map((_, i) => `$${i + 1}`).join(',');
+
+      query = `SELECT plantid, plantname FROM plantmaster WHERE plantid IN (${placeholders}) ORDER BY plantname`;
+      values = allowedArray;
+    }
+
+    const result = await pool.query(query, values);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching plants:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
+/////////////////////////////////////////////////
 // POST new user
 app.post('/api/user-master', async (req, res) => {
   const { username, plantIds } = req.body;
