@@ -708,14 +708,13 @@
 
 ///////////////////
 
-// ✅ Final GateKeeper.jsx (priority-based sorted chart, proper 'From' and 'Next' handling)
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import truckImage from './assets/Truck.png.png';
-import { useNavigate } from 'react-router-dom';
-import CancelButton from './CancelButton';
+// import React, { useEffect, useState } from 'react';
+// import axios from 'axios';
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+// import truckImage from './assets/Truck.png.png';
+// import { useNavigate } from 'react-router-dom';
+// import CancelButton from './CancelButton';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -733,8 +732,6 @@ function GateKeeper() {
   const [truckNumbers, setTruckNumbers] = useState([]);
   const [checkedInTrucks, setCheckedInTrucks] = useState([]);
   const [quantityPanels, setQuantityPanels] = useState([]);
-  const [fromPlant, setFromPlant] = useState('Unknown');
-  const [nextPlant, setNextPlant] = useState('');
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -745,17 +742,17 @@ function GateKeeper() {
     axios.get(`${API_URL}/api/plants`, {
       headers: { userid: userId, role }
     })
-      .then(res => {
-        const filtered = res.data.filter(plant => {
-          const pid = String(plant.PlantID || plant.PlantId || plant.plantid || '');
-          return allowedPlants.includes(pid) || role?.toLowerCase() === 'admin';
-        });
-        setPlantList(filtered);
-      })
-      .catch(err => {
-        console.error('❌ Error fetching plants:', err);
-        toast.error('Failed to fetch plant list');
+    .then(res => {
+      const filtered = res.data.filter(plant => {
+        const pid = String(plant.PlantID || plant.PlantId || plant.plantid || '');
+        return allowedPlants.includes(pid) || role?.toLowerCase() === 'admin';
       });
+      setPlantList(filtered);
+    })
+    .catch(err => {
+      console.error('❌ Error fetching plants:', err);
+      toast.error('Failed to fetch plant list');
+    });
   }, []);
 
   useEffect(() => {
@@ -787,29 +784,9 @@ function GateKeeper() {
       const remarksRes = await axios.get(`${API_URL}/api/fetch-remarks`, {
         params: { plantName: selectedPlant, truckNo }
       });
-
-      const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities`, {
-        params: { truckNo }
-      });
-
-      const sortedPanels = [...quantityRes.data].sort((a, b) => a.priority - b.priority);
-      setQuantityPanels(sortedPanels);
-
+      const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
+      setQuantityPanels(quantityRes.data);
       setFormData(prev => ({ ...prev, remarks: remarksRes.data.remarks || 'No remarks available.' }));
-
-      // set next and from
-      const statusRes = await axios.get(`${API_URL}/api/check-priority-status`, {
-        params: { truckNo, plantName: selectedPlant }
-      });
-
-      const { hasPending, nextPlant } = statusRes.data;
-      setNextPlant(hasPending ? nextPlant : 'Done');
-
-      const finishedRes = await axios.get(`${API_URL}/api/finished-plant`, {
-        params: { truckNo }
-      });
-      setFromPlant(finishedRes.data.lastFinished || 'Unknown');
-
     } catch (err) {
       console.error('Error fetching data:', err);
       setFormData(prev => ({ ...prev, remarks: 'No remarks available or error fetching remarks.' }));
@@ -860,6 +837,7 @@ function GateKeeper() {
         } else {
           setCheckedInTrucks(prev => [...prev, { TruckNo: truckNo }]);
         }
+
         toast.success(response.data.message);
         setFormData(prev => ({ ...prev, truckNo: '' }));
         setQuantityPanels([]);
@@ -873,6 +851,10 @@ function GateKeeper() {
   };
 
   const maxQty = Math.max(...quantityPanels.map(p => p.quantity || 0), 0);
+
+  const currentPriority = quantityPanels.find(p => p.plantname === selectedPlant)?.priority || 0;
+  const nextPlant = quantityPanels.find(p => p.priority === currentPriority + 1)?.plantname || '—';
+  const prevPlant = quantityPanels.find(p => p.priority === currentPriority - 1)?.plantname || '—';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 p-6">
@@ -920,13 +902,24 @@ function GateKeeper() {
                 );
               })}
             </div>
-            <img src={truckImage} alt="Truck" className="absolute bottom-0 left-0 w-full h-auto object-contain z-0" style={{ height: '65%' }} />
+            <img
+              src={truckImage}
+              alt="Truck"
+              className="absolute bottom-0 left-0 w-full h-auto object-contain z-0"
+              style={{ height: '65%' }}
+            />
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-sm text-center">
-            <div className="bg-gray-100 rounded p-1">From: {fromPlant}</div>
-            <div className="bg-gray-100 rounded p-1">Next: {nextPlant}</div>
-          </div>
+          {quantityPanels.length > 0 && (
+            <div className="flex justify-center items-center gap-6 mt-2 font-semibold text-sm">
+              <div>
+                From: <span className="text-blue-800">{prevPlant}</span>
+              </div>
+              <div>
+                Next: <span className="text-green-800">{nextPlant}</span>
+              </div>
+            </div>
+          )}
 
           <input name="truckNo" value={formData.truckNo} onChange={handleChange} placeholder="Truck No" className="w-full border px-4 py-2 rounded" />
           <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange} className="w-full border px-4 py-2 rounded" />
