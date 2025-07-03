@@ -91,13 +91,12 @@ app.post('/api/login', async (req, res) => {
 //     res.status(500).json({ error: 'Error fetching plants' });
 //   }
 // });///////////////////////////////final working code 
-
 app.get('/api/plants', async (req, res) => {
   const userId = req.headers['userid'];
-  const role = req.headers['role'] || 'admin';
+  const role = req.headers['role'] || '';
 
   try {
-    if (role.toLowerCase() === 'admin') {
+    if (role.toLowerCase().includes('admin')) {
       const result = await pool.query(
         'SELECT plantid, plantname FROM plantmaster WHERE isdeleted = 0 ORDER BY plantname'
       );
@@ -116,13 +115,13 @@ app.get('/api/plants', async (req, res) => {
     const allowedPlants = userResult.rows[0].allowedplants;
 
     if (!allowedPlants || allowedPlants.trim() === '') {
-      return res.json([]); // No allowed plants
+      return res.json([]);
     }
 
     const plantIdArray = allowedPlants
       .split(',')
       .map(id => parseInt(id.trim()))
-      .filter(id => !isNaN(id)); // Filter valid numbers only
+      .filter(id => !isNaN(id));
 
     if (plantIdArray.length === 0) {
       return res.json([]);
@@ -906,11 +905,11 @@ app.post('/api/users', async (req, res) => {
 
 ////////////////////////////////////////
 
-// // GET all plants
-app.get('/api/plants', async (req, res) => {
-  const result = await pool.query('SELECT * FROM plant_master ORDER BY plantname');
-  res.json(result.rows);
-});//////////////////////////////plant fetch all kar raha hai ye niche edit hoga
+// // // GET all plants
+// app.get('/api/plants', async (req, res) => {
+//   const result = await pool.query('SELECT * FROM plant_master ORDER BY plantname');
+//   res.json(result.rows);
+// });//////////////////////////////plant fetch all kar raha hai ye niche edit hoga
 
 
 /////////////////////////////////////////////////
