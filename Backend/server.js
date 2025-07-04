@@ -482,9 +482,9 @@ app.post("/api/update-truck-status", async (req, res) => {
       `UPDATE TruckTransactionDetails
        SET CheckOutStatus = 1,
            CheckOutTime = CURRENT_TIMESTAMP,
-           InvoiceNo = $3   -- Update invoice number
+           Invoice_Number = $3   -- Update invoice number
        WHERE PlantId = $1 AND TransactionID = $2`,
-      [plantId, transactionId, invoiceNo]  // Passing the invoice number
+      [plantId, transactionId, invoice_number]  // Passing the invoice number
     );
 
     return res.status(200).json({ message: "✅ Truck checked out successfully!" });
