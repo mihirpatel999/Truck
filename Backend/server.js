@@ -453,21 +453,45 @@ app.post("/api/update-truck-status", async (req, res) => {
       );
 
     }
-    if (type === "Check Out") {
-      if (status.checkinstatus === 0) {
-        return res.status(400).json({ message: "❌ Please Check In first before Check Out" });
-      }
-      if (status.checkoutstatus === 0) {
-        await client.query(
-          `UPDATE TruckTransactionDetails
-   SET CheckOutStatus = 1,
-       CheckOutTime = CURRENT_TIMESTAMP
-   WHERE PlantId = $1 AND TransactionID = $2`,
-          [plantId, transactionId]
-        );
+  //   if (type === "Check Out") {
+  //     if (status.checkinstatus === 0) {
+  //       return res.status(400).json({ message: "❌ Please Check In first before Check Out" });
+  //     }
+  //     if (status.checkoutstatus === 0) {
+  //       await client.query(
+  //         `UPDATE TruckTransactionDetails
+  //  SET CheckOutStatus = 1,
+  //      CheckOutTime = CURRENT_TIMESTAMP
+  //  WHERE PlantId = $1 AND TransactionID = $2`,
+  //         [plantId, transactionId]
+  //       );
 
-      }
-    }
+  //     }
+  //   }
+
+  if (type === "Check Out") {
+  // Check if the truck is checked in first
+  if (status.checkinstatus === 0) {
+    return res.status(400).json({ message: "❌ Please Check In first before Check Out" });
+  }
+
+  // Check if the truck is already checked out
+  if (status.checkoutstatus === 0) {
+    // Update the truck transaction details with the invoice number and checkout status
+    await client.query(
+      `UPDATE TruckTransactionDetails
+       SET CheckOutStatus = 1,
+           CheckOutTime = CURRENT_TIMESTAMP,
+           InvoiceNo = $3   -- Update invoice number
+       WHERE PlantId = $1 AND TransactionID = $2`,
+      [plantId, transactionId, invoiceNo]  // Passing the invoice number
+    );
+
+    return res.status(200).json({ message: "✅ Truck checked out successfully!" });
+  } else {
+    return res.status(400).json({ message: "🚫 This truck has already been checked out." });
+  }
+}
 
 
 
