@@ -401,9 +401,138 @@ app.get("/api/trucks", async (req, res) => {
 
 
 
-// // 🚚 Update Truck Status API (CASE INSENSITIVE)/////////////////////////////////////////////
+// // // 🚚 Update Truck Status API (CASE INSENSITIVE)/////////////////////////////////////////////
+// app.post("/api/update-truck-status", async (req, res) => {
+//   const { truckNo, plantName, type } = req.body;
+//   const client = await pool.connect();
+//   try {
+//     // 1. Get TransactionID
+//     const transactionResult = await client.query(
+//       `SELECT TransactionID
+//        FROM TruckTransactionMaster
+//        WHERE TruckNo = $1 AND Completed = 0
+//        ORDER BY TransactionID DESC
+//        LIMIT 1`,
+//       [truckNo]
+//     );
+//     if (transactionResult.rows.length === 0) {
+//       return res.status(404).json({ message: "❌ Truck not found or already completed" });
+//     }
+//     const transactionId = transactionResult.rows[0].transactionid;
+
+//     // 2. Get PlantId (CASE INSENSITIVE)
+//     const plantResult = await client.query(
+//       `SELECT PlantId FROM PlantMaster WHERE LOWER(TRIM(PlantName)) = LOWER(TRIM($1)) LIMIT 1`,
+//       [plantName]
+//     );
+//     if (plantResult.rows.length === 0) {
+//       return res.status(404).json({ message: "❌ Plant not found" });
+//     }
+//     const plantId = plantResult.rows[0].plantid;
+
+//     // 3. Get current status
+//     const statusResult = await client.query(
+//       `SELECT CheckInStatus, CheckOutStatus
+//        FROM TruckTransactionDetails
+//        WHERE PlantId = $1 AND TransactionID = $2`,
+//       [plantId, transactionId]
+//     );
+//     if (statusResult.rows.length === 0) {
+//       return res.status(404).json({ message: "❌ Truck detail not found for this plant" });
+//     }
+//     const status = statusResult.rows[0];
+
+//     // 4. Update check-in or check-out
+//     if (type === "Check In" && status.checkinstatus === 0) {
+//       await client.query(
+//         `UPDATE TruckTransactionDetails
+//    SET CheckInStatus = 1,
+//        CheckInTime = CURRENT_TIMESTAMP
+//    WHERE PlantId = $1 AND TransactionID = $2`,
+//         [plantId, transactionId]
+//       );
+
+//     }
+//   //   if (type === "Check Out") {
+//   //     if (status.checkinstatus === 0) {
+//   //       return res.status(400).json({ message: "❌ Please Check In first before Check Out" });
+//   //     }
+//   //     if (status.checkoutstatus === 0) {
+//   //       await client.query(
+//   //         `UPDATE TruckTransactionDetails
+//   //  SET CheckOutStatus = 1,
+//   //      CheckOutTime = CURRENT_TIMESTAMP
+//   //  WHERE PlantId = $1 AND TransactionID = $2`,
+//   //         [plantId, transactionId]
+//   //       );
+
+//   //     }
+//   //   }
+
+//   if (type === "Check Out") {
+//   // Check if the truck is checked in first
+//   if (status.checkinstatus === 0) {
+//     return res.status(400).json({ message: "❌ Please Check In first before Check Out" });
+//   }
+
+//   // Check if the truck is already checked out
+//   if (status.checkoutstatus === 0) {
+//     // Update the truck transaction details with the invoice number and checkout status
+//     await client.query(
+//       `UPDATE TruckTransactionDetails
+//        SET CheckOutStatus = 1,
+//            CheckOutTime = CURRENT_TIMESTAMP,
+//            InvoiceNo = $3   -- Update invoice number
+//        WHERE PlantId = $1 AND TransactionID = $2`,
+//       [plantId, transactionId, invoiceNo]  // Passing the invoice number
+//     );
+
+//     return res.status(200).json({ message: "✅ Truck checked out successfully!" });
+//   } else {
+//     return res.status(400).json({ message: "🚫 This truck has already been checked out." });
+//   }
+// }
+
+
+
+//     // 5. Recheck updated status
+//     // 6. Check if all plants for this transaction are checked-in and checked-out
+//     const allStatusResult = await client.query(
+//       `SELECT COUNT(*) AS totalplants,
+//               SUM(CASE WHEN CheckInStatus = 1 THEN 1 ELSE 0 END) AS checkedin,
+//               SUM(CASE WHEN CheckOutStatus = 1 THEN 1 ELSE 0 END) AS checkedout
+//          FROM TruckTransactionDetails
+//          WHERE TransactionID = $1`,
+//       [transactionId]
+//     );
+//     const statusCheck = allStatusResult.rows[0];
+//     if (
+//       Number(statusCheck.totalplants) === Number(statusCheck.checkedin) &&
+//       Number(statusCheck.totalplants) === Number(statusCheck.checkedout)
+//     ) {
+//       // All plants completed
+//       await client.query(
+//         `UPDATE TruckTransactionMaster
+//          SET Completed = 1
+//          WHERE TransactionID = $1`,
+//         [transactionId]
+//       );
+//       return res.json({
+//         message: "✅ All plants processed. Truck process completed.",
+//       });
+//     }
+//     // 7. Return success for one action
+//     return res.json({ message: `✅ ${type} successful` });
+//   } catch (error) {
+//     console.error("Status update error:", error);
+//     res.status(500).json({ error: "Server error" });
+//   } finally {
+//     client.release();
+//   }
+//});/////// workingggg///////////////////////////////////////////////////////////////////////////////////////////////////
+
 app.post("/api/update-truck-status", async (req, res) => {
-  const { truckNo, plantName, type } = req.body;
+  const { truckNo, plantName, type, invoiceNo } = req.body; // Add invoiceNo here
   const client = await pool.connect();
   try {
     // 1. Get TransactionID
@@ -446,54 +575,28 @@ app.post("/api/update-truck-status", async (req, res) => {
     if (type === "Check In" && status.checkinstatus === 0) {
       await client.query(
         `UPDATE TruckTransactionDetails
-   SET CheckInStatus = 1,
-       CheckInTime = CURRENT_TIMESTAMP
-   WHERE PlantId = $1 AND TransactionID = $2`,
+         SET CheckInStatus = 1,
+             CheckInTime = CURRENT_TIMESTAMP
+         WHERE PlantId = $1 AND TransactionID = $2`,
         [plantId, transactionId]
       );
-
     }
-  //   if (type === "Check Out") {
-  //     if (status.checkinstatus === 0) {
-  //       return res.status(400).json({ message: "❌ Please Check In first before Check Out" });
-  //     }
-  //     if (status.checkoutstatus === 0) {
-  //       await client.query(
-  //         `UPDATE TruckTransactionDetails
-  //  SET CheckOutStatus = 1,
-  //      CheckOutTime = CURRENT_TIMESTAMP
-  //  WHERE PlantId = $1 AND TransactionID = $2`,
-  //         [plantId, transactionId]
-  //       );
 
-  //     }
-  //   }
-
-  if (type === "Check Out") {
-  // Check if the truck is checked in first
-  if (status.checkinstatus === 0) {
-    return res.status(400).json({ message: "❌ Please Check In first before Check Out" });
-  }
-
-  // Check if the truck is already checked out
-  if (status.checkoutstatus === 0) {
-    // Update the truck transaction details with the invoice number and checkout status
-    await client.query(
-      `UPDATE TruckTransactionDetails
-       SET CheckOutStatus = 1,
-           CheckOutTime = CURRENT_TIMESTAMP,
-           InvoiceNo = $3   -- Update invoice number
-       WHERE PlantId = $1 AND TransactionID = $2`,
-      [plantId, transactionId, invoiceNo]  // Passing the invoice number
-    );
-
-    return res.status(200).json({ message: "✅ Truck checked out successfully!" });
-  } else {
-    return res.status(400).json({ message: "🚫 This truck has already been checked out." });
-  }
-}
-
-
+    if (type === "Check Out") {
+      if (status.checkinstatus === 0) {
+        return res.status(400).json({ message: "❌ Please Check In first before Check Out" });
+      }
+      if (status.checkoutstatus === 0) {
+        await client.query(
+          `UPDATE TruckTransactionDetails
+           SET CheckOutStatus = 1,
+               CheckOutTime = CURRENT_TIMESTAMP,
+               InvoiceNo = $3  -- Update invoice number when checking out
+           WHERE PlantId = $1 AND TransactionID = $2`,
+          [plantId, transactionId, invoiceNo]  // Pass invoiceNo here
+        );
+      }
+    }
 
     // 5. Recheck updated status
     // 6. Check if all plants for this transaction are checked-in and checked-out
@@ -521,6 +624,7 @@ app.post("/api/update-truck-status", async (req, res) => {
         message: "✅ All plants processed. Truck process completed.",
       });
     }
+
     // 7. Return success for one action
     return res.json({ message: `✅ ${type} successful` });
   } catch (error) {
@@ -529,7 +633,16 @@ app.post("/api/update-truck-status", async (req, res) => {
   } finally {
     client.release();
   }
-});///// workingggg///////////////////////////////////////////////////////////////////////////////////////////////////
+});
+
+
+
+
+
+
+
+
+
 
 app.get('/api/check-priority-status', async (req, res) => {
   const { truckNo, plantName } = req.query;
