@@ -403,7 +403,7 @@ app.get("/api/trucks", async (req, res) => {
 
 // // 🚚 Update Truck Status API (CASE INSENSITIVE)/////////////////////////////////////////////
 app.post("/api/update-truck-status", async (req, res) => {
-  const { truckNo, plantName, type } = req.body;
+  const { truckNo, plantName, invoicenumber , type } = req.body;
   const client = await pool.connect();
   try {
     // 1. Get TransactionID
@@ -482,9 +482,9 @@ app.post("/api/update-truck-status", async (req, res) => {
       `UPDATE TruckTransactionDetails
        SET CheckOutStatus = 1,
            CheckOutTime = CURRENT_TIMESTAMP,
-           Invoice_Number = $3   -- Update invoice number
+            invoice_number = $3   -- Update invoice number
        WHERE PlantId = $1 AND TransactionID = $2`,
-      [plantId, transactionId, invoice_number]  // Passing the invoice number
+      [plantId, transactionId, invoicenumber]  // Passing the invoice number
     );
 
     return res.status(200).json({ message: "✅ Truck checked out successfully!" });
