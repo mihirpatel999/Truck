@@ -532,7 +532,7 @@ app.get("/api/trucks", async (req, res) => {
 //});/////// workingggg///////////////////////////////////////////////////////////////////////////////////////////////////
 
 app.post("/api/update-truck-status", async (req, res) => {
-  const { truckNo, plantName, type, invoiceNo } = req.body; // Add invoiceNo here
+  const { truckNo, plantName, type, invoiceNo } = req.body; // invoiceNo is passed from the frontend
   const client = await pool.connect();
   try {
     // 1. Get TransactionID
@@ -591,9 +591,9 @@ app.post("/api/update-truck-status", async (req, res) => {
           `UPDATE TruckTransactionDetails
            SET CheckOutStatus = 1,
                CheckOutTime = CURRENT_TIMESTAMP,
-               InvoiceNo = $3  -- Update invoice number when checking out
+               invoice_number = $3  -- Update invoice_number when checking out
            WHERE PlantId = $1 AND TransactionID = $2`,
-          [plantId, transactionId, invoiceNo]  // Pass invoiceNo here
+          [plantId, transactionId, invoiceNo]  // Use invoice_number instead of InvoiceNo
         );
       }
     }
