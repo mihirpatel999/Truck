@@ -573,6 +573,8 @@ app.post("/api/update-truck-status", async (req, res) => {
 
     // 4. Handle Check-In
     if (type === "Check In" && status.checkinstatus === 0) {
+      const currentDateTime = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
+
       await client.query(
         `UPDATE TruckTransactionDetails
          SET CheckInStatus = 1,
@@ -596,6 +598,7 @@ app.post("/api/update-truck-status", async (req, res) => {
       }
 
       // Update the truck transaction details with the invoice number and check-out status
+      const currentDateTime = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
       await client.query(
         `UPDATE TruckTransactionDetails
          SET CheckOutStatus = 1,
