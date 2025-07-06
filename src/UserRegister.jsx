@@ -1624,262 +1624,365 @@
 //       )}
 //     </div>
 //   );
-// }//////////////
+// }
 
-
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { FiUser, FiLock, FiPhone, FiX, FiCheck, FiChevronRight } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiEdit2, FiTrash2, FiX, FiSave, FiUser, FiLock, FiCheck } from 'react-icons/fi';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const ALL_ROLES = ['Admin', 'GateKeeper', 'Report', 'Dispatch', 'Loader', 'UserMaster', 'UserRegister'];
 
-export default function UserMaster({ onClose }) {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    contactNumber: '',
-    moduleRights: [],
-    allowedPlants: [],
-  });
-
-  const [plantList, setPlantList] = useState([]);
+export default function UserRegister() {
+  const [users, setUsers] = useState([]);
+  const [plants, setPlants] = useState([]);
+  const [editIdx, setEditIdx] = useState(null);
+  const [editUser, setEditUser] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    fetchPlants();
+    fetchAll();
   }, []);
 
-  const fetchPlants = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/api/plants`);
-      setPlantList(res.data);
-    } catch (err) {
-      console.error('Error fetching plants:', err);
-      toast.error('Failed to load plant list', { position: "top-right" });
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    if (type === 'checkbox' && name === 'moduleRights') {
-      setFormData((prev) => ({
-        ...prev,
-        moduleRights: checked
-          ? [...prev.moduleRights, value]
-          : prev.moduleRights.filter((right) => right !== value),
-      }));
-    } else if (type === 'checkbox' && name === 'allowedPlants') {
-      setFormData((prev) => ({
-        ...prev,
-        allowedPlants: checked
-          ? [...prev.allowedPlants, value]
-          : prev.allowedPlants.filter((plant) => plant !== value),
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleSelectAllPlants = () => {
-    const allPlantIds = plantList.map((plant) => String(plant.plantId || plant.plantid));
-    const isAllSelected = allPlantIds.every((id) => formData.allowedPlants.includes(id));
-
-    setFormData((prev) => ({
-      ...prev,
-      allowedPlants: isAllSelected ? [] : allPlantIds,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  async function fetchAll() {
     setIsLoading(true);
-    
     try {
-      await axios.post(`${API_URL}/api/users`, formData);
-      toast.success('User created successfully!', { position: "top-right" });
-      setFormData({
-        username: '',
-        password: '',
-        contactNumber: '',
-        moduleRights: [],
-        allowedPlants: [],
+      const [uRes, pRes] = await Promise.all([
+        fetch(`${API_URL}/api/users`),
+        fetch(`${API_URL}/api/plantmaster`)
+      ]);
+      setUsers(await uRes.json());
+      setPlants(await pRes.json());
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handleEdit = (u, i) => {
+    setEditIdx(i);
+    setEditUser({
+      ...u,
+      allowedplants: u.allowedplants || '',
+      role: u.role || ''
+    });
+  };
+
+  const handleCancel = () => {
+    setEditIdx(null);
+    setEditUser({});
+  };
+
+  const handleChange = e => {
+    setEditUser(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const toggleListValue = (field, value) => {
+    setEditUser(prev => {
+      const cur = prev[field] || '';
+      const arr = cur.split(',').filter(Boolean);
+      const nextArr = arr.includes(value)
+        ? arr.filter(x => x !== value)
+        : [...arr, value];
+      return { ...prev, [field]: nextArr.join(',') };
+    });
+  };
+
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      await fetch(`${API_URL}/api/users/${editUser.username}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editUser)
       });
-    } catch (err) {
-      console.error('Error creating user:', err);
-      toast.error(err.response?.data?.message || 'Failed to create user', { position: "top-right" });
+      await fetchAll();
+      setEditIdx(null);
+      setEditUser({});
+    } catch (error) {
+      console.error('Error saving user:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 p-4 md:p-8">
-      <ToastContainer />
-      
-      <div className="relative bg-white p-6 md:p-8 rounded-2xl shadow-xl w-full max-w-2xl border border-indigo-100 backdrop-blur-sm">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-indigo-50 text-gray-500 hover:text-indigo-600 transition-colors"
-          aria-label="Close"
-        >
-          <FiX className="w-5 h-5" />
-        </button>
+  const handleDelete = async username => {
+    if (!window.confirm(`Are you sure you want to delete ${username}?`)) return;
+    setIsLoading(true);
+    try {
+      await fetch(`${API_URL}/api/users/${username}`, { method: 'DELETE' });
+      await fetchAll();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        <div className="flex flex-col items-center mb-8">
-          <div className="bg-indigo-100 p-3 rounded-full mb-4">
-            <FiUser className="w-8 h-8 text-indigo-600" />
-          </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800">
-            User Master Registration
-          </h2>
-          <p className="text-gray-500 text-sm mt-1">Create new user accounts with specific access rights</p>
+  const getNames = (str, list, idKey, nameKey) => {
+    if (!str) return 'None';
+    return str
+      .split(',')
+      .map(id => {
+        const m = list.find(x => String(x[idKey]) === id);
+        return m ? m[nameKey] : id;
+      })
+      .join(', ');
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              User Register
+            </span>
+          </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex flex-col gap-1">
-              <label className="font-medium text-gray-700 text-sm">Username</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FiUser className="text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-                  className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="Enter username"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="font-medium text-gray-700 text-sm">Password</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FiLock className="text-gray-400" />
-                </div>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="Enter password"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="font-medium text-gray-700 text-sm">Contact Number</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FiPhone className="text-gray-400" />
-                </div>
-                <input
-                  type="tel"
-                  name="contactNumber"
-                  value={formData.contactNumber}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="Enter contact number"
-                />
-              </div>
-            </div>
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
           </div>
+        )}
 
-          <div>
-            <label className="font-medium text-gray-700 text-sm block mb-2">Module Rights</label>
-            <div className="flex flex-wrap gap-2">
-              {['Admin', 'GateKeeper', 'Report', 'Dispatch', 'Loader', 'UserMaster', 'UserRegister'].map((right) => (
-                <label 
-                  key={right} 
-                  className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg cursor-pointer transition-all 
-                    ${formData.moduleRights.includes(right) 
-                      ? 'bg-indigo-600 text-white shadow-md' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-                >
-                  <input
-                    type="checkbox"
-                    name="moduleRights"
-                    value={right}
-                    checked={formData.moduleRights.includes(right)}
-                    onChange={handleChange}
-                    className="hidden"
-                  />
-                  {formData.moduleRights.includes(right) ? <FiCheck className="w-4 h-4" /> : <FiChevronRight className="w-4 h-4" />}
-                  {right}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-            <div className="flex justify-between items-center mb-3">
-              <label className="font-medium text-gray-700 text-sm">Allowed Plants</label>
-              <button
-                type="button"
-                onClick={handleSelectAllPlants}
-                className="text-indigo-600 text-xs font-medium hover:underline flex items-center gap-1"
-              >
-                {formData.allowedPlants.length === plantList.length ? (
-                  <>
-                    <FiX className="w-3 h-3" /> Deselect All
-                  </>
-                ) : (
-                  <>
-                    <FiCheck className="w-3 h-3" /> Select All
-                  </>
+        {/* Desktop Table */}
+        <div className="hidden lg:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Username
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Password
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Role
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Allowed Plants
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {users.map((u, i) => (
+                  <tr key={u.username} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                          <FiUser className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        {u.username}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {'•'.repeat(8)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {u.role || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                      {getNames(u.allowedplants, plants, 'plantid', 'plantname')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleEdit(u, i)}
+                          className="text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50"
+                          title="Edit"
+                        >
+                          <FiEdit2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(u.username)}
+                          className="text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50"
+                          title="Delete"
+                        >
+                          <FiTrash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {users.length === 0 && !isLoading && (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-8 text-center text-sm text-gray-500">
+                      No users found. Create your first user to get started.
+                    </td>
+                  </tr>
                 )}
-              </button>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Mobile Cards */}
+        <div className="lg:hidden space-y-4">
+          {users.map((u, i) => (
+            <div key={u.username} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-4">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                    <FiUser className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-medium text-gray-900 truncate">{u.username}</h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      <span className="font-medium">Role:</span> {u.role || '-'}
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(u, i)}
+                      className="text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50"
+                      title="Edit"
+                    >
+                      <FiEdit2 className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(u.username)}
+                      className="text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50"
+                      title="Delete"
+                    >
+                      <FiTrash2 className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center text-sm text-gray-500">
+                    <FiLock className="flex-shrink-0 mr-2 h-4 w-4" />
+                    {'•'.repeat(8)}
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-medium text-gray-500">Allowed Plants:</span>{' '}
+                    <span className="text-gray-700">{getNames(u.allowedplants, plants, 'plantid', 'plantname')}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2">
-              {plantList.map((plant) => {
-                const plantId = String(plant.plantId || plant.plantid);
-                return (
-                  <label 
-                    key={plantId} 
-                    className={`flex items-center gap-2 text-sm p-2 rounded-lg cursor-pointer transition-colors
-                      ${formData.allowedPlants.includes(plantId) 
-                        ? 'bg-indigo-50 border border-indigo-200' 
-                        : 'hover:bg-gray-100'}`}
+          ))}
+          {users.length === 0 && !isLoading && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+              <div className="text-gray-400 mb-2">
+                <FiUser className="mx-auto h-12 w-12" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">No users found</h3>
+              <p className="text-gray-500">Create your first user to get started</p>
+            </div>
+          )}
+        </div>
+
+        {/* Edit Modal */}
+        {editIdx !== null && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold text-gray-800">Edit User</h2>
+                  <button
+                    onClick={handleCancel}
+                    className="text-gray-400 hover:text-gray-500 p-1 rounded-full hover:bg-gray-100"
                   >
-                    <div className={`w-4 h-4 border rounded-sm flex items-center justify-center 
-                      ${formData.allowedPlants.includes(plantId) 
-                        ? 'bg-indigo-600 border-indigo-600 text-white' 
-                        : 'border-gray-300'}`}>
-                      {formData.allowedPlants.includes(plantId) && <FiCheck className="w-3 h-3" />}
+                    <FiX className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <div className="mt-1 flex rounded-md shadow-sm">
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                        <FiUser className="h-4 w-4" />
+                      </span>
+                      <input
+                        type="text"
+                        value={editUser.username}
+                        readOnly
+                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300 bg-gray-100"
+                      />
                     </div>
-                    <input
-                      type="checkbox"
-                      name="allowedPlants"
-                      value={plantId}
-                      checked={formData.allowedPlants.includes(plantId)}
-                      onChange={handleChange}
-                      className="hidden"
-                    />
-                    {plant.plantName || plant.plantname}
-                  </label>
-                );
-              })}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <div className="mt-1 flex rounded-md shadow-sm">
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                        <FiLock className="h-4 w-4" />
+                      </span>
+                      <input
+                        name="password"
+                        type="password"
+                        value={editUser.password}
+                        onChange={handleChange}
+                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+                        placeholder="Enter new password"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Roles</label>
+                    <div className="mt-1 space-y-2">
+                      {ALL_ROLES.map(r => (
+                        <label key={r} className="flex items-center space-x-3 bg-gray-50 hover:bg-gray-100 rounded-lg p-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={(editUser.role || '').split(',').includes(r)}
+                            onChange={() => toggleListValue('role', r)}
+                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                          />
+                          <span className="text-sm text-gray-700">{r}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Allowed Plants</label>
+                    <div className="mt-1 max-h-60 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-200">
+                      {plants.map(p => (
+                        <label key={p.plantid} className="flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={(editUser.allowedplants || '').split(',').includes(String(p.plantid))}
+                            onChange={() => toggleListValue('allowedplants', String(p.plantid))}
+                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                          />
+                          <span className="text-sm text-gray-700">{p.plantname}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end space-x-3 pt-4">
+                    <button
+                      onClick={handleCancel}
+                      className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSave}
+                      disabled={isLoading}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {isLoading ? 'Saving...' : 'Save Changes'}
+                      {!isLoading && <FiSave className="ml-2 h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className={`w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg shadow-md transition-all
-              ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-lg transform hover:-translate-y-0.5'}`}
-          >
-            {isLoading ? 'Creating User...' : 'Create User'}
-          </button>
-        </form>
+        )}
       </div>
     </div>
   );
