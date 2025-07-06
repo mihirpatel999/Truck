@@ -4001,6 +4001,337 @@
 
 // export default Navbar;
 
+// import { useState, useEffect } from 'react';
+// import { Link, useLocation } from 'react-router-dom';
+// import { 
+//   FiHome, 
+//   FiTruck, 
+//   FiUsers, 
+//   FiPieChart,
+//   FiLogOut,
+//   FiChevronDown,
+//   FiMenu,
+//   FiX,
+//   FiSettings,
+//   FiClock
+// } from 'react-icons/fi';
+// import { 
+//   MdOutlineWarehouse,
+//   MdOutlineSchedule
+// } from 'react-icons/md';
+// import { 
+//   BsShieldLock,
+//   BsBoxSeam
+// } from 'react-icons/bs';
+
+// const Navbar = () => {
+//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+//   const [activeDropdown, setActiveDropdown] = useState(null);
+//   const [userRole, setUserRole] = useState(null);
+//   const location = useLocation();
+
+//   useEffect(() => {
+//     setUserRole(localStorage.getItem('userRole'));
+//   }, []);
+
+//   const handleLogout = () => {
+//     localStorage.clear();
+//     window.location.href = "/";
+//   };
+
+//   const hasAccess = (requiredRoles) => {
+//     if (!userRole) return false;
+//     const userRoles = userRole.split(',').map(r => r.trim());
+//     return requiredRoles.some(role => userRoles.includes(role));
+//   };
+
+//   const menuItems = [
+//     {
+//       title: "Dashboard",
+//       path: "/dashboard",
+//       icon: <FiHome className="flex-shrink-0" size={18} />,
+//       roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report"]
+//     },
+//     {
+//       title: "Admin",
+//       icon: <FiSettings className="flex-shrink-0" size={18} />,
+//       roles: ["Owner", "Admin"],
+//       subItems: [
+//         { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse size={16} /> },
+//         { title: "User Management", path: "/usermaster", icon: <FiUsers size={16} /> },
+//         { title: "User Register", path: "/userregister", icon: <BsShieldLock size={16} /> }
+//       ]
+//     },
+//     {
+//       title: "Dispatch",
+//       icon: <FiTruck className="flex-shrink-0" size={18} />,
+//       roles: ["Owner", "Admin", "Dispatch"],
+//       subItems: [
+//         { title: "Truck Transaction", path: "/truck", icon: <FiTruck size={16} /> },
+//         { title: "Truck Locator", path: "/truckfind", icon: <FiClock size={16} /> }
+//       ]
+//     },
+//     {
+//       title: "Gate Control",
+//       path: "/gate",
+//       icon: <MdOutlineWarehouse className="flex-shrink-0" size={18} />,
+//       roles: ["Owner", "Admin", "GateKeeper"]
+//     },
+//     {
+//       title: "Loading",
+//       path: "/loader",
+//       icon: <BsBoxSeam className="flex-shrink-0" size={18} />,
+//       roles: ["Owner", "Admin", "Loader"]
+//     },
+//     {
+//       title: "Reports",
+//       icon: <FiPieChart className="flex-shrink-0" size={18} />,
+//       roles: ["Owner", "Admin", "Report"],
+//       subItems: [
+//         { title: "Operations Report", path: "/reports", icon: <FiPieChart size={16} /> },
+//         { title: "Schedule Board", path: "/truckshedule", icon: <MdOutlineSchedule size={16} /> }
+//       ]
+//     }
+//   ];
+
+//   const filteredMenuItems = menuItems.filter(item => hasAccess(item.roles));
+
+//   if (location.pathname === '/') return null;
+
+//   return (
+//     <>
+//       {/* Desktop Navigation */}
+//       <nav className="hidden md:block bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
+//         <div className="max-w-7xl mx-auto px-6">
+//           <div className="flex justify-between h-16 items-center">
+//             <Link to="/dashboard" className="flex items-center min-w-max">
+//               <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-sm">
+//                 <FiTruck className="h-5 w-5" />
+//               </div>
+//               <span className="ml-3 text-xl font-semibold text-gray-800">Lemon Logistics</span>
+//             </Link>
+
+//             <div className="flex items-center space-x-4">
+//               <div className="flex space-x-1">
+//                 {filteredMenuItems.map((item, index) => (
+//                   <div key={index} className="relative h-full">
+//                     {item.path ? (
+//                       <Link
+//                         to={item.path}
+//                         className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+//                           location.pathname === item.path 
+//                             ? 'text-blue-700 bg-blue-50 font-medium' 
+//                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+//                         }`}
+//                         style={{ textDecoration: 'none' }}
+//                       >
+//                         <span className="mr-2">{item.icon}</span>
+//                         {item.title}
+//                       </Link>
+//                     ) : (
+//                       <div className="h-full">
+//                         <button
+//                           onClick={(e) => {
+//                             e.stopPropagation();
+//                             setActiveDropdown(activeDropdown === index ? null : index);
+//                           }}
+//                           className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+//                             activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
+//                               ? 'text-blue-700 bg-blue-50 font-medium' 
+//                               : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+//                           }`}
+//                           style={{ textDecoration: 'none' }}
+//                         >
+//                           <span className="mr-2">{item.icon}</span>
+//                           {item.title}
+//                           <FiChevronDown 
+//                             className={`ml-1 h-4 w-4 transition-transform duration-200 ${
+//                               activeDropdown === index ? 'rotate-180' : ''
+//                             }`} 
+//                           />
+//                         </button>
+
+//                         {activeDropdown === index && (
+//                           <div 
+//                             className="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50"
+//                             onClick={(e) => e.stopPropagation()}
+//                           >
+//                             {item.subItems.map((subItem, subIndex) => (
+//                               <Link
+//                                 key={subIndex}
+//                                 to={subItem.path}
+//                                 onClick={() => setActiveDropdown(null)}
+//                                 className={`flex items-center px-4 py-2.5 text-sm transition-colors ${
+//                                   location.pathname === subItem.path
+//                                     ? 'bg-blue-50 text-blue-700 font-medium'
+//                                     : 'text-gray-700 hover:bg-gray-50'
+//                                 }`}
+//                                 style={{ textDecoration: 'none' }}
+//                               >
+//                                 <span className="mr-3 text-gray-500">{subItem.icon}</span>
+//                                 {subItem.title}
+//                               </Link>
+//                             ))}
+//                           </div>
+//                         )}
+//                       </div>
+//                     )}
+//                   </div>
+//                 ))}
+//               </div>
+
+//               <button
+//                 onClick={handleLogout}
+//                 className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors min-w-max"
+//                 style={{ textDecoration: 'none' }}
+//               >
+//                 <FiLogOut className="mr-2" />
+//                 Logout
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       </nav>
+
+//       {/* Mobile Navigation - Fixed Version */}
+//       <nav className="md:hidden bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
+//         <div className="px-4">
+//           <div className="flex justify-between h-16 items-center">
+//             <Link to="/dashboard" className="flex items-center">
+//               <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-sm">
+//                 <FiTruck className="h-5 w-5" />
+//               </div>
+//               <span className="text-xl font-semibold text-gray-800 tracking-tight">Lemon ERP</span>
+//             </Link>
+
+//             <button
+//               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+//               className="text-gray-500 hover:text-gray-700 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors"
+//             >
+//               {mobileMenuOpen ? (
+//                 <FiX className="h-6 w-6" />
+//               ) : (
+//                 <FiMenu className="h-6 w-6" />
+//               )}
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* Mobile Sidebar */}
+//         <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
+//           <div 
+//             className="fixed inset-0 bg-black bg-opacity-50" 
+//             onClick={() => setMobileMenuOpen(false)}
+//           ></div>
+//           <div className="relative flex flex-col w-80 max-w-sm h-full bg-white shadow-xl">
+
+//             {/* Sidebar Header */}
+//             <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+//               <div className="text-xl font-semibold text-gray-800">Menu</div>
+//               <button
+//                 onClick={() => setMobileMenuOpen(false)}
+//                 className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
+//               >
+//                 <FiX className="h-6 w-6" />
+//               </button>
+//             </div>
+
+//             {/* Menu Items */}
+//             <div className="flex-1 overflow-y-auto py-4">
+//               {filteredMenuItems.map((item, index) => (
+//                 <div key={index} className="px-2">
+//                   {item.path ? (
+//                     <Link
+//                       to={item.path}
+//                       onClick={() => setMobileMenuOpen(false)}
+//                       className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium ${
+//                         location.pathname === item.path 
+//                           ? 'bg-blue-50 text-blue-700' 
+//                           : 'text-gray-700 hover:bg-gray-100'
+//                       }`}
+//                       style={{ textDecoration: 'none' }}
+//                     >
+//                       <span className="mr-3">{item.icon}</span>
+//                       {item.title}
+//                     </Link>
+//                   ) : (
+//                     <div>
+//                       <button
+//                         onClick={(e) => {
+//                           e.stopPropagation();
+//                           setActiveDropdown(activeDropdown === index ? null : index);
+//                         }}
+//                         className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium ${
+//                           activeDropdown === index 
+//                             ? 'bg-blue-50 text-blue-700' 
+//                             : 'text-gray-700 hover:bg-gray-100'
+//                         }`}
+//                         style={{ textDecoration: 'none' }}
+//                       >
+//                         <div className="flex items-center">
+//                           <span className="mr-3">{item.icon}</span>
+//                           {item.title}
+//                         </div>
+//                         <FiChevronDown 
+//                           className={`h-5 w-5 transition-transform ${
+//                             activeDropdown === index ? 'rotate-180' : ''
+//                           }`} 
+//                         />
+//                       </button>
+
+//                       <div 
+//                         className={`overflow-hidden transition-all duration-300 ${
+//                           activeDropdown === index ? 'max-h-96' : 'max-h-0'
+//                         }`}
+//                       >
+//                         {item.subItems.map((subItem, subIndex) => (
+//                           <Link
+//                             key={subIndex}
+//                             to={subItem.path}
+//                             onClick={() => {
+//                               setMobileMenuOpen(false);
+//                               setActiveDropdown(null);
+//                             }}
+//                             className={`flex items-center pl-12 pr-4 py-2.5 text-base ${
+//                               location.pathname === subItem.path 
+//                                 ? 'bg-blue-100 text-blue-700 font-medium' 
+//                                 : 'text-gray-600 hover:bg-gray-50'
+//                             }`}
+//                             style={{ textDecoration: 'none' }}
+//                           >
+//                             <span className="mr-3">{subItem.icon}</span>
+//                             {subItem.title}
+//                           </Link>
+//                         ))}
+//                       </div>
+//                     </div>
+//                   )}
+//                 </div>
+//               ))}
+//             </div>
+
+//             {/* Logout Button */}
+//             <div className="px-4 py-4 border-t border-gray-200">
+//               <button
+//                 onClick={handleLogout}
+//                 className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium"
+//                 style={{ textDecoration: 'none' }}
+//               >
+//                 <FiLogOut className="mr-3" />
+//                 Logout
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       </nav>
+//     </>
+//   );
+// };
+
+// export default Navbar;/////////////// working code 
+
+
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -4013,25 +4344,45 @@ import {
   FiMenu,
   FiX,
   FiSettings,
-  FiClock
+  FiClock,
+  FiMapPin,
+  FiFileText,
+  FiClipboard
 } from 'react-icons/fi';
 import { 
   MdOutlineWarehouse,
-  MdOutlineSchedule
+  MdOutlineSchedule,
+  MdOutlineFactory,
+  MdOutlineSecurity,
+  MdOutlineAssignment
 } from 'react-icons/md';
 import { 
   BsShieldLock,
-  BsBoxSeam
+  BsBoxSeam,
+  BsBuilding,
+  BsGear,
+  BsCalendarEvent
 } from 'react-icons/bs';
+import { HiOutlineBuildingOffice2 } from 'react-icons/hi2';
 
-const Navbar = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-    setUserRole(localStorage.getItem('userRole'));
+    const role = localStorage.getItem('userRole');
+    setUserRole(role);
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleLogout = () => {
@@ -4039,174 +4390,166 @@ const Navbar = () => {
     window.location.href = "/";
   };
 
-  const hasAccess = (requiredRoles) => {
+  const roleAccess = {
+    Owner: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+    Admin: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+    Dispatch: ['truck', 'truckfind'],
+    Report: ['reports', 'truckshedule'],
+    GateKeeper: ['gate'],
+    UserMaster: ['usermaster'],
+    UserRegister: ['userregister'],
+    Loader: ['loader'],
+  };
+
+  const canAccess = (route) => {
     if (!userRole) return false;
-    const userRoles = userRole.split(',').map(r => r.trim());
-    return requiredRoles.some(role => userRoles.includes(role));
+    const roles = userRole.split(',').map(r => r.trim());
+    return roles.some(role => roleAccess[role]?.includes(route));
+  };
+
+  const NavLink = ({ to, children, mobile = false, className = '' }) => (
+    <Link 
+      to={to} 
+      className={`no-underline transition-all ${mobile ? 'w-full' : ''} ${className}`}
+      onClick={() => setMobileMenuOpen(false)}
+    >
+      {children}
+    </Link>
+  );
+
+  if (location.pathname === '/') return null;
+
+  const toggleDropdown = (dropdown) => {
+    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
   };
 
   const menuItems = [
     {
-      title: "Dashboard",
-      path: "/dashboard",
-      icon: <FiHome className="flex-shrink-0" size={18} />,
-      roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report"]
-    },
-    {
-      title: "Admin",
-      icon: <FiSettings className="flex-shrink-0" size={18} />,
-      roles: ["Owner", "Admin"],
-      subItems: [
-        { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse size={16} /> },
-        { title: "User Management", path: "/usermaster", icon: <FiUsers size={16} /> },
-        { title: "User Register", path: "/userregister", icon: <BsShieldLock size={16} /> }
+      id: 'admin',
+      label: 'Administration',
+      icon: <BsGear className="text-lg" />,
+      routes: [
+        { to: '/plantmaster', label: 'Plant Master', icon: <MdOutlineFactory className="text-lg" />, access: 'plantmaster' },
+        { to: '/usermaster', label: 'User Master', icon: <FiUsers className="text-lg" />, access: 'usermaster' },
+        { to: '/userregister', label: 'User Register', icon: <MdOutlineSecurity className="text-lg" />, access: 'userregister' }
       ]
     },
     {
-      title: "Dispatch",
-      icon: <FiTruck className="flex-shrink-0" size={18} />,
-      roles: ["Owner", "Admin", "Dispatch"],
-      subItems: [
-        { title: "Truck Transaction", path: "/truck", icon: <FiTruck size={16} /> },
-        { title: "Truck Locator", path: "/truckfind", icon: <FiClock size={16} /> }
+      id: 'dispatch',
+      label: 'Dispatch',
+      icon: <FiTruck className="text-lg" />,
+      routes: [
+        { to: '/truck', label: 'Truck Transaction', icon: <BsBoxSeam className="text-lg" />, access: 'truck' },
+        { to: '/truckfind', label: 'Truck Locator', icon: <FiMapPin className="text-lg" />, access: 'truckfind' }
       ]
     },
     {
-      title: "Gate Control",
-      path: "/gate",
-      icon: <MdOutlineWarehouse className="flex-shrink-0" size={18} />,
-      roles: ["Owner", "Admin", "GateKeeper"]
+      id: 'operations',
+      label: 'Operations',
+      icon: <HiOutlineBuildingOffice2 className="text-lg" />,
+      routes: [
+        { to: '/gate', label: 'Gate Control', icon: <MdOutlineWarehouse className="text-lg" />, access: 'gate' },
+        { to: '/loader', label: 'Loading Dock', icon: <FiClipboard className="text-lg" />, access: 'loader' }
+      ]
     },
     {
-      title: "Loading",
-      path: "/loader",
-      icon: <BsBoxSeam className="flex-shrink-0" size={18} />,
-      roles: ["Owner", "Admin", "Loader"]
-    },
-    {
-      title: "Reports",
-      icon: <FiPieChart className="flex-shrink-0" size={18} />,
-      roles: ["Owner", "Admin", "Report"],
-      subItems: [
-        { title: "Operations Report", path: "/reports", icon: <FiPieChart size={16} /> },
-        { title: "Schedule Board", path: "/truckshedule", icon: <MdOutlineSchedule size={16} /> }
+      id: 'analytics',
+      label: 'Analytics',
+      icon: <FiPieChart className="text-lg" />,
+      routes: [
+        { to: '/reports', label: 'Operations Report', icon: <FiFileText className="text-lg" />, access: 'reports' },
+        { to: '/truckshedule', label: 'Schedule Board', icon: <BsCalendarEvent className="text-lg" />, access: 'truckshedule' }
       ]
     }
   ];
 
-  const filteredMenuItems = menuItems.filter(item => hasAccess(item.roles));
-
-  if (location.pathname === '/') return null;
-
   return (
-    <>
-      {/* Desktop Navigation */}
-      <nav className="hidden md:block bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex justify-between h-16 items-center">
-            <Link to="/dashboard" className="flex items-center min-w-max">
-              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-sm">
-                <FiTruck className="h-5 w-5" />
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-xl' : 'bg-white/95 backdrop-blur-md'}`}>
+      <div className="max-w-8xl mx-auto px-6">
+        <div className="flex justify-between h-20 items-center border-b border-gray-100">
+          {/* Logo */}
+          <NavLink to="/dashboard" className="flex items-center space-x-3">
+            <div className="flex items-center">
+              <div className="bg-blue-600 p-2 rounded-lg shadow-md">
+                <FiTruck className="h-6 w-6 text-white" />
               </div>
-              <span className="ml-3 text-xl font-semibold text-gray-800">Lemon Logistics</span>
-            </Link>
+              <span className="ml-3 text-2xl font-bold text-gray-800">
+                <span className="text-blue-600">Lemon</span> Logistics
+              </span>
+            </div>
+          </NavLink>
 
-            <div className="flex items-center space-x-4">
-              <div className="flex space-x-1">
-                {filteredMenuItems.map((item, index) => (
-                  <div key={index} className="relative h-full">
-                    {item.path ? (
-                      <Link
-                        to={item.path}
-                        className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                          location.pathname === item.path 
-                            ? 'text-blue-700 bg-blue-50 font-medium' 
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                        }`}
-                        style={{ textDecoration: 'none' }}
-                      >
-                        <span className="mr-2">{item.icon}</span>
-                        {item.title}
-                      </Link>
-                    ) : (
-                      <div className="h-full">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveDropdown(activeDropdown === index ? null : index);
-                          }}
-                          className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
-                              ? 'text-blue-700 bg-blue-50 font-medium' 
-                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                          }`}
-                          style={{ textDecoration: 'none' }}
-                        >
-                          <span className="mr-2">{item.icon}</span>
-                          {item.title}
-                          <FiChevronDown 
-                            className={`ml-1 h-4 w-4 transition-transform duration-200 ${
-                              activeDropdown === index ? 'rotate-180' : ''
-                            }`} 
-                          />
-                        </button>
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex items-center space-x-1">
+            {menuItems.map((section) => (
+              (section.routes.some(item => canAccess(item.access))) && (
+                <div key={section.id} className="relative">
+                  <button
+                    onClick={() => toggleDropdown(section.id)}
+                    className={`flex items-center px-5 py-3 text-sm font-medium rounded-lg transition-all ${activeDropdown === section.id ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'}`}
+                  >
+                    <span className="mr-2">{section.icon}</span>
+                    {section.label}
+                    <FiChevronDown className={`ml-2 w-4 h-4 transition-transform ${activeDropdown === section.id ? 'rotate-180' : ''}`} />
+                  </button>
 
-                        {activeDropdown === index && (
-                          <div 
-                            className="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {item.subItems.map((subItem, subIndex) => (
-                              <Link
-                                key={subIndex}
-                                to={subItem.path}
-                                onClick={() => setActiveDropdown(null)}
-                                className={`flex items-center px-4 py-2.5 text-sm transition-colors ${
-                                  location.pathname === subItem.path
-                                    ? 'bg-blue-50 text-blue-700 font-medium'
-                                    : 'text-gray-700 hover:bg-gray-50'
-                                }`}
-                                style={{ textDecoration: 'none' }}
-                              >
-                                <span className="mr-3 text-gray-500">{subItem.icon}</span>
-                                {subItem.title}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
+                  {activeDropdown === section.id && (
+                    <div className="absolute left-0 mt-1 w-56 origin-top-right bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden z-50 animate-fadeIn">
+                      <div className="py-1">
+                        {section.routes.map((item) => (
+                          canAccess(item.access) && (
+                            <NavLink key={item.to} to={item.to}>
+                              <div className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                <span className="mr-3">{item.icon}</span>
+                                {item.label}
+                              </div>
+                            </NavLink>
+                          )
+                        ))}
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                    </div>
+                  )}
+                </div>
+              )
+            ))}
 
+            {/* User Profile Dropdown */}
+            <div className="ml-4 relative">
               <button
-                onClick={handleLogout}
-                className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors min-w-max"
-                style={{ textDecoration: 'none' }}
+                onClick={() => toggleDropdown('user')}
+                className="flex items-center space-x-2 focus:outline-none"
               >
-                <FiLogOut className="mr-2" />
-                Logout
+                <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+                  {userRole?.charAt(0) || 'U'}
+                </div>
               </button>
+
+              {activeDropdown === 'user' && (
+                <div className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden z-50 animate-fadeIn">
+                  <div className="py-1">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900">Signed in as</p>
+                      <p className="text-sm text-gray-500 truncate">{userRole || 'User'}</p>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 flex items-center transition-colors"
+                    >
+                      <FiLogOut className="mr-3 h-5 w-5" />
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      </nav>
 
-      {/* Mobile Navigation - Fixed Version */}
-      <nav className="md:hidden bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div className="px-4">
-          <div className="flex justify-between h-16 items-center">
-            <Link to="/dashboard" className="flex items-center">
-              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-sm">
-                <FiTruck className="h-5 w-5" />
-              </div>
-              <span className="text-xl font-semibold text-gray-800 tracking-tight">Lemon ERP</span>
-            </Link>
-
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden flex items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-500 hover:text-gray-700 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors"
+              className="text-gray-700 focus:outline-none"
+              aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
                 <FiX className="h-6 w-6" />
@@ -4216,116 +4559,68 @@ const Navbar = () => {
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Sidebar */}
-        <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50" 
-            onClick={() => setMobileMenuOpen(false)}
-          ></div>
-          <div className="relative flex flex-col w-80 max-w-sm h-full bg-white shadow-xl">
+      {/* Mobile Menu */}
+      <div className={`lg:hidden overflow-hidden transition-all duration-500 ease-in-out ${mobileMenuOpen ? 'max-h-screen bg-white shadow-xl' : 'max-h-0'}`}>
+        <div className="px-6 py-4">
+          <div className="space-y-1">
+            {menuItems.map((section) => (
+              (section.routes.some(item => canAccess(item.access))) && (
+                <div key={section.id} className="pt-2">
+                  <button
+                    onClick={() => toggleDropdown(`${section.id}-mobile`)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center">
+                      <span className="mr-3">{section.icon}</span>
+                      {section.label}
+                    </div>
+                    <FiChevronDown className={`w-5 h-5 transition-transform ${activeDropdown === `${section.id}-mobile` ? 'rotate-180' : ''}`} />
+                  </button>
 
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
-              <div className="text-xl font-semibold text-gray-800">Menu</div>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
-              >
-                <FiX className="h-6 w-6" />
-              </button>
-            </div>
-
-            {/* Menu Items */}
-            <div className="flex-1 overflow-y-auto py-4">
-              {filteredMenuItems.map((item, index) => (
-                <div key={index} className="px-2">
-                  {item.path ? (
-                    <Link
-                      to={item.path}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium ${
-                        location.pathname === item.path 
-                          ? 'bg-blue-50 text-blue-700' 
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
-                      style={{ textDecoration: 'none' }}
-                    >
-                      <span className="mr-3">{item.icon}</span>
-                      {item.title}
-                    </Link>
-                  ) : (
-                    <div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveDropdown(activeDropdown === index ? null : index);
-                        }}
-                        className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium ${
-                          activeDropdown === index 
-                            ? 'bg-blue-50 text-blue-700' 
-                            : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                        style={{ textDecoration: 'none' }}
-                      >
-                        <div className="flex items-center">
-                          <span className="mr-3">{item.icon}</span>
-                          {item.title}
-                        </div>
-                        <FiChevronDown 
-                          className={`h-5 w-5 transition-transform ${
-                            activeDropdown === index ? 'rotate-180' : ''
-                          }`} 
-                        />
-                      </button>
-
-                      <div 
-                        className={`overflow-hidden transition-all duration-300 ${
-                          activeDropdown === index ? 'max-h-96' : 'max-h-0'
-                        }`}
-                      >
-                        {item.subItems.map((subItem, subIndex) => (
-                          <Link
-                            key={subIndex}
-                            to={subItem.path}
-                            onClick={() => {
-                              setMobileMenuOpen(false);
-                              setActiveDropdown(null);
-                            }}
-                            className={`flex items-center pl-12 pr-4 py-2.5 text-base ${
-                              location.pathname === subItem.path 
-                                ? 'bg-blue-100 text-blue-700 font-medium' 
-                                : 'text-gray-600 hover:bg-gray-50'
-                            }`}
-                            style={{ textDecoration: 'none' }}
-                          >
-                            <span className="mr-3">{subItem.icon}</span>
-                            {subItem.title}
-                          </Link>
-                        ))}
-                      </div>
+                  {activeDropdown === `${section.id}-mobile` && (
+                    <div className="mt-1 space-y-1 pl-12 pr-4">
+                      {section.routes.map((item) => (
+                        canAccess(item.access) && (
+                          <NavLink key={item.to} to={item.to} mobile>
+                            <div className="flex items-center px-4 py-3 text-base text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+                              <span className="mr-3">{item.icon}</span>
+                              {item.label}
+                            </div>
+                          </NavLink>
+                        )
+                      ))}
                     </div>
                   )}
                 </div>
-              ))}
-            </div>
+              )
+            ))}
 
-            {/* Logout Button */}
-            <div className="px-4 py-4 border-t border-gray-200">
+            {/* Mobile User Menu */}
+            <div className="pt-4 border-t border-gray-200 mt-4">
+              <div className="flex items-center px-4 py-3">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold mr-3">
+                  {userRole?.charAt(0) || 'U'}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Logged in</p>
+                  <p className="text-sm text-gray-500">{userRole || 'User'}</p>
+                </div>
+              </div>
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium"
-                style={{ textDecoration: 'none' }}
+                className="w-full flex items-center px-4 py-3 text-base font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors mt-2"
               >
-                <FiLogOut className="mr-3" />
-                Logout
+                <FiLogOut className="mr-3 h-5 w-5" />
+                Sign out
               </button>
             </div>
           </div>
         </div>
-      </nav>
-    </>
+      </div>
+    </nav>
   );
-};
+}
 
 export default Navbar;
