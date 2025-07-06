@@ -526,7 +526,7 @@ export default function Report() {
   const formatDate = dateStr => {
     if (!dateStr) return '—';
     const date = new Date(dateStr);
-    if (isNaN(date.getTime()) return '—';
+    if (isNaN(date.getTime())) return '—';
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'short', 
