@@ -1802,356 +1802,356 @@
 // export default Navbar;///////////////////fully working code with mobile panel and desktop menu
 
 
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+// import { useState, useEffect } from 'react';
+// import { Link, useLocation } from 'react-router-dom';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-function Navbar() {
-  const [adminOpen, setAdminOpen] = useState(false);
-  const [dispatcherOpen, setDispatcherOpen] = useState(false);
-  const [reportsOpen, setReportsOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-  const location = useLocation();
+// function Navbar() {
+//   const [adminOpen, setAdminOpen] = useState(false);
+//   const [dispatcherOpen, setDispatcherOpen] = useState(false);
+//   const [reportsOpen, setReportsOpen] = useState(false);
+//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+//   const [userRole, setUserRole] = useState(null);
+//   const location = useLocation();
 
-  useEffect(() => {
-    const role = localStorage.getItem('userRole');
-    setUserRole(role);
-  }, []);
+//   useEffect(() => {
+//     const role = localStorage.getItem('userRole');
+//     setUserRole(role);
+//   }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    alert("You have been logged out.");
-    window.location.href = "/";
-  };
+//   const handleLogout = () => {
+//     localStorage.clear();
+//     alert("You have been logged out.");
+//     window.location.href = "/";
+//   };
 
-  const roleAccess = {
-    Owner: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
-    Admin: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
-    Dispatch: ['truck', 'truckfind'],
-    Report: ['reports', 'truckshedule'],
-    GateKeeper: ['gate'],
-    UserMaster: ['usermaster'],
-    UserRegister: ['userregister'],
-    Loader: ['loader'],
-  };
+//   const roleAccess = {
+//     Owner: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Admin: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Dispatch: ['truck', 'truckfind'],
+//     Report: ['reports', 'truckshedule'],
+//     GateKeeper: ['gate'],
+//     UserMaster: ['usermaster'],
+//     UserRegister: ['userregister'],
+//     Loader: ['loader'],
+//   };
 
-  const canAccess = (route) => {
-    if (!userRole) return false;
-    const roles = userRole.split(',').map(r => r.trim());
-    return roles.some(role => roleAccess[role]?.includes(route));
-  };
+//   const canAccess = (route) => {
+//     if (!userRole) return false;
+//     const roles = userRole.split(',').map(r => r.trim());
+//     return roles.some(role => roleAccess[role]?.includes(route));
+//   };
 
-  const NavLink = ({ to, children, mobile = false }) => (
-    <Link 
-      to={to} 
-      className={`no-underline transition-all duration-200 ${mobile ? 'w-full' : ''}`}
-      onClick={() => setMobileMenuOpen(false)}
-    >
-      {children}
-    </Link>
-  );
+//   const NavLink = ({ to, children, mobile = false }) => (
+//     <Link 
+//       to={to} 
+//       className={`no-underline transition-all duration-200 ${mobile ? 'w-full' : ''}`}
+//       onClick={() => setMobileMenuOpen(false)}
+//     >
+//       {children}
+//     </Link>
+//   );
 
-  if (location.pathname === '/') return null;
+//   if (location.pathname === '/') return null;
 
-  return (
-    <nav className="bg-gradient-to-r from-gray-900 to-gray-800 shadow-2xl sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 items-center">
-          {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <NavLink to="/dashboard">
-              <div className="flex items-center space-x-3 group">
-                <div className="bg-yellow-500 p-2 rounded-xl shadow-lg transform group-hover:rotate-12 transition duration-300">
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/4/48/Emoji_u1f34b.svg"
-                    alt="Lemon Logo"
-                    className="w-8 h-8"
-                  />
-                </div>
-                <span className="text-white font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-200">
-                  Lemon ERP
-                </span>
-              </div>
-            </NavLink>
-          </div>
+//   return (
+//     <nav className="bg-gradient-to-r from-gray-900 to-gray-800 shadow-2xl sticky top-0 z-50">
+//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//         <div className="flex justify-between h-20 items-center">
+//           {/* Logo */}
+//           <div className="flex items-center space-x-3">
+//             <NavLink to="/dashboard">
+//               <div className="flex items-center space-x-3 group">
+//                 <div className="bg-yellow-500 p-2 rounded-xl shadow-lg transform group-hover:rotate-12 transition duration-300">
+//                   <img
+//                     src="https://upload.wikimedia.org/wikipedia/commons/4/48/Emoji_u1f34b.svg"
+//                     alt="Lemon Logo"
+//                     className="w-8 h-8"
+//                   />
+//                 </div>
+//                 <span className="text-white font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-200">
+//                   Lemon ERP
+//                 </span>
+//               </div>
+//             </NavLink>
+//           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white focus:outline-none"
-              aria-label="Toggle menu"
-            >
-              <div className="w-8 space-y-2">
-                <span className={`block h-1 w-full bg-yellow-400 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'transform rotate-45 translate-y-3' : ''}`}></span>
-                <span className={`block h-1 w-full bg-yellow-400 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-                <span className={`block h-1 w-full bg-yellow-400 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'transform -rotate-45 -translate-y-1' : ''}`}></span>
-              </div>
-            </button>
-          </div>
+//           {/* Mobile Menu Button */}
+//           <div className="md:hidden flex items-center">
+//             <button
+//               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+//               className="text-white focus:outline-none"
+//               aria-label="Toggle menu"
+//             >
+//               <div className="w-8 space-y-2">
+//                 <span className={`block h-1 w-full bg-yellow-400 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'transform rotate-45 translate-y-3' : ''}`}></span>
+//                 <span className={`block h-1 w-full bg-yellow-400 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+//                 <span className={`block h-1 w-full bg-yellow-400 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'transform -rotate-45 -translate-y-1' : ''}`}></span>
+//               </div>
+//             </button>
+//           </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-6 items-center font-medium">
-            {(canAccess('plantmaster') || canAccess('usermaster') || canAccess('userregister')) && (
-              <div className="relative group">
-                <button
-                  onClick={() => {
-                    setAdminOpen(!adminOpen);
-                    setDispatcherOpen(false);
-                    setReportsOpen(false);
-                  }}
-                  className="text-gray-200 hover:text-yellow-400 flex items-center space-x-1 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200"
-                >
-                  <span className="text-yellow-400">⚙️</span>
-                  <span>Admin</span>
-                  <span className={`transition-transform duration-200 ${adminOpen ? 'rotate-180' : ''}`}>▼</span>
-                </button>
-                <div className={`absolute top-full left-0 mt-1 w-56 bg-gray-800 rounded-lg shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${adminOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`}>
-                  <div className="py-1">
-                    {canAccess('plantmaster') && (
-                      <NavLink to="/plantmaster">
-                        <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
-                          <span className="mr-3">🏭</span>
-                          <span>Plant Master</span>
-                        </div>
-                      </NavLink>
-                    )}
-                    {canAccess('usermaster') && (
-                      <NavLink to="/usermaster">
-                        <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
-                          <span className="mr-3">👤</span>
-                          <span>User Master</span>
-                        </div>
-                      </NavLink>
-                    )}
-                    {canAccess('userregister') && (
-                      <NavLink to="/userregister">
-                        <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
-                          <span className="mr-3">📝</span>
-                          <span>User Register</span>
-                        </div>
-                      </NavLink>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
+//           {/* Desktop Menu */}
+//           <div className="hidden md:flex space-x-6 items-center font-medium">
+//             {(canAccess('plantmaster') || canAccess('usermaster') || canAccess('userregister')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setAdminOpen(!adminOpen);
+//                     setDispatcherOpen(false);
+//                     setReportsOpen(false);
+//                   }}
+//                   className="text-gray-200 hover:text-yellow-400 flex items-center space-x-1 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200"
+//                 >
+//                   <span className="text-yellow-400">⚙️</span>
+//                   <span>Admin</span>
+//                   <span className={`transition-transform duration-200 ${adminOpen ? 'rotate-180' : ''}`}>▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-1 w-56 bg-gray-800 rounded-lg shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${adminOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`}>
+//                   <div className="py-1">
+//                     {canAccess('plantmaster') && (
+//                       <NavLink to="/plantmaster">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">🏭</span>
+//                           <span>Plant Master</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                     {canAccess('usermaster') && (
+//                       <NavLink to="/usermaster">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">👤</span>
+//                           <span>User Master</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                     {canAccess('userregister') && (
+//                       <NavLink to="/userregister">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">📝</span>
+//                           <span>User Register</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
 
-            {(canAccess('truck') || canAccess('truckfind')) && (
-              <div className="relative group">
-                <button
-                  onClick={() => {
-                    setDispatcherOpen(!dispatcherOpen);
-                    setAdminOpen(false);
-                    setReportsOpen(false);
-                  }}
-                  className="text-gray-200 hover:text-yellow-400 flex items-center space-x-1 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200"
-                >
-                  <span className="text-yellow-400">🚚</span>
-                  <span>Dispatcher</span>
-                  <span className={`transition-transform duration-200 ${dispatcherOpen ? 'rotate-180' : ''}`}>▼</span>
-                </button>
-                <div className={`absolute top-full left-0 mt-1 w-56 bg-gray-800 rounded-lg shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${dispatcherOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`}>
-                  <div className="py-1">
-                    {canAccess('truck') && (
-                      <NavLink to="/truck">
-                        <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
-                          <span className="mr-3">📦</span>
-                          <span>Truck Transaction</span>
-                        </div>
-                      </NavLink>
-                    )}
-                    {canAccess('truckfind') && (
-                      <NavLink to="/truckfind">
-                        <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
-                          <span className="mr-3">🔍</span>
-                          <span>Truck Find</span>
-                        </div>
-                      </NavLink>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
+//             {(canAccess('truck') || canAccess('truckfind')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setDispatcherOpen(!dispatcherOpen);
+//                     setAdminOpen(false);
+//                     setReportsOpen(false);
+//                   }}
+//                   className="text-gray-200 hover:text-yellow-400 flex items-center space-x-1 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200"
+//                 >
+//                   <span className="text-yellow-400">🚚</span>
+//                   <span>Dispatcher</span>
+//                   <span className={`transition-transform duration-200 ${dispatcherOpen ? 'rotate-180' : ''}`}>▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-1 w-56 bg-gray-800 rounded-lg shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${dispatcherOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`}>
+//                   <div className="py-1">
+//                     {canAccess('truck') && (
+//                       <NavLink to="/truck">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">📦</span>
+//                           <span>Truck Transaction</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                     {canAccess('truckfind') && (
+//                       <NavLink to="/truckfind">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">🔍</span>
+//                           <span>Truck Find</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
 
-            {canAccess('gate') && (
-              <NavLink to="/gate">
-                <div className="text-gray-200 hover:text-yellow-400 flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200">
-                  <span className="text-yellow-400">🚪</span>
-                  <span>Gate Keeper</span>
-                </div>
-              </NavLink>
-            )}
+//             {canAccess('gate') && (
+//               <NavLink to="/gate">
+//                 <div className="text-gray-200 hover:text-yellow-400 flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200">
+//                   <span className="text-yellow-400">🚪</span>
+//                   <span>Gate Keeper</span>
+//                 </div>
+//               </NavLink>
+//             )}
 
-            {canAccess('loader') && (
-              <NavLink to="/loader">
-                <div className="text-gray-200 hover:text-yellow-400 flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200">
-                  <span className="text-yellow-400">🏗️</span>
-                  <span>Loader</span>
-                </div>
-              </NavLink>
-            )}
+//             {canAccess('loader') && (
+//               <NavLink to="/loader">
+//                 <div className="text-gray-200 hover:text-yellow-400 flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200">
+//                   <span className="text-yellow-400">🏗️</span>
+//                   <span>Loader</span>
+//                 </div>
+//               </NavLink>
+//             )}
 
-            {(canAccess('reports') || canAccess('truckshedule')) && (
-              <div className="relative group">
-                <button
-                  onClick={() => {
-                    setReportsOpen(!reportsOpen);
-                    setAdminOpen(false);
-                    setDispatcherOpen(false);
-                  }}
-                  className="text-gray-200 hover:text-yellow-400 flex items-center space-x-1 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200"
-                >
-                  <span className="text-yellow-400">📊</span>
-                  <span>Reports</span>
-                  <span className={`transition-transform duration-200 ${reportsOpen ? 'rotate-180' : ''}`}>▼</span>
-                </button>
-                <div className={`absolute top-full left-0 mt-1 w-56 bg-gray-800 rounded-lg shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${reportsOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`}>
-                  <div className="py-1">
-                    {canAccess('reports') && (
-                      <NavLink to="/reports">
-                        <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
-                          <span className="mr-3">📈</span>
-                          <span>Reports</span>
-                        </div>
-                      </NavLink>
-                    )}
-                    {canAccess('truckshedule') && (
-                      <NavLink to="/truckshedule">
-                        <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
-                          <span className="mr-3">🗓️</span>
-                          <span>Truck Schedule</span>
-                        </div>
-                      </NavLink>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
+//             {(canAccess('reports') || canAccess('truckshedule')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setReportsOpen(!reportsOpen);
+//                     setAdminOpen(false);
+//                     setDispatcherOpen(false);
+//                   }}
+//                   className="text-gray-200 hover:text-yellow-400 flex items-center space-x-1 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200"
+//                 >
+//                   <span className="text-yellow-400">📊</span>
+//                   <span>Reports</span>
+//                   <span className={`transition-transform duration-200 ${reportsOpen ? 'rotate-180' : ''}`}>▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-1 w-56 bg-gray-800 rounded-lg shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${reportsOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`}>
+//                   <div className="py-1">
+//                     {canAccess('reports') && (
+//                       <NavLink to="/reports">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">📈</span>
+//                           <span>Reports</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                     {canAccess('truckshedule') && (
+//                       <NavLink to="/truckshedule">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">🗓️</span>
+//                           <span>Truck Schedule</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
 
-            <button
-              onClick={handleLogout}
-              className="ml-4 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg border border-red-700 transition-all duration-300 hover:shadow-xl hover:scale-105 flex items-center space-x-2"
-            >
-              <span>🔓</span>
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
+//             <button
+//               onClick={handleLogout}
+//               className="ml-4 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg border border-red-700 transition-all duration-300 hover:shadow-xl hover:scale-105 flex items-center space-x-2"
+//             >
+//               <span>🔓</span>
+//               <span>Logout</span>
+//             </button>
+//           </div>
+//         </div>
 
-        {/* Mobile Menu */}
-        <div className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${mobileMenuOpen ? 'max-h-screen py-4' : 'max-h-0'}`}>
-          <div className="grid grid-cols-2 gap-3 pt-4">
-            {canAccess('plantmaster') && (
-              <NavLink to="/plantmaster" mobile>
-                <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
-                  <div className="bg-yellow-500 p-3 rounded-full mb-2">
-                    <span className="text-xl">🏭</span>
-                  </div>
-                  <span className="text-white font-medium">Plant Master</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('usermaster') && (
-              <NavLink to="/usermaster" mobile>
-                <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
-                  <div className="bg-yellow-500 p-3 rounded-full mb-2">
-                    <span className="text-xl">👤</span>
-                  </div>
-                  <span className="text-white font-medium">User Master</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('userregister') && (
-              <NavLink to="/userregister" mobile>
-                <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
-                  <div className="bg-yellow-500 p-3 rounded-full mb-2">
-                    <span className="text-xl">📝</span>
-                  </div>
-                  <span className="text-white font-medium">User Register</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('truck') && (
-              <NavLink to="/truck" mobile>
-                <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
-                  <div className="bg-yellow-500 p-3 rounded-full mb-2">
-                    <span className="text-xl">🚛</span>
-                  </div>
-                  <span className="text-white font-medium">Truck Transaction</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('truckfind') && (
-              <NavLink to="/truckfind" mobile>
-                <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
-                  <div className="bg-yellow-500 p-3 rounded-full mb-2">
-                    <span className="text-xl">🔍</span>
-                  </div>
-                  <span className="text-white font-medium">Truck Find</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('gate') && (
-              <NavLink to="/gate" mobile>
-                <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
-                  <div className="bg-yellow-500 p-3 rounded-full mb-2">
-                    <span className="text-xl">🚪</span>
-                  </div>
-                  <span className="text-white font-medium">Gate Keeper</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('loader') && (
-              <NavLink to="/loader" mobile>
-                <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
-                  <div className="bg-yellow-500 p-3 rounded-full mb-2">
-                    <span className="text-xl">🏗️</span>
-                  </div>
-                  <span className="text-white font-medium">Loader</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('reports') && (
-              <NavLink to="/reports" mobile>
-                <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
-                  <div className="bg-yellow-500 p-3 rounded-full mb-2">
-                    <span className="text-xl">📊</span>
-                  </div>
-                  <span className="text-white font-medium">Reports</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('truckshedule') && (
-              <NavLink to="/truckshedule" mobile>
-                <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
-                  <div className="bg-yellow-500 p-3 rounded-full mb-2">
-                    <span className="text-xl">🗓️</span>
-                  </div>
-                  <span className="text-white font-medium">Truck Schedule</span>
-                </div>
-              </NavLink>
-            )}
-          </div>
+//         {/* Mobile Menu */}
+//         <div className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${mobileMenuOpen ? 'max-h-screen py-4' : 'max-h-0'}`}>
+//           <div className="grid grid-cols-2 gap-3 pt-4">
+//             {canAccess('plantmaster') && (
+//               <NavLink to="/plantmaster" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🏭</span>
+//                   </div>
+//                   <span className="text-white font-medium">Plant Master</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('usermaster') && (
+//               <NavLink to="/usermaster" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">👤</span>
+//                   </div>
+//                   <span className="text-white font-medium">User Master</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('userregister') && (
+//               <NavLink to="/userregister" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">📝</span>
+//                   </div>
+//                   <span className="text-white font-medium">User Register</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truck') && (
+//               <NavLink to="/truck" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🚛</span>
+//                   </div>
+//                   <span className="text-white font-medium">Truck Transaction</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truckfind') && (
+//               <NavLink to="/truckfind" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🔍</span>
+//                   </div>
+//                   <span className="text-white font-medium">Truck Find</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('gate') && (
+//               <NavLink to="/gate" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🚪</span>
+//                   </div>
+//                   <span className="text-white font-medium">Gate Keeper</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('loader') && (
+//               <NavLink to="/loader" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🏗️</span>
+//                   </div>
+//                   <span className="text-white font-medium">Loader</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('reports') && (
+//               <NavLink to="/reports" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">📊</span>
+//                   </div>
+//                   <span className="text-white font-medium">Reports</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truckshedule') && (
+//               <NavLink to="/truckshedule" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🗓️</span>
+//                   </div>
+//                   <span className="text-white font-medium">Truck Schedule</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//           </div>
 
-          <div className="mt-4">
-            <button
-              onClick={handleLogout}
-              className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl flex items-center justify-center space-x-2"
-            >
-              <span>🔓</span>
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-}
+//           <div className="mt-4">
+//             <button
+//               onClick={handleLogout}
+//               className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl flex items-center justify-center space-x-2"
+//             >
+//               <span>🔓</span>
+//               <span>Logout</span>
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </nav>
+//   );
+// }
 
-export default Navbar;
+// export default Navbar;
 
 
 
@@ -2427,3 +2427,267 @@ export default Navbar;
 // }
 
 // export default Navbar;
+
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { 
+  FiHome, 
+  FiTruck, 
+  FiUser, 
+  FiClipboard, 
+  FiBarChart2, 
+  FiLogOut,
+  FiChevronDown,
+  FiMenu,
+  FiX
+} from 'react-icons/fi';
+import { 
+  MdOutlineWarehouse,
+  MdOutlineSchedule
+} from 'react-icons/md';
+import { 
+  BsDoorOpen,
+  BsBox
+} from 'react-icons/bs';
+
+const Navbar = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    setUserRole(localStorage.getItem('userRole'));
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  };
+
+  // Role-based access control
+  const canAccess = (requiredRoles) => {
+    if (!userRole) return false;
+    const userRoles = userRole.split(',').map(r => r.trim());
+    return requiredRoles.some(role => userRoles.includes(role));
+  };
+
+  // Menu configuration
+  const menuItems = [
+    {
+      title: "Dashboard",
+      path: "/dashboard",
+      icon: <FiHome />,
+      roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report"]
+    },
+    {
+      title: "Admin",
+      icon: <FiUser />,
+      roles: ["Owner", "Admin"],
+      subItems: [
+        { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse /> },
+        { title: "User Management", path: "/usermaster", icon: <FiUser /> },
+        { title: "User Register", path: "/userregister", icon: <FiClipboard /> }
+      ]
+    },
+    {
+      title: "Dispatch",
+      icon: <FiTruck />,
+      roles: ["Owner", "Admin", "Dispatch"],
+      subItems: [
+        { title: "Truck Transaction", path: "/truck", icon: <FiTruck /> },
+        { title: "Truck Locator", path: "/truckfind", icon: <FiTruck /> }
+      ]
+    },
+    {
+      title: "Gate Control",
+      path: "/gate",
+      icon: <BsDoorOpen />,
+      roles: ["Owner", "Admin", "GateKeeper"]
+    },
+    {
+      title: "Loading",
+      path: "/loader",
+      icon: <BsBox />,
+      roles: ["Owner", "Admin", "Loader"]
+    },
+    {
+      title: "Reports",
+      icon: <FiBarChart2 />,
+      roles: ["Owner", "Admin", "Report"],
+      subItems: [
+        { title: "Operations Report", path: "/reports", icon: <FiBarChart2 /> },
+        { title: "Schedule Board", path: "/truckshedule", icon: <MdOutlineSchedule /> }
+      ]
+    }
+  ];
+
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter(item => 
+    canAccess(item.roles)
+  );
+
+  if (location.pathname === '/') return null;
+
+  return (
+    <nav className="bg-white shadow-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          {/* Logo */}
+          <Link to="/dashboard" className="flex items-center">
+            <div className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center text-white mr-2">
+              <FiTruck className="h-5 w-5" />
+            </div>
+            <span className="text-xl font-semibold text-gray-800">Lemon Logistics</span>
+          </Link>
+
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-4">
+            {filteredMenuItems.map((item, index) => (
+              <div key={index} className="relative">
+                {item.path ? (
+                  <Link
+                    to={item.path}
+                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                      location.pathname === item.path 
+                        ? 'bg-blue-50 text-blue-600' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <span className="mr-2">{item.icon}</span>
+                    {item.title}
+                  </Link>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+                      className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                        activeDropdown === index 
+                          ? 'bg-blue-50 text-blue-600' 
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <span className="mr-2">{item.icon}</span>
+                      {item.title}
+                      <FiChevronDown 
+                        className={`ml-1 h-4 w-4 transition-transform ${
+                          activeDropdown === index ? 'rotate-180' : ''
+                        }`} 
+                      />
+                    </button>
+
+                    {activeDropdown === index && (
+                      <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-1 z-50">
+                        {item.subItems.map((subItem, subIndex) => (
+                          <Link
+                            key={subIndex}
+                            to={subItem.path}
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          >
+                            <span className="mr-3">{subItem.icon}</span>
+                            {subItem.title}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            ))}
+
+            <button
+              onClick={handleLogout}
+              className="ml-4 flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50"
+            >
+              <FiLogOut className="mr-2" />
+              Logout
+            </button>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-gray-500 hover:text-gray-900 focus:outline-none"
+            >
+              {mobileMenuOpen ? (
+                <FiX className="h-6 w-6" />
+              ) : (
+                <FiMenu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white shadow-xl">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            {filteredMenuItems.map((item, index) => (
+              <div key={index}>
+                {item.path ? (
+                  <Link
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
+                      location.pathname === item.path 
+                        ? 'bg-blue-50 text-blue-600' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <span className="mr-2">{item.icon}</span>
+                    {item.title}
+                  </Link>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+                      className="flex items-center justify-between w-full px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
+                    >
+                      <div className="flex items-center">
+                        <span className="mr-2">{item.icon}</span>
+                        {item.title}
+                      </div>
+                      <FiChevronDown 
+                        className={`h-4 w-4 transition-transform ${
+                          activeDropdown === index ? 'rotate-180' : ''
+                        }`} 
+                      />
+                    </button>
+
+                    {activeDropdown === index && (
+                      <div className="pl-8">
+                        {item.subItems.map((subItem, subIndex) => (
+                          <Link
+                            key={subIndex}
+                            to={subItem.path}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50"
+                          >
+                            <span className="mr-3">{subItem.icon}</span>
+                            {subItem.title}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            ))}
+
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 mt-2"
+            >
+              <FiLogOut className="mr-2" />
+              Logout
+            </button>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+export default Navbar;
