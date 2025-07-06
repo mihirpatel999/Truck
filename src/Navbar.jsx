@@ -2428,266 +2428,547 @@
 
 // export default Navbar;
 
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { 
-  FiHome, 
-  FiTruck, 
-  FiUser, 
-  FiClipboard, 
-  FiBarChart2, 
-  FiLogOut,
-  FiChevronDown,
-  FiMenu,
-  FiX
-} from 'react-icons/fi';
-import { 
-  MdOutlineWarehouse,
-  MdOutlineSchedule
-} from 'react-icons/md';
-import { 
-  BsDoorOpen,
-  BsBox
-} from 'react-icons/bs';
+// import { useState, useEffect } from 'react';
+// import { Link, useLocation } from 'react-router-dom';
+// import { 
+//   FiHome, 
+//   FiTruck, 
+//   FiUser, 
+//   FiClipboard, 
+//   FiBarChart2, 
+//   FiLogOut,
+//   FiChevronDown,
+//   FiMenu,
+//   FiX
+// } from 'react-icons/fi';
+// import { 
+//   MdOutlineWarehouse,
+//   MdOutlineSchedule
+// } from 'react-icons/md';
+// import { 
+//   BsDoorOpen,
+//   BsBox
+// } from 'react-icons/bs';
 
-const Navbar = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const [userRole, setUserRole] = useState(null);
-  const location = useLocation();
+// const Navbar = () => {
+//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+//   const [activeDropdown, setActiveDropdown] = useState(null);
+//   const [userRole, setUserRole] = useState(null);
+//   const location = useLocation();
 
-  useEffect(() => {
-    setUserRole(localStorage.getItem('userRole'));
-  }, []);
+//   useEffect(() => {
+//     setUserRole(localStorage.getItem('userRole'));
+//   }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.href = "/";
-  };
+//   const handleLogout = () => {
+//     localStorage.clear();
+//     window.location.href = "/";
+//   };
 
-  // Role-based access control
-  const canAccess = (requiredRoles) => {
-    if (!userRole) return false;
-    const userRoles = userRole.split(',').map(r => r.trim());
-    return requiredRoles.some(role => userRoles.includes(role));
-  };
+//   // Role-based access control
+//   const canAccess = (requiredRoles) => {
+//     if (!userRole) return false;
+//     const userRoles = userRole.split(',').map(r => r.trim());
+//     return requiredRoles.some(role => userRoles.includes(role));
+//   };
 
-  // Menu configuration
-  const menuItems = [
-    {
-      title: "Dashboard",
-      path: "/dashboard",
-      icon: <FiHome />,
-      roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report"]
-    },
-    {
-      title: "Admin",
-      icon: <FiUser />,
-      roles: ["Owner", "Admin"],
-      subItems: [
-        { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse /> },
-        { title: "User Management", path: "/usermaster", icon: <FiUser /> },
-        { title: "User Register", path: "/userregister", icon: <FiClipboard /> }
-      ]
-    },
-    {
-      title: "Dispatch",
-      icon: <FiTruck />,
-      roles: ["Owner", "Admin", "Dispatch"],
-      subItems: [
-        { title: "Truck Transaction", path: "/truck", icon: <FiTruck /> },
-        { title: "Truck Locator", path: "/truckfind", icon: <FiTruck /> }
-      ]
-    },
-    {
-      title: "Gate Control",
-      path: "/gate",
-      icon: <BsDoorOpen />,
-      roles: ["Owner", "Admin", "GateKeeper"]
-    },
-    {
-      title: "Loading",
-      path: "/loader",
-      icon: <BsBox />,
-      roles: ["Owner", "Admin", "Loader"]
-    },
-    {
-      title: "Reports",
-      icon: <FiBarChart2 />,
-      roles: ["Owner", "Admin", "Report"],
-      subItems: [
-        { title: "Operations Report", path: "/reports", icon: <FiBarChart2 /> },
-        { title: "Schedule Board", path: "/truckshedule", icon: <MdOutlineSchedule /> }
-      ]
-    }
+//   // Menu configuration
+//   const menuItems = [
+//     {
+//       title: "Dashboard",
+//       path: "/dashboard",
+//       icon: <FiHome />,
+//       roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report"]
+//     },
+//     {
+//       title: "Admin",
+//       icon: <FiUser />,
+//       roles: ["Owner", "Admin"],
+//       subItems: [
+//         { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse /> },
+//         { title: "User Management", path: "/usermaster", icon: <FiUser /> },
+//         { title: "User Register", path: "/userregister", icon: <FiClipboard /> }
+//       ]
+//     },
+//     {
+//       title: "Dispatch",
+//       icon: <FiTruck />,
+//       roles: ["Owner", "Admin", "Dispatch"],
+//       subItems: [
+//         { title: "Truck Transaction", path: "/truck", icon: <FiTruck /> },
+//         { title: "Truck Locator", path: "/truckfind", icon: <FiTruck /> }
+//       ]
+//     },
+//     {
+//       title: "Gate Control",
+//       path: "/gate",
+//       icon: <BsDoorOpen />,
+//       roles: ["Owner", "Admin", "GateKeeper"]
+//     },
+//     {
+//       title: "Loading",
+//       path: "/loader",
+//       icon: <BsBox />,
+//       roles: ["Owner", "Admin", "Loader"]
+//     },
+//     {
+//       title: "Reports",
+//       icon: <FiBarChart2 />,
+//       roles: ["Owner", "Admin", "Report"],
+//       subItems: [
+//         { title: "Operations Report", path: "/reports", icon: <FiBarChart2 /> },
+//         { title: "Schedule Board", path: "/truckshedule", icon: <MdOutlineSchedule /> }
+//       ]
+//     }
+//   ];
+
+//   // Filter menu items based on user role
+//   const filteredMenuItems = menuItems.filter(item => 
+//     canAccess(item.roles)
+//   );
+
+//   if (location.pathname === '/') return null;
+
+//   return (
+//     <nav className="bg-white shadow-md sticky top-0 z-50">
+//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//         <div className="flex justify-between h-16 items-center">
+//           {/* Logo */}
+//           <Link to="/dashboard" className="flex items-center">
+//             <div className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center text-white mr-2">
+//               <FiTruck className="h-5 w-5" />
+//             </div>
+//             <span className="text-xl font-semibold text-gray-800">Lemon Logistics</span>
+//           </Link>
+
+//           {/* Desktop Menu */}
+//           <div className="hidden md:flex items-center space-x-4">
+//             {filteredMenuItems.map((item, index) => (
+//               <div key={index} className="relative">
+//                 {item.path ? (
+//                   <Link
+//                     to={item.path}
+//                     className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+//                       location.pathname === item.path 
+//                         ? 'bg-blue-50 text-blue-600' 
+//                         : 'text-gray-700 hover:bg-gray-100'
+//                     }`}
+//                   >
+//                     <span className="mr-2">{item.icon}</span>
+//                     {item.title}
+//                   </Link>
+//                 ) : (
+//                   <>
+//                     <button
+//                       onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+//                       className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+//                         activeDropdown === index 
+//                           ? 'bg-blue-50 text-blue-600' 
+//                           : 'text-gray-700 hover:bg-gray-100'
+//                       }`}
+//                     >
+//                       <span className="mr-2">{item.icon}</span>
+//                       {item.title}
+//                       <FiChevronDown 
+//                         className={`ml-1 h-4 w-4 transition-transform ${
+//                           activeDropdown === index ? 'rotate-180' : ''
+//                         }`} 
+//                       />
+//                     </button>
+
+//                     {activeDropdown === index && (
+//                       <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-1 z-50">
+//                         {item.subItems.map((subItem, subIndex) => (
+//                           <Link
+//                             key={subIndex}
+//                             to={subItem.path}
+//                             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+//                           >
+//                             <span className="mr-3">{subItem.icon}</span>
+//                             {subItem.title}
+//                           </Link>
+//                         ))}
+//                       </div>
+//                     )}
+//                   </>
+//                 )}
+//               </div>
+//             ))}
+
+//             <button
+//               onClick={handleLogout}
+//               className="ml-4 flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50"
+//             >
+//               <FiLogOut className="mr-2" />
+//               Logout
+//             </button>
+//           </div>
+
+//           {/* Mobile Menu Button */}
+//           <div className="md:hidden flex items-center">
+//             <button
+//               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+//               className="text-gray-500 hover:text-gray-900 focus:outline-none"
+//             >
+//               {mobileMenuOpen ? (
+//                 <FiX className="h-6 w-6" />
+//               ) : (
+//                 <FiMenu className="h-6 w-6" />
+//               )}
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Mobile Menu */}
+//       {mobileMenuOpen && (
+//         <div className="md:hidden bg-white shadow-xl">
+//           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+//             {filteredMenuItems.map((item, index) => (
+//               <div key={index}>
+//                 {item.path ? (
+//                   <Link
+//                     to={item.path}
+//                     onClick={() => setMobileMenuOpen(false)}
+//                     className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
+//                       location.pathname === item.path 
+//                         ? 'bg-blue-50 text-blue-600' 
+//                         : 'text-gray-700 hover:bg-gray-100'
+//                     }`}
+//                   >
+//                     <span className="mr-2">{item.icon}</span>
+//                     {item.title}
+//                   </Link>
+//                 ) : (
+//                   <>
+//                     <button
+//                       onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+//                       className="flex items-center justify-between w-full px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
+//                     >
+//                       <div className="flex items-center">
+//                         <span className="mr-2">{item.icon}</span>
+//                         {item.title}
+//                       </div>
+//                       <FiChevronDown 
+//                         className={`h-4 w-4 transition-transform ${
+//                           activeDropdown === index ? 'rotate-180' : ''
+//                         }`} 
+//                       />
+//                     </button>
+
+//                     {activeDropdown === index && (
+//                       <div className="pl-8">
+//                         {item.subItems.map((subItem, subIndex) => (
+//                           <Link
+//                             key={subIndex}
+//                             to={subItem.path}
+//                             onClick={() => setMobileMenuOpen(false)}
+//                             className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50"
+//                           >
+//                             <span className="mr-3">{subItem.icon}</span>
+//                             {subItem.title}
+//                           </Link>
+//                         ))}
+//                       </div>
+//                     )}
+//                   </>
+//                 )}
+//               </div>
+//             ))}
+
+//             <button
+//               onClick={handleLogout}
+//               className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 mt-2"
+//             >
+//               <FiLogOut className="mr-2" />
+//               Logout
+//             </button>
+//           </div>
+//         </div>
+//       )}
+//     </nav>
+//   );
+// };
+
+// export default Navbar;
+
+
+
+import { useState } from 'react';
+import { FiTruck, FiCheck, FiX, FiCalendar } from 'react-icons/fi';
+import { Bar, Pie } from 'react-chartjs-2';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
+
+const GateKeeper = () => {
+  const [selectedPlant, setSelectedPlant] = useState('');
+  const [formData, setFormData] = useState({
+    truckNo: '',
+    dispatchDate: new Date().toISOString().split('T')[0],
+    invoiceNo: '',
+    remarks: ''
+  });
+  const [quantityData, setQuantityData] = useState([]);
+
+  const plants = [
+    { id: '1', name: 'North Warehouse' },
+    { id: '2', name: 'South Distribution Center' },
+    { id: '3', name: 'East Manufacturing Plant' }
   ];
 
-  // Filter menu items based on user role
-  const filteredMenuItems = menuItems.filter(item => 
-    canAccess(item.roles)
-  );
+  const truckList = [
+    { id: 'TRK-1001', status: 'available' },
+    { id: 'TRK-1002', status: 'available' },
+    { id: 'TRK-1003', status: 'checked-in' },
+    { id: 'TRK-1004', status: 'checked-in' }
+  ];
 
-  if (location.pathname === '/') return null;
+  const handleCheckInOut = (action) => {
+    console.log(`${action} truck:`, formData);
+    // API call would go here
+  };
+
+  // Chart data
+  const barChartData = {
+    labels: ['North', 'South', 'East', 'West'],
+    datasets: [
+      {
+        label: 'Truck Quantities',
+        data: [12, 19, 8, 15],
+        backgroundColor: [
+          'rgba(74, 222, 128, 0.8)',
+          'rgba(96, 165, 250, 0.8)',
+          'rgba(250, 204, 21, 0.8)',
+          'rgba(249, 115, 22, 0.8)'
+        ],
+        borderColor: [
+          'rgba(74, 222, 128, 1)',
+          'rgba(96, 165, 250, 1)',
+          'rgba(250, 204, 21, 1)',
+          'rgba(249, 115, 22, 1)'
+        ],
+        borderWidth: 1
+      }
+    ]
+  };
+
+  const pieChartData = {
+    labels: ['Available', 'In Transit', 'Loading', 'Maintenance'],
+    datasets: [
+      {
+        data: [45, 25, 20, 10],
+        backgroundColor: [
+          'rgba(74, 222, 128, 0.8)',
+          'rgba(96, 165, 250, 0.8)',
+          'rgba(250, 204, 21, 0.8)',
+          'rgba(249, 115, 22, 0.8)'
+        ],
+        borderColor: [
+          'rgba(74, 222, 128, 1)',
+          'rgba(96, 165, 250, 1)',
+          'rgba(250, 204, 21, 1)',
+          'rgba(249, 115, 22, 1)'
+        ],
+        borderWidth: 1
+      }
+    ]
+  };
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          {/* Logo */}
-          <Link to="/dashboard" className="flex items-center">
-            <div className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center text-white mr-2">
-              <FiTruck className="h-5 w-5" />
-            </div>
-            <span className="text-xl font-semibold text-gray-800">Lemon Logistics</span>
-          </Link>
-
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-4">
-            {filteredMenuItems.map((item, index) => (
-              <div key={index} className="relative">
-                {item.path ? (
-                  <Link
-                    to={item.path}
-                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
-                      location.pathname === item.path 
-                        ? 'bg-blue-50 text-blue-600' 
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <span className="mr-2">{item.icon}</span>
-                    {item.title}
-                  </Link>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-                      className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
-                        activeDropdown === index 
-                          ? 'bg-blue-50 text-blue-600' 
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      <span className="mr-2">{item.icon}</span>
-                      {item.title}
-                      <FiChevronDown 
-                        className={`ml-1 h-4 w-4 transition-transform ${
-                          activeDropdown === index ? 'rotate-180' : ''
-                        }`} 
-                      />
-                    </button>
-
-                    {activeDropdown === index && (
-                      <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-1 z-50">
-                        {item.subItems.map((subItem, subIndex) => (
-                          <Link
-                            key={subIndex}
-                            to={subItem.path}
-                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          >
-                            <span className="mr-3">{subItem.icon}</span>
-                            {subItem.title}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-64 bg-white shadow-md hidden md:block">
+        <div className="p-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800">Plant Selection</h2>
+        </div>
+        <div className="p-4">
+          <select
+            value={selectedPlant}
+            onChange={(e) => setSelectedPlant(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          >
+            <option value="">Select a plant</option>
+            {plants.map(plant => (
+              <option key={plant.id} value={plant.id}>{plant.name}</option>
             ))}
-
-            <button
-              onClick={handleLogout}
-              className="ml-4 flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50"
-            >
-              <FiLogOut className="mr-2" />
-              Logout
-            </button>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-500 hover:text-gray-900 focus:outline-none"
-            >
-              {mobileMenuOpen ? (
-                <FiX className="h-6 w-6" />
-              ) : (
-                <FiMenu className="h-6 w-6" />
-              )}
-            </button>
+          </select>
+        </div>
+        
+        <div className="p-4 border-t border-gray-200">
+          <h3 className="text-md font-medium text-gray-700 mb-2">Truck Status</h3>
+          <div className="h-64">
+            <Pie 
+              data={pieChartData} 
+              options={{ 
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'bottom'
+                  }
+                }
+              }} 
+            />
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white shadow-xl">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {filteredMenuItems.map((item, index) => (
-              <div key={index}>
-                {item.path ? (
-                  <Link
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
-                      location.pathname === item.path 
-                        ? 'bg-blue-50 text-blue-600' 
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <span className="mr-2">{item.icon}</span>
-                    {item.title}
-                  </Link>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-                      className="flex items-center justify-between w-full px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
-                    >
-                      <div className="flex items-center">
-                        <span className="mr-2">{item.icon}</span>
-                        {item.title}
-                      </div>
-                      <FiChevronDown 
-                        className={`h-4 w-4 transition-transform ${
-                          activeDropdown === index ? 'rotate-180' : ''
-                        }`} 
-                      />
-                    </button>
+      {/* Main Content */}
+      <div className="flex-1 p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">Gate Keeper Dashboard</h1>
+          <p className="text-gray-600">Manage truck check-ins and check-outs</p>
+        </div>
 
-                    {activeDropdown === index && (
-                      <div className="pl-8">
-                        {item.subItems.map((subItem, subIndex) => (
-                          <Link
-                            key={subIndex}
-                            to={subItem.path}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50"
-                          >
-                            <span className="mr-3">{subItem.icon}</span>
-                            {subItem.title}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Truck Visualization */}
+          <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Truck Quantities</h2>
+              <div className="text-sm text-gray-500">
+                <FiCalendar className="inline mr-1" />
+                {new Date().toLocaleDateString()}
               </div>
-            ))}
+            </div>
+            
+            <div className="h-64 mb-6">
+              <Bar 
+                data={barChartData} 
+                options={{ 
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      beginAtZero: true
+                    }
+                  }
+                }} 
+              />
+            </div>
 
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 mt-2"
-            >
-              <FiLogOut className="mr-2" />
-              Logout
-            </button>
+            <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="absolute bottom-10 left-10 w-3/4 h-32 flex items-end gap-2">
+                {[12, 19, 8, 15].map((value, index) => (
+                  <div 
+                    key={index}
+                    className={`flex-1 flex flex-col items-center justify-end transition-all hover:scale-105 ${
+                      index === 0 ? 'bg-green-400' : 
+                      index === 1 ? 'bg-blue-400' : 
+                      index === 2 ? 'bg-yellow-400' : 'bg-orange-400'
+                    } rounded-t-lg`}
+                    style={{ height: `${(value / 25) * 100}%` }}
+                  >
+                    <span className="text-xs font-medium text-white">{value}</span>
+                  </div>
+                ))}
+              </div>
+              <img 
+                src="/truck-image.png" 
+                alt="Truck" 
+                className="absolute bottom-0 w-full h-auto object-contain"
+              />
+            </div>
+          </div>
+
+          {/* Check-In/Out Form */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Check-In/Out</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Truck Number</label>
+                <select
+                  value={formData.truckNo}
+                  onChange={(e) => setFormData({...formData, truckNo: e.target.value})}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                >
+                  <option value="">Select truck</option>
+                  {truckList.filter(t => t.status === 'available').map(truck => (
+                    <option key={truck.id} value={truck.id}>{truck.id}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Dispatch Date</label>
+                <input
+                  type="date"
+                  value={formData.dispatchDate}
+                  onChange={(e) => setFormData({...formData, dispatchDate: e.target.value})}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Invoice Number</label>
+                <input
+                  type="text"
+                  value={formData.invoiceNo}
+                  onChange={(e) => setFormData({...formData, invoiceNo: e.target.value})}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="Enter invoice number"
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-2">
+                <button
+                  onClick={() => handleCheckInOut('Check-In')}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-md flex items-center justify-center space-x-2 transition-colors"
+                >
+                  <FiCheck /> <span>Check In</span>
+                </button>
+                <button
+                  onClick={() => handleCheckInOut('Check-Out')}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-md flex items-center justify-center space-x-2 transition-colors"
+                >
+                  <FiX /> <span>Check Out</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      )}
-    </nav>
+
+        {/* Truck Lists */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {/* Available Trucks */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Available Trucks</h2>
+            <div className="space-y-2">
+              {truckList.filter(t => t.status === 'available').map(truck => (
+                <div 
+                  key={truck.id} 
+                  className="p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
+                  onClick={() => setFormData({...formData, truckNo: truck.id})}
+                >
+                  <div className="flex items-center space-x-3">
+                    <FiTruck className="text-blue-500" />
+                    <span className="font-medium">{truck.id}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Checked-In Trucks */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Checked-In Trucks</h2>
+            <div className="space-y-2">
+              {truckList.filter(t => t.status === 'checked-in').map(truck => (
+                <div 
+                  key={truck.id} 
+                  className="p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
+                  onClick={() => setFormData({...formData, truckNo: truck.id})}
+                >
+                  <div className="flex items-center space-x-3">
+                    <FiTruck className="text-green-500" />
+                    <span className="font-medium">{truck.id}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default Navbar;
+export default GateKeeper;
