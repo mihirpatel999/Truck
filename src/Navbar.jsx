@@ -2692,620 +2692,8 @@
 
 // export default Navbar;
 
-// import { useState, useEffect } from 'react';
-// import { Link, useLocation } from 'react-router-dom';
-// import { 
-//   FiHome, 
-//   FiTruck, 
-//   FiUsers, 
-//   FiFileText, 
-//   FiPieChart,
-//   FiLogOut,
-//   FiChevronDown,
-//   FiMenu,
-//   FiX
-// } from 'react-icons/fi';
-// import { 
-//   MdOutlineWarehouse,
-//   MdOutlineSchedule
-// } from 'react-icons/md';
-// import { 
-//   BsShieldLock,
-//   BsBoxSeam
-// } from 'react-icons/bs';
-
-// const Navbar = () => {
-//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-//   const [activeDropdown, setActiveDropdown] = useState(null);
-//   const [userRole, setUserRole] = useState(null);
-//   const location = useLocation();
-
-//   useEffect(() => {
-//     setUserRole(localStorage.getItem('userRole'));
-//   }, []);
-
-//   const handleLogout = () => {
-//     localStorage.clear();
-//     window.location.href = "/";
-//   };
-
-//   // Role-based access control
-//   const hasAccess = (requiredRoles) => {
-//     if (!userRole) return false;
-//     const userRoles = userRole.split(',').map(r => r.trim());
-//     return requiredRoles.some(role => userRoles.includes(role));
-//   };
-
-//   // Menu configuration
-//   const menuItems = [
-//     {
-//       title: "Dashboard",
-//       path: "/dashboard",
-//       icon: <FiHome size={18} />,
-//       roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report"]
-//     },
-//     {
-//       title: "Admin",
-//       icon: <FiUsers size={18} />,
-//       roles: ["Owner", "Admin"],
-//       subItems: [
-//         { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse size={16} /> },
-//         { title: "User Management", path: "/usermaster", icon: <FiUsers size={16} /> },
-//         { title: "User Register", path: "/userregister", icon: <BsShieldLock size={16} /> }
-//       ]
-//     },
-//     {
-//       title: "Dispatch",
-//       icon: <FiTruck size={18} />,
-//       roles: ["Owner", "Admin", "Dispatch"],
-//       subItems: [
-//         { title: "Truck Transaction", path: "/truck", icon: <FiTruck size={16} /> },
-//         { title: "Truck Locator", path: "/truckfind", icon: <FiTruck size={16} /> }
-//       ]
-//     },
-//     {
-//       title: "Gate Control",
-//       path: "/gate",
-//       icon: <MdOutlineWarehouse size={18} />,
-//       roles: ["Owner", "Admin", "GateKeeper"]
-//     },
-//     {
-//       title: "Loading",
-//       path: "/loader",
-//       icon: <BsBoxSeam size={18} />,
-//       roles: ["Owner", "Admin", "Loader"]
-//     },
-//     {
-//       title: "Reports",
-//       icon: <FiPieChart size={18} />,
-//       roles: ["Owner", "Admin", "Report"],
-//       subItems: [
-//         { title: "Operations Report", path: "/reports", icon: <FiPieChart size={16} /> },
-//         { title: "Schedule Board", path: "/truckshedule", icon: <MdOutlineSchedule size={16} /> }
-//       ]
-//     }
-//   ];
-
-//   // Filter menu items based on user role
-//   const filteredMenuItems = menuItems.filter(item => hasAccess(item.roles));
-
-//   if (location.pathname === '/') return null;
-
-//   return (
-//     <>
-//       {/* Desktop Navigation */}
-//       <nav className="hidden md:block bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-//         <div className="max-w-7xl mx-auto px-4">
-//           <div className="flex justify-between h-16 items-center">
-//             {/* Logo */}
-//             <Link to="/dashboard" className="flex items-center">
-//               <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-3">
-//                 <FiTruck className="h-5 w-5" />
-//               </div>
-//               <span className="text-xl font-semibold text-gray-800">Lemon Logistics</span>
-//             </Link>
-
-//             {/* Desktop Menu */}
-//             <div className="flex items-center space-x-1">
-//               {filteredMenuItems.map((item, index) => (
-//                 <div key={index} className="relative">
-//                   {item.path ? (
-//                     <Link
-//                       to={item.path}
-//                       className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-//                         location.pathname === item.path 
-//                           ? 'text-blue-600 bg-blue-50' 
-//                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-//                       }`}
-//                     >
-//                       <span className="mr-2">{item.icon}</span>
-//                       {item.title}
-//                     </Link>
-//                   ) : (
-//                     <>
-//                       <button
-//                         onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-//                         className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-//                           activeDropdown === index 
-//                             ? 'text-blue-600 bg-blue-50' 
-//                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-//                         }`}
-//                       >
-//                         <span className="mr-2">{item.icon}</span>
-//                         {item.title}
-//                         <FiChevronDown 
-//                           className={`ml-1 h-4 w-4 transition-transform ${
-//                             activeDropdown === index ? 'rotate-180' : ''
-//                           }`} 
-//                         />
-//                       </button>
-
-//                       {activeDropdown === index && (
-//                         <div className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50">
-//                           {item.subItems.map((subItem, subIndex) => (
-//                             <Link
-//                               key={subIndex}
-//                               to={subItem.path}
-//                               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-//                             >
-//                               <span className="mr-3 text-gray-500">{subItem.icon}</span>
-//                               {subItem.title}
-//                             </Link>
-//                           ))}
-//                         </div>
-//                       )}
-//                     </>
-//                   )}
-//                 </div>
-//               ))}
-//             </div>
-
-//             {/* Logout */}
-//             <button
-//               onClick={handleLogout}
-//               className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-//             >
-//               <FiLogOut className="mr-2" />
-//               Logout
-//             </button>
-//           </div>
-//         </div>
-//       </nav>
-
-//       {/* Mobile Navigation */}
-//       <nav className="md:hidden bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-//         <div className="px-4">
-//           <div className="flex justify-between h-16 items-center">
-//             {/* Logo */}
-//             <Link to="/dashboard" className="flex items-center">
-//               <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-3">
-//                 <FiTruck className="h-5 w-5" />
-//               </div>
-//               <span className="text-xl font-semibold text-gray-800">Lemon ERP</span>
-//             </Link>
-
-//             {/* Mobile Menu Button */}
-//             <button
-//               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-//               className="text-gray-500 hover:text-gray-700 focus:outline-none"
-//             >
-//               {mobileMenuOpen ? (
-//                 <FiX className="h-6 w-6" />
-//               ) : (
-//                 <FiMenu className="h-6 w-6" />
-//               )}
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Mobile Sidebar */}
-//         <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
-//           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)}></div>
-//           <div className="relative flex flex-col w-80 max-w-sm h-full bg-white shadow-xl">
-//             {/* Sidebar Header */}
-//             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-//               <div className="text-lg font-semibold text-gray-800">Menu</div>
-//               <button
-//                 onClick={() => setMobileMenuOpen(false)}
-//                 className="text-gray-500 hover:text-gray-700"
-//               >
-//                 <FiX className="h-6 w-6" />
-//               </button>
-//             </div>
-
-//             {/* Sidebar Content */}
-//             <div className="flex-1 overflow-y-auto">
-//               <div className="px-2 py-4 space-y-1">
-//                 {filteredMenuItems.map((item, index) => (
-//                   <div key={index}>
-//                     {item.path ? (
-//                       <Link
-//                         to={item.path}
-//                         onClick={() => setMobileMenuOpen(false)}
-//                         className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium ${
-//                           location.pathname === item.path 
-//                             ? 'bg-blue-50 text-blue-600' 
-//                             : 'text-gray-700 hover:bg-gray-100'
-//                         }`}
-//                       >
-//                         <span className="mr-3">{item.icon}</span>
-//                         {item.title}
-//                       </Link>
-//                     ) : (
-//                       <>
-//                         <button
-//                           onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-//                           className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium ${
-//                             activeDropdown === index 
-//                               ? 'bg-blue-50 text-blue-600' 
-//                               : 'text-gray-700 hover:bg-gray-100'
-//                           }`}
-//                         >
-//                           <div className="flex items-center">
-//                             <span className="mr-3">{item.icon}</span>
-//                             {item.title}
-//                           </div>
-//                           <FiChevronDown 
-//                             className={`h-5 w-5 transition-transform ${
-//                               activeDropdown === index ? 'rotate-180' : ''
-//                             }`} 
-//                           />
-//                         </button>
-
-//                         {activeDropdown === index && (
-//                           <div className="pl-12 pr-2">
-//                             {item.subItems.map((subItem, subIndex) => (
-//                               <Link
-//                                 key={subIndex}
-//                                 to={subItem.path}
-//                                 onClick={() => setMobileMenuOpen(false)}
-//                                 className={`flex items-center px-4 py-3 rounded-lg text-base ${
-//                                   location.pathname === subItem.path 
-//                                     ? 'bg-blue-100 text-blue-600' 
-//                                     : 'text-gray-600 hover:bg-gray-50'
-//                                 }`}
-//                               >
-//                                 <span className="mr-3">{subItem.icon}</span>
-//                                 {subItem.title}
-//                               </Link>
-//                             ))}
-//                           </div>
-//                         )}
-//                       </>
-//                     )}
-//                   </div>
-//                 ))}
-//               </div>
-//             </div>
-
-//             {/* Sidebar Footer */}
-//             <div className="px-4 py-4 border-t border-gray-200">
-//               <button
-//                 onClick={handleLogout}
-//                 className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium"
-//               >
-//                 <FiLogOut className="mr-3" />
-//                 Logout
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       </nav>
-//     </>
-//   );
-// };
-
-// export default Navbar;
-
-// import { useState, useEffect } from 'react';
-// import { Link, useLocation } from 'react-router-dom';
-// import { 
-//   FiHome, 
-//   FiTruck, 
-//   FiUsers, 
-//   FiFileText, 
-//   FiPieChart,
-//   FiLogOut,
-//   FiChevronDown,
-//   FiMenu,
-//   FiX
-// } from 'react-icons/fi';
-// import { 
-//   MdOutlineWarehouse,
-//   MdOutlineSchedule
-// } from 'react-icons/md';
-// import { 
-//   BsShieldLock,
-//   BsBoxSeam
-// } from 'react-icons/bs';
-
-// const Navbar = () => {
-//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-//   const [activeDropdown, setActiveDropdown] = useState(null);
-//   const [userRole, setUserRole] = useState(null);
-//   const location = useLocation();
-
-//   useEffect(() => {
-//     setUserRole(localStorage.getItem('userRole'));
-//   }, []);
-
-//   const handleLogout = () => {
-//     localStorage.clear();
-//     window.location.href = "/";
-//   };
-
-//   // Role-based access control
-//   const hasAccess = (requiredRoles) => {
-//     if (!userRole) return false;
-//     const userRoles = userRole.split(',').map(r => r.trim());
-//     return requiredRoles.some(role => userRoles.includes(role));
-//   };
-
-//   // Menu configuration
-//   const menuItems = [
-//     {
-//       title: "Dashboard",
-//       path: "/dashboard",
-//       icon: <FiHome size={18} />,
-//       roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report"]
-//     },
-//     {
-//       title: "Admin",
-//       icon: <FiUsers size={18} />,
-//       roles: ["Owner", "Admin"],
-//       subItems: [
-//         { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse size={16} /> },
-//         { title: "User Management", path: "/usermaster", icon: <FiUsers size={16} /> },
-//         { title: "User Register", path: "/userregister", icon: <BsShieldLock size={16} /> }
-//       ]
-//     },
-//     {
-//       title: "Dispatch",
-//       icon: <FiTruck size={18} />,
-//       roles: ["Owner", "Admin", "Dispatch"],
-//       subItems: [
-//         { title: "Truck Transaction", path: "/truck", icon: <FiTruck size={16} /> },
-//         { title: "Truck Locator", path: "/truckfind", icon: <FiTruck size={16} /> }
-//       ]
-//     },
-//     {
-//       title: "Gate Control",
-//       path: "/gate",
-//       icon: <MdOutlineWarehouse size={18} />,
-//       roles: ["Owner", "Admin", "GateKeeper"]
-//     },
-//     {
-//       title: "Loading",
-//       path: "/loader",
-//       icon: <BsBoxSeam size={18} />,
-//       roles: ["Owner", "Admin", "Loader"]
-//     },
-//     {
-//       title: "Reports",
-//       icon: <FiPieChart size={18} />,
-//       roles: ["Owner", "Admin", "Report"],
-//       subItems: [
-//         { title: "Operations Report", path: "/reports", icon: <FiPieChart size={16} /> },
-//         { title: "Schedule Board", path: "/truckshedule", icon: <MdOutlineSchedule size={16} /> }
-//       ]
-//     }
-//   ];
-
-//   // Filter menu items based on user role
-//   const filteredMenuItems = menuItems.filter(item => hasAccess(item.roles));
-
-//   if (location.pathname === '/') return null;
-
-//   return (
-//     <>
-//       {/* Desktop Navigation */}
-//       <nav className="hidden md:block bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-//         <div className="max-w-7xl mx-auto px-4">
-//           <div className="flex justify-between h-16 items-center">
-//             {/* Logo */}
-//             <Link to="/dashboard" className="flex items-center">
-//               <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-3">
-//                 <FiTruck className="h-5 w-5" />
-//               </div>
-//               <span className="text-xl font-semibold text-gray-800">Lemon Logistics</span>
-//             </Link>
-
-//             {/* Desktop Menu */}
-//             <div className="flex items-center space-x-1">
-//               {filteredMenuItems.map((item, index) => (
-//                 <div key={index} className="relative">
-//                   {item.path ? (
-//                     <Link
-//                       to={item.path}
-//                       className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-//                         location.pathname === item.path 
-//                           ? 'text-blue-600 bg-blue-50' 
-//                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-//                       }`}
-//                     >
-//                       <span className="mr-2">{item.icon}</span>
-//                       {item.title}
-//                     </Link>
-//                   ) : (
-//                     <>
-//                       <button
-//                         onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-//                         className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-//                           activeDropdown === index 
-//                             ? 'text-blue-600 bg-blue-50' 
-//                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-//                         }`}
-//                       >
-//                         <span className="mr-2">{item.icon}</span>
-//                         {item.title}
-//                         <FiChevronDown 
-//                           className={`ml-1 h-4 w-4 transition-transform ${
-//                             activeDropdown === index ? 'rotate-180' : ''
-//                           }`} 
-//                         />
-//                       </button>
-
-//                       {activeDropdown === index && (
-//                         <div className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50">
-//                           {item.subItems.map((subItem, subIndex) => (
-//                             <Link
-//                               key={subIndex}
-//                               to={subItem.path}
-//                               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-//                             >
-//                               <span className="mr-3 text-gray-500">{subItem.icon}</span>
-//                               {subItem.title}
-//                             </Link>
-//                           ))}
-//                         </div>
-//                       )}
-//                     </>
-//                   )}
-//                 </div>
-//               ))}
-//             </div>
-
-//             {/* Logout */}
-//             <button
-//               onClick={handleLogout}
-//               className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-//             >
-//               <FiLogOut className="mr-2" />
-//               Logout
-//             </button>
-//           </div>
-//         </div>
-//       </nav>
-
-//       {/* Mobile Navigation */}
-//       <nav className="md:hidden bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-//         <div className="px-4">
-//           <div className="flex justify-between h-16 items-center">
-//             {/* Logo */}
-//             <Link to="/dashboard" className="flex items-center">
-//               <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-3">
-//                 <FiTruck className="h-5 w-5" />
-//               </div>
-//               <span className="text-xl font-semibold text-gray-800">Lemon ERP</span>
-//             </Link>
-
-//             {/* Mobile Menu Button */}
-//             <button
-//               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-//               className="text-gray-500 hover:text-gray-700 focus:outline-none"
-//             >
-//               {mobileMenuOpen ? (
-//                 <FiX className="h-6 w-6" />
-//               ) : (
-//                 <FiMenu className="h-6 w-6" />
-//               )}
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Mobile Sidebar */}
-//         <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
-//           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)}></div>
-//           <div className="relative flex flex-col w-80 max-w-sm h-full bg-white shadow-xl">
-//             {/* Sidebar Header */}
-//             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-//               <div className="text-lg font-semibold text-gray-800">Menu</div>
-//               <button
-//                 onClick={() => setMobileMenuOpen(false)}
-//                 className="text-gray-500 hover:text-gray-700"
-//               >
-//                 <FiX className="h-6 w-6" />
-//               </button>
-//             </div>
-
-//             {/* Sidebar Content */}
-//             <div className="flex-1 overflow-y-auto">
-//               <div className="px-2 py-4 space-y-1">
-//                 {filteredMenuItems.map((item, index) => (
-//                   <div key={index}>
-//                     {item.path ? (
-//                       <Link
-//                         to={item.path}
-//                         onClick={() => setMobileMenuOpen(false)}
-//                         className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium ${
-//                           location.pathname === item.path 
-//                             ? 'bg-blue-50 text-blue-600' 
-//                             : 'text-gray-700 hover:bg-gray-100'
-//                         }`}
-//                       >
-//                         <span className="mr-3">{item.icon}</span>
-//                         {item.title}
-//                       </Link>
-//                     ) : (
-//                       <>
-//                         <button
-//                           onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-//                           className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium ${
-//                             activeDropdown === index 
-//                               ? 'bg-blue-50 text-blue-600' 
-//                               : 'text-gray-700 hover:bg-gray-100'
-//                           }`}
-//                         >
-//                           <div className="flex items-center">
-//                             <span className="mr-3">{item.icon}</span>
-//                             {item.title}
-//                           </div>
-//                           <FiChevronDown 
-//                             className={`h-5 w-5 transition-transform ${
-//                               activeDropdown === index ? 'rotate-180' : ''
-//                             }`} 
-//                           />
-//                         </button>
-
-//                         {activeDropdown === index && (
-//                           <div className="pl-12 pr-2">
-//                             {item.subItems.map((subItem, subIndex) => (
-//                               <Link
-//                                 key={subIndex}
-//                                 to={subItem.path}
-//                                 onClick={() => setMobileMenuOpen(false)}
-//                                 className={`flex items-center px-4 py-3 rounded-lg text-base ${
-//                                   location.pathname === subItem.path 
-//                                     ? 'bg-blue-100 text-blue-600' 
-//                                     : 'text-gray-600 hover:bg-gray-50'
-//                                 }`}
-//                               >
-//                                 <span className="mr-3">{subItem.icon}</span>
-//                                 {subItem.title}
-//                               </Link>
-//                             ))}
-//                           </div>
-//                         )}
-//                       </>
-//                     )}
-//                   </div>
-//                 ))}
-//               </div>
-//             </div>
-
-//             {/* Sidebar Footer */}
-//             <div className="px-4 py-4 border-t border-gray-200">
-//               <button
-//                 onClick={handleLogout}
-//                 className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium"
-//               >
-//                 <FiLogOut className="mr-3" />
-//                 Logout
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       </nav>
-//     </>
-//   );
-// };
-
-// export default Navbar;  is ke liye brother
-// Here's the complete solution for your Plant Master Admin page that integrates with your existing Navbar component, with all the requested features:
-
-jsx
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   FiHome, 
   FiTruck, 
@@ -3315,9 +2703,7 @@ import {
   FiLogOut,
   FiChevronDown,
   FiMenu,
-  FiX,
-  FiSun,
-  FiMoon
+  FiX
 } from 'react-icons/fi';
 import { 
   MdOutlineWarehouse,
@@ -3332,28 +2718,15 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [userRole, setUserRole] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     setUserRole(localStorage.getItem('userRole'));
-    // Check for saved dark mode preference
-    const savedMode = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(savedMode);
-    document.body.classList.toggle('dark', savedMode);
   }, []);
-
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('darkMode', newMode.toString());
-    document.body.classList.toggle('dark', newMode);
-  };
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/");
+    window.location.href = "/";
   };
 
   // Role-based access control
@@ -3362,13 +2735,6 @@ const Navbar = () => {
     const userRoles = userRole.split(',').map(r => r.trim());
     return requiredRoles.some(role => userRoles.includes(role));
   };
-
-  // Close mobile menu when navigating to Plant Master
-  useEffect(() => {
-    if (location.pathname === '/plantmaster') {
-      setMobileMenuOpen(false);
-    }
-  }, [location.pathname]);
 
   // Menu configuration
   const menuItems = [
@@ -3428,15 +2794,15 @@ const Navbar = () => {
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className={`hidden md:block sticky top-0 z-50 border-b ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+      <nav className="hidden md:block bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
             <Link to="/dashboard" className="flex items-center">
-              <div className={`h-8 w-8 rounded-lg flex items-center justify-center mr-3 ${darkMode ? 'bg-blue-700' : 'bg-blue-600'} text-white`}>
+              <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-3">
                 <FiTruck className="h-5 w-5" />
               </div>
-              <span className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Lemon Logistics</span>
+              <span className="text-xl font-semibold text-gray-800">Lemon Logistics</span>
             </Link>
 
             {/* Desktop Menu */}
@@ -3448,12 +2814,8 @@ const Navbar = () => {
                       to={item.path}
                       className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         location.pathname === item.path 
-                          ? darkMode 
-                            ? 'text-blue-400 bg-blue-900/30' 
-                            : 'text-blue-600 bg-blue-50' 
-                          : darkMode 
-                            ? 'text-gray-300 hover:bg-gray-700 hover:text-white' 
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          ? 'text-blue-600 bg-blue-50' 
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                       }`}
                     >
                       <span className="mr-2">{item.icon}</span>
@@ -3465,12 +2827,8 @@ const Navbar = () => {
                         onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
                         className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                           activeDropdown === index 
-                            ? darkMode 
-                              ? 'text-blue-400 bg-blue-900/30' 
-                              : 'text-blue-600 bg-blue-50' 
-                            : darkMode 
-                              ? 'text-gray-300 hover:bg-gray-700 hover:text-white' 
-                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            ? 'text-blue-600 bg-blue-50' 
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         }`}
                       >
                         <span className="mr-2">{item.icon}</span>
@@ -3483,18 +2841,14 @@ const Navbar = () => {
                       </button>
 
                       {activeDropdown === index && (
-                        <div className={`absolute left-0 mt-1 w-56 rounded-lg shadow-lg py-1 z-50 ${darkMode ? 'bg-gray-700 ring-gray-600' : 'bg-white ring-gray-200'} ring-1`}>
+                        <div className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50">
                           {item.subItems.map((subItem, subIndex) => (
                             <Link
                               key={subIndex}
                               to={subItem.path}
-                              className={`flex items-center px-4 py-2 text-sm ${
-                                darkMode 
-                                  ? 'text-gray-300 hover:bg-gray-600' 
-                                  : 'text-gray-700 hover:bg-gray-50'
-                              }`}
+                              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                             >
-                              <span className={`mr-3 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{subItem.icon}</span>
+                              <span className="mr-3 text-gray-500">{subItem.icon}</span>
                               {subItem.title}
                             </Link>
                           ))}
@@ -3506,82 +2860,54 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Right side controls */}
-            <div className="flex items-center space-x-2">
-              {/* Dark mode toggle */}
-              <button
-                onClick={toggleDarkMode}
-                className={`p-2 rounded-full ${darkMode ? 'text-yellow-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'}`}
-                aria-label="Toggle dark mode"
-              >
-                {darkMode ? <FiSun size={18} /> : <FiMoon size={18} />}
-              </button>
-
-              {/* Logout */}
-              <button
-                onClick={handleLogout}
-                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  darkMode 
-                    ? 'text-gray-300 hover:bg-gray-700' 
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
-              >
-                <FiLogOut className="mr-2" />
-                Logout
-              </button>
-            </div>
+            {/* Logout */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            >
+              <FiLogOut className="mr-2" />
+              Logout
+            </button>
           </div>
         </div>
       </nav>
 
       {/* Mobile Navigation */}
-      <nav className={`md:hidden sticky top-0 z-50 border-b ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+      <nav className="md:hidden bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
         <div className="px-4">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
             <Link to="/dashboard" className="flex items-center">
-              <div className={`h-8 w-8 rounded-lg flex items-center justify-center mr-3 ${darkMode ? 'bg-blue-700' : 'bg-blue-600'} text-white`}>
+              <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-3">
                 <FiTruck className="h-5 w-5" />
               </div>
-              <span className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Lemon ERP</span>
+              <span className="text-xl font-semibold text-gray-800">Lemon ERP</span>
             </Link>
 
-            {/* Right side controls */}
-            <div className="flex items-center space-x-2">
-              {/* Dark mode toggle */}
-              <button
-                onClick={toggleDarkMode}
-                className={`p-2 rounded-full ${darkMode ? 'text-yellow-300' : 'text-gray-600'}`}
-                aria-label="Toggle dark mode"
-              >
-                {darkMode ? <FiSun size={18} /> : <FiMoon size={18} />}
-              </button>
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className={`p-2 rounded-full ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}
-              >
-                {mobileMenuOpen ? (
-                  <FiX className="h-6 w-6" />
-                ) : (
-                  <FiMenu className="h-6 w-6" />
-                )}
-              </button>
-            </div>
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            >
+              {mobileMenuOpen ? (
+                <FiX className="h-6 w-6" />
+              ) : (
+                <FiMenu className="h-6 w-6" />
+              )}
+            </button>
           </div>
         </div>
 
         {/* Mobile Sidebar */}
         <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)}></div>
-          <div className={`relative flex flex-col w-80 max-w-sm h-full shadow-xl ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <div className="relative flex flex-col w-80 max-w-sm h-full bg-white shadow-xl">
             {/* Sidebar Header */}
-            <div className={`flex items-center justify-between px-6 py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-              <div className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Menu</div>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <div className="text-lg font-semibold text-gray-800">Menu</div>
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className={darkMode ? 'text-gray-300' : 'text-gray-500'}
+                className="text-gray-500 hover:text-gray-700"
               >
                 <FiX className="h-6 w-6" />
               </button>
@@ -3598,12 +2924,8 @@ const Navbar = () => {
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium ${
                           location.pathname === item.path 
-                            ? darkMode 
-                              ? 'bg-blue-900/30 text-blue-400' 
-                              : 'bg-blue-50 text-blue-600' 
-                            : darkMode 
-                              ? 'text-gray-300 hover:bg-gray-700' 
-                              : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-blue-50 text-blue-600' 
+                            : 'text-gray-700 hover:bg-gray-100'
                         }`}
                       >
                         <span className="mr-3">{item.icon}</span>
@@ -3615,12 +2937,8 @@ const Navbar = () => {
                           onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
                           className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium ${
                             activeDropdown === index 
-                              ? darkMode 
-                                ? 'bg-blue-900/30 text-blue-400' 
-                                : 'bg-blue-50 text-blue-600' 
-                              : darkMode 
-                                ? 'text-gray-300 hover:bg-gray-700' 
-                                : 'text-gray-700 hover:bg-gray-100'
+                              ? 'bg-blue-50 text-blue-600' 
+                              : 'text-gray-700 hover:bg-gray-100'
                           }`}
                         >
                           <div className="flex items-center">
@@ -3643,12 +2961,8 @@ const Navbar = () => {
                                 onClick={() => setMobileMenuOpen(false)}
                                 className={`flex items-center px-4 py-3 rounded-lg text-base ${
                                   location.pathname === subItem.path 
-                                    ? darkMode 
-                                      ? 'bg-blue-900/20 text-blue-400' 
-                                      : 'bg-blue-100 text-blue-600' 
-                                    : darkMode 
-                                      ? 'text-gray-400 hover:bg-gray-600' 
-                                      : 'text-gray-600 hover:bg-gray-50'
+                                    ? 'bg-blue-100 text-blue-600' 
+                                    : 'text-gray-600 hover:bg-gray-50'
                                 }`}
                               >
                                 <span className="mr-3">{subItem.icon}</span>
@@ -3665,14 +2979,10 @@ const Navbar = () => {
             </div>
 
             {/* Sidebar Footer */}
-            <div className={`px-4 py-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <div className="px-4 py-4 border-t border-gray-200">
               <button
                 onClick={handleLogout}
-                className={`flex items-center justify-center w-full px-4 py-3 rounded-lg font-medium ${
-                  darkMode 
-                    ? 'bg-gray-700 text-red-400 hover:bg-gray-600' 
-                    : 'bg-gray-50 text-red-600 hover:bg-red-50'
-                }`}
+                className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium"
               >
                 <FiLogOut className="mr-3" />
                 Logout
@@ -3686,3 +2996,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
