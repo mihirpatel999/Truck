@@ -2692,18 +2692,326 @@
 
 // export default Navbar;
 
+// import { useState, useEffect } from 'react';
+// import { Link, useLocation } from 'react-router-dom';
+// import { 
+//   FiHome, 
+//   FiTruck, 
+//   FiUsers, 
+//   FiFileText, 
+//   FiPieChart,
+//   FiLogOut,
+//   FiChevronDown,
+//   FiMenu,
+//   FiX
+// } from 'react-icons/fi';
+// import { 
+//   MdOutlineWarehouse,
+//   MdOutlineSchedule
+// } from 'react-icons/md';
+// import { 
+//   BsShieldLock,
+//   BsBoxSeam
+// } from 'react-icons/bs';
+
+// const Navbar = () => {
+//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+//   const [activeDropdown, setActiveDropdown] = useState(null);
+//   const [userRole, setUserRole] = useState(null);
+//   const location = useLocation();
+
+//   useEffect(() => {
+//     setUserRole(localStorage.getItem('userRole'));
+//   }, []);
+
+//   const handleLogout = () => {
+//     localStorage.clear();
+//     window.location.href = "/";
+//   };
+
+//   // Role-based access control
+//   const hasAccess = (requiredRoles) => {
+//     if (!userRole) return false;
+//     const userRoles = userRole.split(',').map(r => r.trim());
+//     return requiredRoles.some(role => userRoles.includes(role));
+//   };
+
+//   // Menu configuration
+//   const menuItems = [
+//     {
+//       title: "Dashboard",
+//       path: "/dashboard",
+//       icon: <FiHome size={18} />,
+//       roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report"]
+//     },
+//     {
+//       title: "Admin",
+//       icon: <FiUsers size={18} />,
+//       roles: ["Owner", "Admin"],
+//       subItems: [
+//         { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse size={16} /> },
+//         { title: "User Management", path: "/usermaster", icon: <FiUsers size={16} /> },
+//         { title: "User Register", path: "/userregister", icon: <BsShieldLock size={16} /> }
+//       ]
+//     },
+//     {
+//       title: "Dispatch",
+//       icon: <FiTruck size={18} />,
+//       roles: ["Owner", "Admin", "Dispatch"],
+//       subItems: [
+//         { title: "Truck Transaction", path: "/truck", icon: <FiTruck size={16} /> },
+//         { title: "Truck Locator", path: "/truckfind", icon: <FiTruck size={16} /> }
+//       ]
+//     },
+//     {
+//       title: "Gate Control",
+//       path: "/gate",
+//       icon: <MdOutlineWarehouse size={18} />,
+//       roles: ["Owner", "Admin", "GateKeeper"]
+//     },
+//     {
+//       title: "Loading",
+//       path: "/loader",
+//       icon: <BsBoxSeam size={18} />,
+//       roles: ["Owner", "Admin", "Loader"]
+//     },
+//     {
+//       title: "Reports",
+//       icon: <FiPieChart size={18} />,
+//       roles: ["Owner", "Admin", "Report"],
+//       subItems: [
+//         { title: "Operations Report", path: "/reports", icon: <FiPieChart size={16} /> },
+//         { title: "Schedule Board", path: "/truckshedule", icon: <MdOutlineSchedule size={16} /> }
+//       ]
+//     }
+//   ];
+
+//   // Filter menu items based on user role
+//   const filteredMenuItems = menuItems.filter(item => hasAccess(item.roles));
+
+//   if (location.pathname === '/') return null;
+
+//   return (
+//     <>
+//       {/* Desktop Navigation */}
+//       <nav className="hidden md:block bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
+//         <div className="max-w-7xl mx-auto px-4">
+//           <div className="flex justify-between h-16 items-center">
+//             {/* Logo */}
+//             <Link to="/dashboard" className="flex items-center">
+//               <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-3">
+//                 <FiTruck className="h-5 w-5" />
+//               </div>
+//               <span className="text-xl font-semibold text-gray-800">Lemon Logistics</span>
+//             </Link>
+
+//             {/* Desktop Menu */}
+//             <div className="flex items-center space-x-1">
+//               {filteredMenuItems.map((item, index) => (
+//                 <div key={index} className="relative">
+//                   {item.path ? (
+//                     <Link
+//                       to={item.path}
+//                       className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+//                         location.pathname === item.path 
+//                           ? 'text-blue-600 bg-blue-50' 
+//                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+//                       }`}
+//                     >
+//                       <span className="mr-2">{item.icon}</span>
+//                       {item.title}
+//                     </Link>
+//                   ) : (
+//                     <>
+//                       <button
+//                         onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+//                         className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+//                           activeDropdown === index 
+//                             ? 'text-blue-600 bg-blue-50' 
+//                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+//                         }`}
+//                       >
+//                         <span className="mr-2">{item.icon}</span>
+//                         {item.title}
+//                         <FiChevronDown 
+//                           className={`ml-1 h-4 w-4 transition-transform ${
+//                             activeDropdown === index ? 'rotate-180' : ''
+//                           }`} 
+//                         />
+//                       </button>
+
+//                       {activeDropdown === index && (
+//                         <div className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50">
+//                           {item.subItems.map((subItem, subIndex) => (
+//                             <Link
+//                               key={subIndex}
+//                               to={subItem.path}
+//                               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+//                             >
+//                               <span className="mr-3 text-gray-500">{subItem.icon}</span>
+//                               {subItem.title}
+//                             </Link>
+//                           ))}
+//                         </div>
+//                       )}
+//                     </>
+//                   )}
+//                 </div>
+//               ))}
+//             </div>
+
+//             {/* Logout */}
+//             <button
+//               onClick={handleLogout}
+//               className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+//             >
+//               <FiLogOut className="mr-2" />
+//               Logout
+//             </button>
+//           </div>
+//         </div>
+//       </nav>
+
+//       {/* Mobile Navigation */}
+//       <nav className="md:hidden bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
+//         <div className="px-4">
+//           <div className="flex justify-between h-16 items-center">
+//             {/* Logo */}
+//             <Link to="/dashboard" className="flex items-center">
+//               <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-3">
+//                 <FiTruck className="h-5 w-5" />
+//               </div>
+//               <span className="text-xl font-semibold text-gray-800">Lemon ERP</span>
+//             </Link>
+
+//             {/* Mobile Menu Button */}
+//             <button
+//               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+//               className="text-gray-500 hover:text-gray-700 focus:outline-none"
+//             >
+//               {mobileMenuOpen ? (
+//                 <FiX className="h-6 w-6" />
+//               ) : (
+//                 <FiMenu className="h-6 w-6" />
+//               )}
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* Mobile Sidebar */}
+//         <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
+//           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)}></div>
+//           <div className="relative flex flex-col w-80 max-w-sm h-full bg-white shadow-xl">
+//             {/* Sidebar Header */}
+//             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+//               <div className="text-lg font-semibold text-gray-800">Menu</div>
+//               <button
+//                 onClick={() => setMobileMenuOpen(false)}
+//                 className="text-gray-500 hover:text-gray-700"
+//               >
+//                 <FiX className="h-6 w-6" />
+//               </button>
+//             </div>
+
+//             {/* Sidebar Content */}
+//             <div className="flex-1 overflow-y-auto">
+//               <div className="px-2 py-4 space-y-1">
+//                 {filteredMenuItems.map((item, index) => (
+//                   <div key={index}>
+//                     {item.path ? (
+//                       <Link
+//                         to={item.path}
+//                         onClick={() => setMobileMenuOpen(false)}
+//                         className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium ${
+//                           location.pathname === item.path 
+//                             ? 'bg-blue-50 text-blue-600' 
+//                             : 'text-gray-700 hover:bg-gray-100'
+//                         }`}
+//                       >
+//                         <span className="mr-3">{item.icon}</span>
+//                         {item.title}
+//                       </Link>
+//                     ) : (
+//                       <>
+//                         <button
+//                           onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+//                           className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium ${
+//                             activeDropdown === index 
+//                               ? 'bg-blue-50 text-blue-600' 
+//                               : 'text-gray-700 hover:bg-gray-100'
+//                           }`}
+//                         >
+//                           <div className="flex items-center">
+//                             <span className="mr-3">{item.icon}</span>
+//                             {item.title}
+//                           </div>
+//                           <FiChevronDown 
+//                             className={`h-5 w-5 transition-transform ${
+//                               activeDropdown === index ? 'rotate-180' : ''
+//                             }`} 
+//                           />
+//                         </button>
+
+//                         {activeDropdown === index && (
+//                           <div className="pl-12 pr-2">
+//                             {item.subItems.map((subItem, subIndex) => (
+//                               <Link
+//                                 key={subIndex}
+//                                 to={subItem.path}
+//                                 onClick={() => setMobileMenuOpen(false)}
+//                                 className={`flex items-center px-4 py-3 rounded-lg text-base ${
+//                                   location.pathname === subItem.path 
+//                                     ? 'bg-blue-100 text-blue-600' 
+//                                     : 'text-gray-600 hover:bg-gray-50'
+//                                 }`}
+//                               >
+//                                 <span className="mr-3">{subItem.icon}</span>
+//                                 {subItem.title}
+//                               </Link>
+//                             ))}
+//                           </div>
+//                         )}
+//                       </>
+//                     )}
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+
+//             {/* Sidebar Footer */}
+//             <div className="px-4 py-4 border-t border-gray-200">
+//               <button
+//                 onClick={handleLogout}
+//                 className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium"
+//               >
+//                 <FiLogOut className="mr-3" />
+//                 Logout
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       </nav>
+//     </>
+//   );
+// };
+
+// export default Navbar;////working
+
+
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   FiHome, 
   FiTruck, 
   FiUsers, 
-  FiFileText, 
   FiPieChart,
   FiLogOut,
   FiChevronDown,
   FiMenu,
-  FiX
+  FiX,
+  FiSettings,
+  FiClock
 } from 'react-icons/fi';
 import { 
   MdOutlineWarehouse,
@@ -2729,6 +3037,17 @@ const Navbar = () => {
     window.location.href = "/";
   };
 
+  // Close dropdowns when clicking elsewhere
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (activeDropdown !== null) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [activeDropdown]);
+
   // Role-based access control
   const hasAccess = (requiredRoles) => {
     if (!userRole) return false;
@@ -2741,12 +3060,12 @@ const Navbar = () => {
     {
       title: "Dashboard",
       path: "/dashboard",
-      icon: <FiHome size={18} />,
+      icon: <FiHome className="flex-shrink-0" size={18} />,
       roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report"]
     },
     {
       title: "Admin",
-      icon: <FiUsers size={18} />,
+      icon: <FiSettings className="flex-shrink-0" size={18} />,
       roles: ["Owner", "Admin"],
       subItems: [
         { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse size={16} /> },
@@ -2756,28 +3075,28 @@ const Navbar = () => {
     },
     {
       title: "Dispatch",
-      icon: <FiTruck size={18} />,
+      icon: <FiTruck className="flex-shrink-0" size={18} />,
       roles: ["Owner", "Admin", "Dispatch"],
       subItems: [
         { title: "Truck Transaction", path: "/truck", icon: <FiTruck size={16} /> },
-        { title: "Truck Locator", path: "/truckfind", icon: <FiTruck size={16} /> }
+        { title: "Truck Locator", path: "/truckfind", icon: <FiClock size={16} /> }
       ]
     },
     {
       title: "Gate Control",
       path: "/gate",
-      icon: <MdOutlineWarehouse size={18} />,
+      icon: <MdOutlineWarehouse className="flex-shrink-0" size={18} />,
       roles: ["Owner", "Admin", "GateKeeper"]
     },
     {
       title: "Loading",
       path: "/loader",
-      icon: <BsBoxSeam size={18} />,
+      icon: <BsBoxSeam className="flex-shrink-0" size={18} />,
       roles: ["Owner", "Admin", "Loader"]
     },
     {
       title: "Reports",
-      icon: <FiPieChart size={18} />,
+      icon: <FiPieChart className="flex-shrink-0" size={18} />,
       roles: ["Owner", "Admin", "Report"],
       subItems: [
         { title: "Operations Report", path: "/reports", icon: <FiPieChart size={16} /> },
@@ -2798,55 +3117,67 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
-            <Link to="/dashboard" className="flex items-center">
-              <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-3">
+            <Link to="/dashboard" className="flex items-center space-x-3">
+              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-md">
                 <FiTruck className="h-5 w-5" />
               </div>
-              <span className="text-xl font-semibold text-gray-800">Lemon Logistics</span>
+              <span className="text-xl font-semibold text-gray-800 tracking-tight">Lemon Logistics</span>
             </Link>
 
             {/* Desktop Menu */}
             <div className="flex items-center space-x-1">
               {filteredMenuItems.map((item, index) => (
-                <div key={index} className="relative">
+                <div key={index} className="relative h-full">
                   {item.path ? (
                     <Link
                       to={item.path}
-                      className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                         location.pathname === item.path 
-                          ? 'text-blue-600 bg-blue-50' 
+                          ? 'text-blue-700 bg-blue-50 font-semibold' 
                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                       }`}
+                      style={{ textDecoration: 'none' }}
                     >
                       <span className="mr-2">{item.icon}</span>
                       {item.title}
                     </Link>
                   ) : (
-                    <>
+                    <div className="h-full">
                       <button
-                        onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-                        className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          activeDropdown === index 
-                            ? 'text-blue-600 bg-blue-50' 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveDropdown(activeDropdown === index ? null : index);
+                        }}
+                        className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
+                            ? 'text-blue-700 bg-blue-50 font-semibold' 
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         }`}
                       >
                         <span className="mr-2">{item.icon}</span>
                         {item.title}
                         <FiChevronDown 
-                          className={`ml-1 h-4 w-4 transition-transform ${
+                          className={`ml-1 h-4 w-4 transition-transform duration-200 ${
                             activeDropdown === index ? 'rotate-180' : ''
                           }`} 
                         />
                       </button>
 
                       {activeDropdown === index && (
-                        <div className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50">
+                        <div 
+                          className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           {item.subItems.map((subItem, subIndex) => (
                             <Link
                               key={subIndex}
                               to={subItem.path}
-                              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                              className={`flex items-center px-4 py-2.5 text-sm transition-colors ${
+                                location.pathname === subItem.path
+                                  ? 'bg-blue-50 text-blue-700 font-medium'
+                                  : 'text-gray-700 hover:bg-gray-50'
+                              }`}
+                              style={{ textDecoration: 'none' }}
                             >
                               <span className="mr-3 text-gray-500">{subItem.icon}</span>
                               {subItem.title}
@@ -2854,7 +3185,7 @@ const Navbar = () => {
                           ))}
                         </div>
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
               ))}
@@ -2877,17 +3208,17 @@ const Navbar = () => {
         <div className="px-4">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
-            <Link to="/dashboard" className="flex items-center">
-              <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center text-white mr-3">
+            <Link to="/dashboard" className="flex items-center space-x-3">
+              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-md">
                 <FiTruck className="h-5 w-5" />
               </div>
-              <span className="text-xl font-semibold text-gray-800">Lemon ERP</span>
+              <span className="text-xl font-semibold text-gray-800 tracking-tight">Lemon ERP</span>
             </Link>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-500 hover:text-gray-700 focus:outline-none"
+              className="text-gray-500 hover:text-gray-700 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
               {mobileMenuOpen ? (
                 <FiX className="h-6 w-6" />
@@ -2900,89 +3231,92 @@ const Navbar = () => {
 
         {/* Mobile Sidebar */}
         <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
-          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)}></div>
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300" 
+            onClick={() => setMobileMenuOpen(false)}
+          ></div>
           <div className="relative flex flex-col w-80 max-w-sm h-full bg-white shadow-xl">
             {/* Sidebar Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-              <div className="text-lg font-semibold text-gray-800">Menu</div>
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+              <div className="text-xl font-semibold text-gray-800">Menu</div>
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
               >
                 <FiX className="h-6 w-6" />
               </button>
             </div>
 
             {/* Sidebar Content */}
-            <div className="flex-1 overflow-y-auto">
-              <div className="px-2 py-4 space-y-1">
-                {filteredMenuItems.map((item, index) => (
-                  <div key={index}>
-                    {item.path ? (
-                      <Link
-                        to={item.path}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium ${
-                          location.pathname === item.path 
-                            ? 'bg-blue-50 text-blue-600' 
+            <div className="flex-1 overflow-y-auto py-2">
+              {filteredMenuItems.map((item, index) => (
+                <div key={index} className="px-2">
+                  {item.path ? (
+                    <Link
+                      to={item.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center px-4 py-3.5 rounded-lg mx-2 text-base font-medium transition-colors ${
+                        location.pathname === item.path 
+                          ? 'bg-blue-50 text-blue-700' 
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <span className="mr-3">{item.icon}</span>
+                      {item.title}
+                    </Link>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+                        className={`flex items-center justify-between w-full px-4 py-3.5 rounded-lg mx-2 text-base font-medium transition-colors ${
+                          activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
+                            ? 'bg-blue-50 text-blue-700' 
                             : 'text-gray-700 hover:bg-gray-100'
                         }`}
                       >
-                        <span className="mr-3">{item.icon}</span>
-                        {item.title}
-                      </Link>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-                          className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium ${
-                            activeDropdown === index 
-                              ? 'bg-blue-50 text-blue-600' 
-                              : 'text-gray-700 hover:bg-gray-100'
-                          }`}
-                        >
-                          <div className="flex items-center">
-                            <span className="mr-3">{item.icon}</span>
-                            {item.title}
-                          </div>
-                          <FiChevronDown 
-                            className={`h-5 w-5 transition-transform ${
-                              activeDropdown === index ? 'rotate-180' : ''
-                            }`} 
-                          />
-                        </button>
+                        <div className="flex items-center">
+                          <span className="mr-3">{item.icon}</span>
+                          {item.title}
+                        </div>
+                        <FiChevronDown 
+                          className={`h-5 w-5 transition-transform duration-200 ${
+                            activeDropdown === index ? 'rotate-180' : ''
+                          }`} 
+                        />
+                      </button>
 
-                        {activeDropdown === index && (
-                          <div className="pl-12 pr-2">
-                            {item.subItems.map((subItem, subIndex) => (
-                              <Link
-                                key={subIndex}
-                                to={subItem.path}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={`flex items-center px-4 py-3 rounded-lg text-base ${
-                                  location.pathname === subItem.path 
-                                    ? 'bg-blue-100 text-blue-600' 
-                                    : 'text-gray-600 hover:bg-gray-50'
-                                }`}
-                              >
-                                <span className="mr-3">{subItem.icon}</span>
-                                {subItem.title}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
+                      {activeDropdown === index && (
+                        <div className="pl-12 pr-2">
+                          {item.subItems.map((subItem, subIndex) => (
+                            <Link
+                              key={subIndex}
+                              to={subItem.path}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className={`flex items-center px-4 py-3 rounded-lg text-base transition-colors ${
+                                location.pathname === subItem.path 
+                                  ? 'bg-blue-100 text-blue-700 font-medium' 
+                                  : 'text-gray-600 hover:bg-gray-50'
+                              }`}
+                              style={{ textDecoration: 'none' }}
+                            >
+                              <span className="mr-3">{subItem.icon}</span>
+                              {subItem.title}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
 
             {/* Sidebar Footer */}
             <div className="px-4 py-4 border-t border-gray-200">
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium"
+                className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium transition-colors"
               >
                 <FiLogOut className="mr-3" />
                 Logout
