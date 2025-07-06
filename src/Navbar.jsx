@@ -3713,7 +3713,7 @@ const Navbar = () => {
     window.location.href = "/";
   };
 
-  // Close dropdowns when clicking elsewhere or navigating
+  // Close dropdowns when clicking elsewhere
   useEffect(() => {
     const handleClickOutside = () => {
       setActiveDropdown(null);
@@ -3788,20 +3788,20 @@ const Navbar = () => {
     <>
       {/* Desktop Navigation */}
       <nav className="hidden md:block bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between h-16 items-center">
-            {/* Logo */}
-            <Link to="/dashboard" className="flex items-center space-x-3 min-w-max">
-              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-md">
+            {/* Logo - Left aligned */}
+            <Link to="/dashboard" className="flex items-center min-w-max">
+              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-sm">
                 <FiTruck className="h-5 w-5" />
               </div>
-              <span className="text-xl font-semibold text-gray-800 tracking-tight">Lemon Logistics</span>
+              <span className="ml-3 text-xl font-semibold text-gray-800">Lemon Logistics</span>
             </Link>
 
-            {/* Flexible Menu Container */}
-            <div className="flex flex-1 justify-between items-center">
-              {/* Left-aligned Menu Items */}
-              <div className="flex items-center space-x-1">
+            {/* Right-aligned section with menu items and logout */}
+            <div className="flex items-center space-x-4">
+              {/* Menu items - aligned right before logout */}
+              <div className="flex space-x-1">
                 {filteredMenuItems.map((item, index) => (
                   <div key={index} className="relative h-full">
                     {item.path ? (
@@ -3809,7 +3809,7 @@ const Navbar = () => {
                         to={item.path}
                         className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                           location.pathname === item.path 
-                            ? 'text-blue-700 bg-blue-50 font-semibold' 
+                            ? 'text-blue-700 bg-blue-50 font-medium' 
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         }`}
                         style={{ textDecoration: 'none' }}
@@ -3826,7 +3826,7 @@ const Navbar = () => {
                           }}
                           className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                             activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
-                              ? 'text-blue-700 bg-blue-50 font-semibold' 
+                              ? 'text-blue-700 bg-blue-50 font-medium' 
                               : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                           }`}
                           style={{ textDecoration: 'none' }}
@@ -3842,7 +3842,7 @@ const Navbar = () => {
 
                         {activeDropdown === index && (
                           <div 
-                            className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50"
+                            className="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50"
                             onClick={(e) => e.stopPropagation()}
                           >
                             {item.subItems.map((subItem, subIndex) => (
@@ -3869,25 +3869,131 @@ const Navbar = () => {
                 ))}
               </div>
 
-              {/* Right-aligned Logout */}
-              <div className="flex items-center ml-4">
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors min-w-max"
-                  style={{ textDecoration: 'none' }}
-                >
-                  <FiLogOut className="mr-2" />
-                  Logout
-                </button>
-              </div>
+              {/* Logout - Far right */}
+              <button
+                onClick={handleLogout}
+                className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors min-w-max"
+                style={{ textDecoration: 'none' }}
+              >
+                <FiLogOut className="mr-2" />
+                Logout
+              </button>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Navigation (unchanged) */}
+      {/* Mobile Navigation */}
       <nav className="md:hidden bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        {/* ... existing mobile implementation ... */}
+        <div className="px-4">
+          <div className="flex justify-between h-16 items-center">
+            {/* Logo */}
+            <Link to="/dashboard" className="flex items-center">
+              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-sm">
+                <FiTruck className="h-5 w-5" />
+              </div>
+            </Link>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-gray-500 hover:text-gray-700 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              {mobileMenuOpen ? (
+                <FiX className="h-6 w-6" />
+              ) : (
+                <FiMenu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Sidebar */}
+        <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50" 
+            onClick={() => setMobileMenuOpen(false)}
+          ></div>
+          <div className="relative flex flex-col w-80 max-w-sm h-full bg-white shadow-xl">
+            {/* Sidebar Content */}
+            <div className="flex-1 overflow-y-auto py-4">
+              {filteredMenuItems.map((item, index) => (
+                <div key={index} className="px-2">
+                  {item.path ? (
+                    <Link
+                      to={item.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium ${
+                        location.pathname === item.path 
+                          ? 'bg-blue-50 text-blue-700' 
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <span className="mr-3">{item.icon}</span>
+                      {item.title}
+                    </Link>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+                        className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium ${
+                          activeDropdown === index 
+                            ? 'bg-blue-50 text-blue-700' 
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                        style={{ textDecoration: 'none' }}
+                      >
+                        <div className="flex items-center">
+                          <span className="mr-3">{item.icon}</span>
+                          {item.title}
+                        </div>
+                        <FiChevronDown 
+                          className={`h-5 w-5 transition-transform ${
+                            activeDropdown === index ? 'rotate-180' : ''
+                          }`} 
+                        />
+                      </button>
+
+                      {activeDropdown === index && (
+                        <div className="pl-12 pr-2">
+                          {item.subItems.map((subItem, subIndex) => (
+                            <Link
+                              key={subIndex}
+                              to={subItem.path}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className={`flex items-center px-4 py-2 rounded-lg text-base ${
+                                location.pathname === subItem.path 
+                                  ? 'bg-blue-100 text-blue-700' 
+                                  : 'text-gray-600 hover:bg-gray-50'
+                              }`}
+                              style={{ textDecoration: 'none' }}
+                            >
+                              <span className="mr-3">{subItem.icon}</span>
+                              {subItem.title}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Sidebar Footer */}
+            <div className="px-4 py-4 border-t border-gray-200">
+              <button
+                onClick={handleLogout}
+                className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium"
+                style={{ textDecoration: 'none' }}
+              >
+                <FiLogOut className="mr-3" />
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
       </nav>
     </>
   );
