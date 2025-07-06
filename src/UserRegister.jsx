@@ -1624,5 +1624,5 @@ export default function UserRegister() {
       )}
     </div>
   );
-}//////////////// working code with cancel button
+}//////////////// working code with cancel button///////
 
