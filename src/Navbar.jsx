@@ -3909,8 +3909,7 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Sidebar */}
-       
-        <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>      
+                <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
            <div 
             className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300" 
             onClick={() => setMobileMenuOpen(false)}
@@ -3934,7 +3933,7 @@ const Navbar = () => {
                   {item.path ? (
                     <Link
                       to={item.path}
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={handleMobileNavClick}
                       className={`flex items-center px-4 py-3.5 rounded-lg mx-2 text-base font-medium transition-colors ${
                         location.pathname === item.path 
                           ? 'bg-blue-50 text-blue-700' 
@@ -3948,12 +3947,16 @@ const Navbar = () => {
                   ) : (
                     <>
                       <button
-                        onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveDropdown(activeDropdown === index ? null : index);
+                        }}
                         className={`flex items-center justify-between w-full px-4 py-3.5 rounded-lg mx-2 text-base font-medium transition-colors ${
                           activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
                             ? 'bg-blue-50 text-blue-700' 
                             : 'text-gray-700 hover:bg-gray-100'
                         }`}
+                        style={{ textDecoration: 'none' }}
                       >
                         <div className="flex items-center">
                           <span className="mr-3">{item.icon}</span>
@@ -3972,7 +3975,7 @@ const Navbar = () => {
                             <Link
                               key={subIndex}
                               to={subItem.path}
-                              onClick={() => setMobileMenuOpen(false)}
+                              onClick={handleMobileNavClick}
                               className={`flex items-center px-4 py-3 rounded-lg text-base transition-colors ${
                                 location.pathname === subItem.path 
                                   ? 'bg-blue-100 text-blue-700 font-medium' 
@@ -3992,6 +3995,7 @@ const Navbar = () => {
               ))}
             </div>
 
+              
             {/* Sidebar Footer */}
             <div className="px-4 py-4 border-t border-gray-200">
               <button
