@@ -1115,303 +1115,9 @@
 //   );
 // }
 
-// import { useEffect, useState } from "react";
-// import { Link } from "react-router-dom";
-// import Sidebar from "./Sidebar";
-// import { 
-//   MdOutlineWarehouse,
-//   MdOutlineDashboard,
-//   MdOutlineSettings
-// } from "react-icons/md";
-// import { 
-//   FiUser, 
-//   FiClipboard, 
-//   FiTruck, 
-//   FiBarChart2,
-//   FiSearch
-// } from "react-icons/fi";
-// import { 
-//   AiOutlineSchedule,
-//   AiOutlineUserSwitch
-// } from "react-icons/ai";
-// import { 
-//   PiPackageLight 
-// } from "react-icons/pi";
-// import { 
-//   BsDoorOpen,
-//   BsMoonStars,
-//   BsSun
-// } from "react-icons/bs";
-
-// export default function Home() {
-//   const [isMobile, setIsMobile] = useState(false);
-//   const [sidebarOpen, setSidebarOpen] = useState(false);
-//   const [darkMode, setDarkMode] = useState(false);
-//   const userRole = localStorage.getItem("userRole");
-//   const userName = localStorage.getItem("userName") || "User";
-
-//   useEffect(() => {
-//     const checkSize = () => {
-//       setIsMobile(window.innerWidth <= 768);
-//     };
-//     checkSize();
-//     window.addEventListener("resize", checkSize);
-//     return () => window.removeEventListener("resize", checkSize);
-//   }, []);
-
-//   const panelList = [
-//     { 
-//       name: "Plant Master", 
-//       path: "/plantmaster", 
-//       icon: <MdOutlineWarehouse className="text-2xl" />, 
-//       roles: ["Owner", "Admin"],
-//       color: "bg-blue-100 text-blue-600"
-//     },
-//     { 
-//       name: "User Master", 
-//       path: "/usermaster", 
-//       icon: <FiUser className="text-2xl" />, 
-//       roles: ["Owner", "Admin"],
-//       color: "bg-purple-100 text-purple-600"
-//     },
-//     { 
-//       name: "User Register", 
-//       path: "/userregister", 
-//       icon: <AiOutlineUserSwitch className="text-2xl" />, 
-//       roles: ["Owner", "Admin"],
-//       color: "bg-green-100 text-green-600"
-//     },
-//     { 
-//       name: "Truck Transaction", 
-//       path: "/truck", 
-//       icon: <FiTruck className="text-2xl" />, 
-//       roles: ["Owner", "Admin", "Dispatch"],
-//       color: "bg-orange-100 text-orange-600"
-//     },
-//     { 
-//       name: "Truck Locator", 
-//       path: "/truckfind", 
-//       icon: <FiSearch className="text-2xl" />, 
-//       roles: ["Owner", "Admin", "Dispatch"],
-//       color: "bg-red-100 text-red-600"
-//     },
-//     { 
-//       name: "Gate Control", 
-//       path: "/gate", 
-//       icon: <BsDoorOpen className="text-2xl" />, 
-//       roles: ["Owner", "Admin", "GateKeeper"],
-//       color: "bg-indigo-100 text-indigo-600"
-//     },
-//     { 
-//       name: "Loading Dock", 
-//       path: "/loader", 
-//       icon: <PiPackageLight className="text-2xl" />, 
-//       roles: ["Owner", "Admin", "Loader"],
-//       color: "bg-yellow-100 text-yellow-600"
-//     },
-//     { 
-//       name: "Operations Report", 
-//       path: "/reports", 
-//       icon: <FiBarChart2 className="text-2xl" />, 
-//       roles: ["Owner", "Admin", "Report"],
-//       color: "bg-teal-100 text-teal-600"
-//     },
-//     { 
-//       name: "Schedule Board", 
-//       path: "/truckshedule", 
-//       icon: <AiOutlineSchedule className="text-2xl" />, 
-//       roles: ["Owner", "Admin", "Report"],
-//       color: "bg-pink-100 text-pink-600"
-//     },
-//   ];
-
-//   const allowedPanels = panelList.filter((p) => {
-//     if (!userRole) return false;
-//     const roles = userRole.split(",").map((r) => r.trim());
-//     return roles.some((r) => p.roles.includes(r));
-//   });
-
-//   if (!isMobile) {
-//     return (
-//       <div className={`flex min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}>
-//         <div className="flex-1 p-8">
-//           <div className="max-w-6xl mx-auto">
-//             <div className="flex justify-between items-center mb-8">
-//               <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-//                 <MdOutlineDashboard className="inline mr-2" />
-//                 Dashboard Overview
-//               </h1>
-//               <button
-//                 onClick={() => setDarkMode(!darkMode)}
-//                 className={`p-2 rounded-full ${darkMode ? "bg-gray-700 text-yellow-300" : "bg-white text-gray-700"} shadow-md`}
-//               >
-//                 {darkMode ? <BsSun size={20} /> : <BsMoonStars size={20} />}
-//               </button>
-//             </div>
-
-//             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//               {allowedPanels.map((panel, index) => (
-//                 <Link
-//                   to={panel.path}
-//                   key={index}
-//                   className={`rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${darkMode ? "bg-gray-800" : "bg-white"}`}
-//                 >
-//                   <div className="p-6">
-//                     <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${panel.color}`}>
-//                       {panel.icon}
-//                     </div>
-//                     <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-//                       {panel.name}
-//                     </h3>
-//                     <p className="text-sm text-gray-500 dark:text-gray-400">
-//                       Access {panel.name.toLowerCase()} module
-//                     </p>
-//                   </div>
-//                 </Link>
-//               ))}
-//             </div>
-
-//             <div className={`mt-8 p-6 rounded-xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-md`}>
-//               <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
-//                 Quick Actions
-//               </h2>
-//               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-//                 <button className="p-4 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
-//                   <FiTruck className="inline-block mr-2" />
-//                   New Shipment
-//                 </button>
-//                 <button className="p-4 rounded-lg bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors">
-//                   <FiClipboard className="inline-block mr-2" />
-//                   Create Report
-//                 </button>
-//                 <button className="p-4 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors">
-//                   <FiUser className="inline-block mr-2" />
-//                   Add User
-//                 </button>
-//                 <button className="p-4 rounded-lg bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors">
-//                   <MdOutlineSettings className="inline-block mr-2" />
-//                   Settings
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"} relative pb-20`}>
-//       {/* App Header */}
-//       <header className={`sticky top-0 z-10 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-sm p-4 flex justify-between items-center`}>
-//         <div className="flex items-center">
-//           <button
-//             onClick={() => setSidebarOpen(true)}
-//             className="mr-4 text-gray-600 dark:text-gray-300"
-//           >
-//             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-//             </svg>
-//           </button>
-//           <h1 className="font-semibold text-lg text-gray-800 dark:text-white">
-//             Lemon Logistics
-//           </h1>
-//         </div>
-//         <button
-//           onClick={() => setDarkMode(!darkMode)}
-//           className={`p-2 rounded-full ${darkMode ? "bg-gray-700 text-yellow-300" : "bg-gray-100 text-gray-700"}`}
-//         >
-//           {darkMode ? <BsSun size={18} /> : <BsMoonStars size={18} />}
-//         </button>
-//       </header>
-
-//       {/* Sidebar */}
-//       <Sidebar
-//         isOpen={sidebarOpen}
-//         toggleSidebar={() => setSidebarOpen(false)}
-//         darkMode={darkMode}
-//         setDarkMode={setDarkMode}
-//       />
-
-//       {/* Main Content */}
-//       <main className="p-4">
-//         <div className="mb-6">
-//           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-1">
-//             Welcome, {userName}
-//           </h2>
-//           <p className="text-sm text-gray-500 dark:text-gray-400">
-//             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-//           </p>
-//         </div>
-
-//         {allowedPanels.length === 1 ? (
-//           <div className="flex justify-center">
-//             <Link
-//               to={allowedPanels[0].path}
-//               className={`w-full max-w-md rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-[1.02] ${darkMode ? "bg-gray-800" : "bg-white"}`}
-//             >
-//               <div className="p-6 text-center">
-//                 <div className={`w-16 h-16 rounded-full ${allowedPanels[0].color} flex items-center justify-center mx-auto mb-4`}>
-//                   {allowedPanels[0].icon}
-//                 </div>
-//                 <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-//                   {allowedPanels[0].name}
-//                 </h3>
-//                 <p className="text-sm text-gray-500 dark:text-gray-400">
-//                   Tap to continue
-//                 </p>
-//               </div>
-//             </Link>
-//           </div>
-//         ) : (
-//           <div className="grid grid-cols-2 gap-4">
-//             {allowedPanels.map((panel, idx) => (
-//               <Link
-//                 to={panel.path}
-//                 key={idx}
-//                 className={`rounded-xl shadow-md p-5 flex flex-col items-center transition-transform hover:scale-[1.03] ${darkMode ? "bg-gray-800" : "bg-white"}`}
-//               >
-//                 <div className={`w-12 h-12 rounded-lg ${panel.color} flex items-center justify-center mb-3`}>
-//                   {panel.icon}
-//                 </div>
-//                 <span className="text-sm font-medium text-center text-gray-800 dark:text-white">
-//                   {panel.name}
-//                 </span>
-//               </Link>
-//             ))}
-//           </div>
-//         )}
-//       </main>
-
-//       {/* Bottom Navigation */}
-//       <nav className={`fixed bottom-0 left-0 right-0 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-lg border-t ${darkMode ? "border-gray-700" : "border-gray-200"} flex justify-around items-center p-2`}>
-//         <Link to="/dashboard" className="p-2 text-center text-blue-600 dark:text-blue-400">
-//           <MdOutlineDashboard className="mx-auto text-xl" />
-//           <span className="text-xs mt-1 block">Home</span>
-//         </Link>
-//         <Link to="/truck" className="p-2 text-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
-//           <FiTruck className="mx-auto text-xl" />
-//           <span className="text-xs mt-1 block">Trucks</span>
-//         </Link>
-//         <Link to="/reports" className="p-2 text-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
-//           <FiBarChart2 className="mx-auto text-xl" />
-//           <span className="text-xs mt-1 block">Reports</span>
-//         </Link>
-//         <Link to="/settings" className="p-2 text-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
-//           <MdOutlineSettings className="mx-auto text-xl" />
-//           <span className="text-xs mt-1 block">Settings</span>
-//         </Link>
-//       </nav>
-//     </div>
-//   );
-// }/////working 
-
-
-
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import Sidebar from "./Sidebar";
+
 import { 
   MdOutlineWarehouse,
   MdOutlineDashboard,
@@ -1434,8 +1140,7 @@ import {
 import { 
   BsDoorOpen,
   BsMoonStars,
-  BsSun,
-  BsBoxSeam
+  BsSun
 } from "react-icons/bs";
 
 export default function Home() {
@@ -1460,63 +1165,63 @@ export default function Home() {
       path: "/plantmaster", 
       icon: <MdOutlineWarehouse className="text-2xl" />, 
       roles: ["Owner", "Admin"],
-      color: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+      color: "bg-blue-100 text-blue-600"
     },
     { 
       name: "User Master", 
       path: "/usermaster", 
       icon: <FiUser className="text-2xl" />, 
       roles: ["Owner", "Admin"],
-      color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
+      color: "bg-purple-100 text-purple-600"
     },
     { 
       name: "User Register", 
       path: "/userregister", 
       icon: <AiOutlineUserSwitch className="text-2xl" />, 
       roles: ["Owner", "Admin"],
-      color: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+      color: "bg-green-100 text-green-600"
     },
     { 
       name: "Truck Transaction", 
       path: "/truck", 
       icon: <FiTruck className="text-2xl" />, 
       roles: ["Owner", "Admin", "Dispatch"],
-      color: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400"
+      color: "bg-orange-100 text-orange-600"
     },
     { 
       name: "Truck Locator", 
       path: "/truckfind", 
       icon: <FiSearch className="text-2xl" />, 
       roles: ["Owner", "Admin", "Dispatch"],
-      color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+      color: "bg-red-100 text-red-600"
     },
     { 
       name: "Gate Control", 
       path: "/gate", 
       icon: <BsDoorOpen className="text-2xl" />, 
       roles: ["Owner", "Admin", "GateKeeper"],
-      color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
+      color: "bg-indigo-100 text-indigo-600"
     },
     { 
       name: "Loading Dock", 
       path: "/loader", 
       icon: <PiPackageLight className="text-2xl" />, 
       roles: ["Owner", "Admin", "Loader"],
-      color: "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400"
+      color: "bg-yellow-100 text-yellow-600"
     },
     { 
       name: "Operations Report", 
       path: "/reports", 
       icon: <FiBarChart2 className="text-2xl" />, 
       roles: ["Owner", "Admin", "Report"],
-      color: "bg-teal-100 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400"
+      color: "bg-teal-100 text-teal-600"
     },
     { 
       name: "Schedule Board", 
       path: "/truckshedule", 
       icon: <AiOutlineSchedule className="text-2xl" />, 
       roles: ["Owner", "Admin", "Report"],
-      color: "bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400"
+      color: "bg-pink-100 text-pink-600"
     },
   ];
 
@@ -1528,97 +1233,65 @@ export default function Home() {
 
   if (!isMobile) {
     return (
-      <div className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}>
-        <div className="flex">
-          <Sidebar isOpen={true} darkMode={darkMode} setDarkMode={setDarkMode} />
-          
-          <div className="flex-1 p-8">
-            <div className="max-w-7xl mx-auto">
-              {/* Hero Section */}
-              <div className={`rounded-2xl p-8 mb-10 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-lg`}>
-                <div className="flex flex-col md:flex-row items-center justify-between">
-                  <div className="mb-6 md:mb-0 md:mr-8">
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-green-500 bg-clip-text text-transparent">
-                      Lemon Software
-                    </h1>
-                    <h2 className="text-xl font-semibold mt-2 text-gray-700 dark:text-gray-300">
-                      Empowering Logistics with ERP
-                    </h2>
-                    <p className="mt-4 text-gray-600 dark:text-gray-400 max-w-2xl">
-                      We build modern ERP solutions that streamline logistics operations, 
-                      optimize supply chains, and drive business growth through intelligent automation.
+      <div className={`flex min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+        <div className="flex-1 p-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+                <MdOutlineDashboard className="inline mr-2" />
+                Dashboard Overview
+              </h1>
+              <button
+                onClick={() => setDarkMode(!darkMode)}
+                className={`p-2 rounded-full ${darkMode ? "bg-gray-700 text-yellow-300" : "bg-white text-gray-700"} shadow-md`}
+              >
+                {darkMode ? <BsSun size={20} /> : <BsMoonStars size={20} />}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {allowedPanels.map((panel, index) => (
+                <Link
+                  to={panel.path}
+                  key={index}
+                  className={`rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${darkMode ? "bg-gray-800" : "bg-white"}`}
+                >
+                  <div className="p-6">
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${panel.color}`}>
+                      {panel.icon}
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+                      {panel.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Access {panel.name.toLowerCase()} module
                     </p>
                   </div>
-                  <div className={`p-4 rounded-xl ${darkMode ? "bg-gray-700" : "bg-blue-50"} shadow-inner`}>
-                    <div className="flex items-center">
-                      <div className={`p-3 rounded-lg ${darkMode ? "bg-gray-600" : "bg-white"} shadow-sm mr-4`}>
-                        <FiTruck className="text-2xl text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-700 dark:text-gray-300">Welcome back, {userName}</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                </Link>
+              ))}
+            </div>
 
-              {/* Dashboard Panels */}
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
-                  <MdOutlineDashboard className="inline mr-2" />
-                  Dashboard Modules
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {allowedPanels.map((panel, index) => (
-                    <Link
-                      to={panel.path}
-                      key={index}
-                      className={`group rounded-xl overflow-hidden transition-all duration-300 ${darkMode ? "bg-gray-800 hover:bg-gray-750" : "bg-white hover:bg-gray-50"} shadow-md hover:shadow-lg`}
-                    >
-                      <div className="p-6">
-                        <div className={`w-14 h-14 rounded-xl ${panel.color} flex items-center justify-center mb-4 transition-transform group-hover:scale-110`}>
-                          {panel.icon}
-                        </div>
-                        <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                          {panel.name}
-                        </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Access {panel.name.toLowerCase()} module
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className={`rounded-xl overflow-hidden ${darkMode ? "bg-gray-800" : "bg-white"} shadow-lg`}>
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-white">
-                    Quick Actions
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <button className={`p-4 rounded-lg flex items-center transition-colors ${darkMode ? "bg-gray-700 hover:bg-gray-600 text-blue-400" : "bg-blue-50 hover:bg-blue-100 text-blue-600"}`}>
-                      <FiTruck className="text-xl mr-3" />
-                      <span>New Shipment</span>
-                    </button>
-                    <button className={`p-4 rounded-lg flex items-center transition-colors ${darkMode ? "bg-gray-700 hover:bg-gray-600 text-green-400" : "bg-green-50 hover:bg-green-100 text-green-600"}`}>
-                      <FiClipboard className="text-xl mr-3" />
-                      <span>Create Report</span>
-                    </button>
-                    <button className={`p-4 rounded-lg flex items-center transition-colors ${darkMode ? "bg-gray-700 hover:bg-gray-600 text-purple-400" : "bg-purple-50 hover:bg-purple-100 text-purple-600"}`}>
-                      <FiUser className="text-xl mr-3" />
-                      <span>Add User</span>
-                    </button>
-                    <button className={`p-4 rounded-lg flex items-center transition-colors ${darkMode ? "bg-gray-700 hover:bg-gray-600 text-orange-400" : "bg-orange-50 hover:bg-orange-100 text-orange-600"}`}>
-                      <MdOutlineSettings className="text-xl mr-3" />
-                      <span>Settings</span>
-                    </button>
-                  </div>
-                </div>
+            <div className={`mt-8 p-6 rounded-xl ${darkMode ? "bg-gray-800" : "bg-white"} shadow-md`}>
+              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
+                Quick Actions
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button className="p-4 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
+                  <FiTruck className="inline-block mr-2" />
+                  New Shipment
+                </button>
+                <button className="p-4 rounded-lg bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors">
+                  <FiClipboard className="inline-block mr-2" />
+                  Create Report
+                </button>
+                <button className="p-4 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors">
+                  <FiUser className="inline-block mr-2" />
+                  Add User
+                </button>
+                <button className="p-4 rounded-lg bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors">
+                  <MdOutlineSettings className="inline-block mr-2" />
+                  Settings
+                </button>
               </div>
             </div>
           </div>
@@ -1627,7 +1300,6 @@ export default function Home() {
     );
   }
 
-  // Mobile View
   return (
     <div className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"} relative pb-20`}>
       {/* App Header */}
@@ -1642,7 +1314,7 @@ export default function Home() {
             </svg>
           </button>
           <h1 className="font-semibold text-lg text-gray-800 dark:text-white">
-            Lemon ERP
+            Lemon Logistics
           </h1>
         </div>
         <button
@@ -1653,11 +1325,19 @@ export default function Home() {
         </button>
       </header>
 
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        toggleSidebar={() => setSidebarOpen(false)}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+      />
+
       {/* Main Content */}
-      <main className="p-5">
+      <main className="p-4">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
-            Welcome back, {userName}
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-1">
+            Welcome, {userName}
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -1668,10 +1348,10 @@ export default function Home() {
           <div className="flex justify-center">
             <Link
               to={allowedPanels[0].path}
-              className={`w-full max-w-sm rounded-2xl shadow-lg overflow-hidden transition-transform hover:scale-[1.02] ${darkMode ? "bg-gray-800" : "bg-white"}`}
+              className={`w-full max-w-md rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-[1.02] ${darkMode ? "bg-gray-800" : "bg-white"}`}
             >
               <div className="p-6 text-center">
-                <div className={`w-16 h-16 rounded-xl ${allowedPanels[0].color} flex items-center justify-center mx-auto mb-4`}>
+                <div className={`w-16 h-16 rounded-full ${allowedPanels[0].color} flex items-center justify-center mx-auto mb-4`}>
                   {allowedPanels[0].icon}
                 </div>
                 <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
@@ -1689,9 +1369,9 @@ export default function Home() {
               <Link
                 to={panel.path}
                 key={idx}
-                className={`rounded-xl shadow-md p-5 flex flex-col items-center transition-transform hover:scale-[1.03] active:scale-95 ${darkMode ? "bg-gray-800" : "bg-white"}`}
+                className={`rounded-xl shadow-md p-5 flex flex-col items-center transition-transform hover:scale-[1.03] ${darkMode ? "bg-gray-800" : "bg-white"}`}
               >
-                <div className={`w-14 h-14 rounded-xl ${panel.color} flex items-center justify-center mb-3`}>
+                <div className={`w-12 h-12 rounded-lg ${panel.color} flex items-center justify-center mb-3`}>
                   {panel.icon}
                 </div>
                 <span className="text-sm font-medium text-center text-gray-800 dark:text-white">
@@ -1705,33 +1385,21 @@ export default function Home() {
 
       {/* Bottom Navigation */}
       <nav className={`fixed bottom-0 left-0 right-0 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-lg border-t ${darkMode ? "border-gray-700" : "border-gray-200"} flex justify-around items-center p-2`}>
-        <Link 
-          to="/dashboard" 
-          className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-blue-400" : "text-blue-600"}`}
-        >
-          <MdOutlineDashboard className="text-xl" />
-          <span className="text-xs mt-1">Home</span>
+        <Link to="/dashboard" className="p-2 text-center text-blue-600 dark:text-blue-400">
+          <MdOutlineDashboard className="mx-auto text-xl" />
+          <span className="text-xs mt-1 block">Home</span>
         </Link>
-        <Link 
-          to="/truck" 
-          className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-gray-400 hover:text-blue-400" : "text-gray-600 hover:text-blue-600"}`}
-        >
-          <FiTruck className="text-xl" />
-          <span className="text-xs mt-1">Trucks</span>
+        <Link to="/truck" className="p-2 text-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+          <FiTruck className="mx-auto text-xl" />
+          <span className="text-xs mt-1 block">Trucks</span>
         </Link>
-        <Link 
-          to="/reports" 
-          className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-gray-400 hover:text-blue-400" : "text-gray-600 hover:text-blue-600"}`}
-        >
-          <FiBarChart2 className="text-xl" />
-          <span className="text-xs mt-1">Reports</span>
+        <Link to="/reports" className="p-2 text-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+          <FiBarChart2 className="mx-auto text-xl" />
+          <span className="text-xs mt-1 block">Reports</span>
         </Link>
-        <Link 
-          to="/settings" 
-          className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-gray-400 hover:text-blue-400" : "text-gray-600 hover:text-blue-600"}`}
-        >
-          <MdOutlineSettings className="text-xl" />
-          <span className="text-xs mt-1">Settings</span>
+        <Link to="/settings" className="p-2 text-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+          <MdOutlineSettings className="mx-auto text-xl" />
+          <span className="text-xs mt-1 block">Settings</span>
         </Link>
       </nav>
     </div>
