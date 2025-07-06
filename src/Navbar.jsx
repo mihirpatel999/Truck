@@ -3883,23 +3883,23 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Navigation */}
-      <nav className="md:hidden bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div className="px-4">
-          <div className="flex justify-between h-16 items-center">
-            {/* Logo */}
-            <Link to="/dashboard" className="flex items-center">
-              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-sm">
-                <FiTruck className="h-5 w-5" />
-              </div>
-            </Link>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-500 hover:text-gray-700 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors"
-            >
-              {mobileMenuOpen ? (
+         {/* Mobile Navigation */}
+       <nav className="md:hidden bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
+         <div className="px-4">
+           <div className="flex justify-between h-16 items-center">
+             {/* Logo */}
+             <Link to="/dashboard" className="flex items-center space-x-3">
+               <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-md">
+                 <FiTruck className="h-5 w-5" />
+               </div>
+               <span className="text-xl font-semibold text-gray-800 tracking-tight">Lemon ERP</span>
+             </Link>
+             {/* Mobile Menu Button */}
+             <button
+               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+               className="text-gray-500 hover:text-gray-700 focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors"
+             >
+               {mobileMenuOpen ? (
                 <FiX className="h-6 w-6" />
               ) : (
                 <FiMenu className="h-6 w-6" />
@@ -3909,8 +3909,8 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Sidebar */}
-                <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
-           <div 
+        <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
+          <div 
             className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300" 
             onClick={() => setMobileMenuOpen(false)}
           ></div>
@@ -3995,12 +3995,11 @@ const Navbar = () => {
               ))}
             </div>
 
-              
             {/* Sidebar Footer */}
             <div className="px-4 py-4 border-t border-gray-200">
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium"
+                className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium transition-colors"
                 style={{ textDecoration: 'none' }}
               >
                 <FiLogOut className="mr-3" />
@@ -4014,4 +4013,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Navbar;//////layout problem 
