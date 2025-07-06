@@ -2266,6 +2266,8 @@ import { FiTruck, FiCalendar, FiFilter, FiSearch, FiCheckCircle, FiXCircle, FiRe
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function TruckSchedule() {

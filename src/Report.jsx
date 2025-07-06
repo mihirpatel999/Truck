@@ -800,7 +800,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import truckIllustration from './assets/truck-illustration.png';
+import truckImage from './assets/Truck.png.png';
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -922,7 +923,8 @@ export default function Report() {
           <div className="p-6 md:p-8 flex flex-col md:flex-row items-center">
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 flex items-center justify-center md:justify-start">
-                <img src={truckIllustration} alt="Truck" className="h-10 mr-4" />
+            <img src={truckImage} alt="Truck" className="mx-auto h-24 sm:h-40 mb-3" />
+
                 Truck Movement Analytics
               </h1>
               <p className="text-blue-100 text-lg">Comprehensive fleet tracking and reporting</p>
