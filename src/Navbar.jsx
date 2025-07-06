@@ -1538,266 +1538,1437 @@
 // i/////////////////////////////////////
 
 
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+// import { useState, useEffect } from 'react';
+// import { Link, useLocation } from 'react-router-dom';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-function Navbar() {
-  const [adminOpen, setAdminOpen] = useState(false);
-  const [dispatcherOpen, setDispatcherOpen] = useState(false);
-  const [reportsOpen, setReportsOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-  const location = useLocation();
+// function Navbar() {
+//   const [adminOpen, setAdminOpen] = useState(false);
+//   const [dispatcherOpen, setDispatcherOpen] = useState(false);
+//   const [reportsOpen, setReportsOpen] = useState(false);
+//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+//   const [userRole, setUserRole] = useState(null);
+//   const location = useLocation();
 
-  useEffect(() => {
-    const role = localStorage.getItem('userRole');
-    setUserRole(role);
-  }, []);
+//   useEffect(() => {
+//     const role = localStorage.getItem('userRole');
+//     setUserRole(role);
+//   }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    alert("You have been logged out.");
-    window.location.href = "/";
+//   const handleLogout = () => {
+//     localStorage.clear();
+//     alert("You have been logged out.");
+//     window.location.href = "/";
+//   };
+
+//   const roleAccess = {
+//     Owner: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Admin: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Dispatch: ['truck', 'truckfind'],
+//     Report: ['reports', 'truckshedule'],
+//     GateKeeper: ['gate'],
+//     UserMaster: ['usermaster'],
+//     UserRegister: ['userregister'],
+//     Loader: ['loader'],
+//   };
+
+//   const canAccess = (route) => {
+//     if (!userRole) return false;
+//     const roles = userRole.split(',').map(r => r.trim());
+//     return roles.some(role => roleAccess[role]?.includes(route));
+//   };
+
+//   const NavLink = ({ to, children }) => (
+//     <Link to={to} className="no-underline">
+//       {children}
+//     </Link>
+//   );
+
+//   if (location.pathname === '/') return null;
+
+//   return (
+//     <nav className="bg-black shadow-xl">
+//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//         <div className="flex justify-between h-20 items-center">
+//           <div className="flex items-center space-x-3 text-white font-bold text-xl">
+//             <img
+//               src="https://upload.wikimedia.org/wikipedia/commons/4/48/Emoji_u1f34b.svg"
+//               alt="Lemon Logo"
+//               className="w-8 h-8"
+//             />
+//             <span>Lemon ERP</span>
+//           </div>
+
+//           <div className="md:hidden">
+//             {/* <button
+//               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+//               className="text-white hover:text-yellow-400 text-2xl transition-all duration-300 hover:scale-110"
+//             >
+//               ☰
+//             </button> */}
+//           </div>
+
+//           {/* Desktop Menu */}
+//           <div className="hidden md:flex space-x-8 items-center font-medium text-white">
+//             {(canAccess('plantmaster') || canAccess('usermaster') || canAccess('userregister')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setAdminOpen(!adminOpen);
+//                     setDispatcherOpen(false);
+//                     setReportsOpen(false);
+//                   }}
+//                   className="hover:text-yellow-400 flex items-center"
+//                 >
+//                   Admin Master <span className="ml-1 text-sm">▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50 ${adminOpen ? 'block' : 'hidden'}`}>
+//                   {canAccess('plantmaster') && (
+//                     <NavLink to="/plantmaster">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">🏭 Plant Master</span>
+//                     </NavLink>
+//                   )}
+//                   {canAccess('usermaster') && (
+//                     <NavLink to="/usermaster">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">👤 User Master</span>
+//                     </NavLink>
+//                   )}
+//                   {canAccess('userregister') && (
+//                     <NavLink to="/userregister">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">📝 User Register</span>
+//                     </NavLink>
+//                   )}
+//                 </div>
+//               </div>
+//             )}
+
+//             {(canAccess('truck') || canAccess('truckfind')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setDispatcherOpen(!dispatcherOpen);
+//                     setAdminOpen(false);
+//                     setReportsOpen(false);
+//                   }}
+//                   className="hover:text-yellow-400 flex items-center"
+//                 >
+//                   Dispatcher <span className="ml-1 text-sm">▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50 ${dispatcherOpen ? 'block' : 'hidden'}`}>
+//                   {canAccess('truck') && (
+//                     <NavLink to="/truck">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">🚛 Truck Transaction</span>
+//                     </NavLink>
+//                   )}
+//                   {canAccess('truckfind') && (
+//                     <NavLink to="/truckfind">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">🔍 Truck Find</span>
+//                     </NavLink>
+//                   )}
+//                 </div>
+//               </div>
+//             )}
+
+//             {canAccess('gate') && (
+//               <NavLink to="/gate">
+//                 <span className="text-white hover:text-yellow-400 flex items-center">🚪 Gate Keeper</span>
+//               </NavLink>
+//             )}
+
+//             {canAccess('loader') && (
+//               <NavLink to="/loader">
+//                 <span className="text-white hover:text-yellow-400 flex items-center">📦 Loader</span>
+//               </NavLink>
+//             )}
+
+//             {(canAccess('reports') || canAccess('truckshedule')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setReportsOpen(!reportsOpen);
+//                     setAdminOpen(false);
+//                     setDispatcherOpen(false);
+//                   }}
+//                   className="hover:text-yellow-400 flex items-center"
+//                 >
+//                   📊 Reports <span className="ml-1 text-sm">▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50 ${reportsOpen ? 'block' : 'hidden'}`}>
+//                   {canAccess('reports') && (
+//                     <NavLink to="/reports">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">📈 Reports</span>
+//                     </NavLink>
+//                   )}
+//                   {canAccess('truckshedule') && (
+//                     <NavLink to="/truckshedule">
+//                       <span className="block px-4 py-2 text-white hover:bg-blue-600">🚛 Truck Schedule</span>
+//                     </NavLink>
+//                   )}
+//                 </div>
+//               </div>
+//             )}
+
+//             <button
+//               onClick={handleLogout}
+//               className="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-lg border border-red-700 transition duration-300 hover:scale-105"
+//             >
+//               🔓 Logout
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* Mobile Menu Panel Style */}
+//         {mobileMenuOpen && (
+//           <div className="md:hidden mt-4 grid grid-cols-2 gap-4 bg-gray-900 p-4 rounded-xl shadow-2xl text-white font-medium">
+
+//             {canAccess('plantmaster') && (
+//               <NavLink to="/plantmaster">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   🏭 <span className="mt-2">Plant Master</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('usermaster') && (
+//               <NavLink to="/usermaster">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   👤 <span className="mt-2">User Master</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('userregister') && (
+//               <NavLink to="/userregister">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   📝 <span className="mt-2">User Register</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truck') && (
+//               <NavLink to="/truck">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   🚛 <span className="mt-2">Truck Transaction</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truckfind') && (
+//               <NavLink to="/truckfind">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   🔍 <span className="mt-2">Truck Find</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('gate') && (
+//               <NavLink to="/gate">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   🚪 <span className="mt-2">Gate Keeper</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('loader') && (
+//               <NavLink to="/loader">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   📦 <span className="mt-2">Loader</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('reports') && (
+//               <NavLink to="/reports">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   📈 <span className="mt-2">Reports</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truckshedule') && (
+//               <NavLink to="/truckshedule">
+//                 <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
+//                   🚛 <span className="mt-2">Truck Schedule</span>
+//                 </div>
+//               </NavLink>
+//             )}
+
+//             <button
+//               onClick={handleLogout}
+//               className="col-span-2 mt-2 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl shadow-lg"
+//             >
+//               🔓 Logout
+//             </button>
+//           </div>
+//         )}
+//       </div>
+//     </nav>
+//   );
+// }
+
+// export default Navbar;///////////////////fully working code with mobile panel and desktop menu
+
+
+// import { useState, useEffect } from 'react';
+// import { Link, useLocation } from 'react-router-dom';
+
+// const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+// function Navbar() {
+//   const [adminOpen, setAdminOpen] = useState(false);
+//   const [dispatcherOpen, setDispatcherOpen] = useState(false);
+//   const [reportsOpen, setReportsOpen] = useState(false);
+//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+//   const [userRole, setUserRole] = useState(null);
+//   const location = useLocation();
+
+//   useEffect(() => {
+//     const role = localStorage.getItem('userRole');
+//     setUserRole(role);
+//   }, []);
+
+//   const handleLogout = () => {
+//     localStorage.clear();
+//     alert("You have been logged out.");
+//     window.location.href = "/";
+//   };
+
+//   const roleAccess = {
+//     Owner: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Admin: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Dispatch: ['truck', 'truckfind'],
+//     Report: ['reports', 'truckshedule'],
+//     GateKeeper: ['gate'],
+//     UserMaster: ['usermaster'],
+//     UserRegister: ['userregister'],
+//     Loader: ['loader'],
+//   };
+
+//   const canAccess = (route) => {
+//     if (!userRole) return false;
+//     const roles = userRole.split(',').map(r => r.trim());
+//     return roles.some(role => roleAccess[role]?.includes(route));
+//   };
+
+//   const NavLink = ({ to, children, mobile = false }) => (
+//     <Link 
+//       to={to} 
+//       className={`no-underline transition-all duration-200 ${mobile ? 'w-full' : ''}`}
+//       onClick={() => setMobileMenuOpen(false)}
+//     >
+//       {children}
+//     </Link>
+//   );
+
+//   if (location.pathname === '/') return null;
+
+//   return (
+//     <nav className="bg-gradient-to-r from-gray-900 to-gray-800 shadow-2xl sticky top-0 z-50">
+//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//         <div className="flex justify-between h-20 items-center">
+//           {/* Logo */}
+//           <div className="flex items-center space-x-3">
+//             <NavLink to="/dashboard">
+//               <div className="flex items-center space-x-3 group">
+//                 <div className="bg-yellow-500 p-2 rounded-xl shadow-lg transform group-hover:rotate-12 transition duration-300">
+//                   <img
+//                     src="https://upload.wikimedia.org/wikipedia/commons/4/48/Emoji_u1f34b.svg"
+//                     alt="Lemon Logo"
+//                     className="w-8 h-8"
+//                   />
+//                 </div>
+//                 <span className="text-white font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-200">
+//                   Lemon ERP
+//                 </span>
+//               </div>
+//             </NavLink>
+//           </div>
+
+//           {/* Mobile Menu Button */}
+//           <div className="md:hidden flex items-center">
+//             <button
+//               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+//               className="text-white focus:outline-none"
+//               aria-label="Toggle menu"
+//             >
+//               <div className="w-8 space-y-2">
+//                 <span className={`block h-1 w-full bg-yellow-400 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'transform rotate-45 translate-y-3' : ''}`}></span>
+//                 <span className={`block h-1 w-full bg-yellow-400 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+//                 <span className={`block h-1 w-full bg-yellow-400 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'transform -rotate-45 -translate-y-1' : ''}`}></span>
+//               </div>
+//             </button>
+//           </div>
+
+//           {/* Desktop Menu */}
+//           <div className="hidden md:flex space-x-6 items-center font-medium">
+//             {(canAccess('plantmaster') || canAccess('usermaster') || canAccess('userregister')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setAdminOpen(!adminOpen);
+//                     setDispatcherOpen(false);
+//                     setReportsOpen(false);
+//                   }}
+//                   className="text-gray-200 hover:text-yellow-400 flex items-center space-x-1 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200"
+//                 >
+//                   <span className="text-yellow-400">⚙️</span>
+//                   <span>Admin</span>
+//                   <span className={`transition-transform duration-200 ${adminOpen ? 'rotate-180' : ''}`}>▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-1 w-56 bg-gray-800 rounded-lg shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${adminOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`}>
+//                   <div className="py-1">
+//                     {canAccess('plantmaster') && (
+//                       <NavLink to="/plantmaster">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">🏭</span>
+//                           <span>Plant Master</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                     {canAccess('usermaster') && (
+//                       <NavLink to="/usermaster">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">👤</span>
+//                           <span>User Master</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                     {canAccess('userregister') && (
+//                       <NavLink to="/userregister">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">📝</span>
+//                           <span>User Register</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
+
+//             {(canAccess('truck') || canAccess('truckfind')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setDispatcherOpen(!dispatcherOpen);
+//                     setAdminOpen(false);
+//                     setReportsOpen(false);
+//                   }}
+//                   className="text-gray-200 hover:text-yellow-400 flex items-center space-x-1 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200"
+//                 >
+//                   <span className="text-yellow-400">🚚</span>
+//                   <span>Dispatcher</span>
+//                   <span className={`transition-transform duration-200 ${dispatcherOpen ? 'rotate-180' : ''}`}>▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-1 w-56 bg-gray-800 rounded-lg shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${dispatcherOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`}>
+//                   <div className="py-1">
+//                     {canAccess('truck') && (
+//                       <NavLink to="/truck">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">📦</span>
+//                           <span>Truck Transaction</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                     {canAccess('truckfind') && (
+//                       <NavLink to="/truckfind">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">🔍</span>
+//                           <span>Truck Find</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
+
+//             {canAccess('gate') && (
+//               <NavLink to="/gate">
+//                 <div className="text-gray-200 hover:text-yellow-400 flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200">
+//                   <span className="text-yellow-400">🚪</span>
+//                   <span>Gate Keeper</span>
+//                 </div>
+//               </NavLink>
+//             )}
+
+//             {canAccess('loader') && (
+//               <NavLink to="/loader">
+//                 <div className="text-gray-200 hover:text-yellow-400 flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200">
+//                   <span className="text-yellow-400">🏗️</span>
+//                   <span>Loader</span>
+//                 </div>
+//               </NavLink>
+//             )}
+
+//             {(canAccess('reports') || canAccess('truckshedule')) && (
+//               <div className="relative group">
+//                 <button
+//                   onClick={() => {
+//                     setReportsOpen(!reportsOpen);
+//                     setAdminOpen(false);
+//                     setDispatcherOpen(false);
+//                   }}
+//                   className="text-gray-200 hover:text-yellow-400 flex items-center space-x-1 px-4 py-2 rounded-lg hover:bg-gray-700 transition-all duration-200"
+//                 >
+//                   <span className="text-yellow-400">📊</span>
+//                   <span>Reports</span>
+//                   <span className={`transition-transform duration-200 ${reportsOpen ? 'rotate-180' : ''}`}>▼</span>
+//                 </button>
+//                 <div className={`absolute top-full left-0 mt-1 w-56 bg-gray-800 rounded-lg shadow-xl z-50 overflow-hidden transition-all duration-300 origin-top ${reportsOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}`}>
+//                   <div className="py-1">
+//                     {canAccess('reports') && (
+//                       <NavLink to="/reports">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">📈</span>
+//                           <span>Reports</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                     {canAccess('truckshedule') && (
+//                       <NavLink to="/truckshedule">
+//                         <div className="flex items-center px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-200">
+//                           <span className="mr-3">🗓️</span>
+//                           <span>Truck Schedule</span>
+//                         </div>
+//                       </NavLink>
+//                     )}
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
+
+//             <button
+//               onClick={handleLogout}
+//               className="ml-4 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg border border-red-700 transition-all duration-300 hover:shadow-xl hover:scale-105 flex items-center space-x-2"
+//             >
+//               <span>🔓</span>
+//               <span>Logout</span>
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* Mobile Menu */}
+//         <div className={`md:hidden overflow-hidden transition-all duration-500 ease-in-out ${mobileMenuOpen ? 'max-h-screen py-4' : 'max-h-0'}`}>
+//           <div className="grid grid-cols-2 gap-3 pt-4">
+//             {canAccess('plantmaster') && (
+//               <NavLink to="/plantmaster" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🏭</span>
+//                   </div>
+//                   <span className="text-white font-medium">Plant Master</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('usermaster') && (
+//               <NavLink to="/usermaster" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">👤</span>
+//                   </div>
+//                   <span className="text-white font-medium">User Master</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('userregister') && (
+//               <NavLink to="/userregister" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">📝</span>
+//                   </div>
+//                   <span className="text-white font-medium">User Register</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truck') && (
+//               <NavLink to="/truck" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🚛</span>
+//                   </div>
+//                   <span className="text-white font-medium">Truck Transaction</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truckfind') && (
+//               <NavLink to="/truckfind" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🔍</span>
+//                   </div>
+//                   <span className="text-white font-medium">Truck Find</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('gate') && (
+//               <NavLink to="/gate" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🚪</span>
+//                   </div>
+//                   <span className="text-white font-medium">Gate Keeper</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('loader') && (
+//               <NavLink to="/loader" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🏗️</span>
+//                   </div>
+//                   <span className="text-white font-medium">Loader</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('reports') && (
+//               <NavLink to="/reports" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">📊</span>
+//                   </div>
+//                   <span className="text-white font-medium">Reports</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//             {canAccess('truckshedule') && (
+//               <NavLink to="/truckshedule" mobile>
+//                 <div className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-105 border border-gray-700">
+//                   <div className="bg-yellow-500 p-3 rounded-full mb-2">
+//                     <span className="text-xl">🗓️</span>
+//                   </div>
+//                   <span className="text-white font-medium">Truck Schedule</span>
+//                 </div>
+//               </NavLink>
+//             )}
+//           </div>
+
+//           <div className="mt-4">
+//             <button
+//               onClick={handleLogout}
+//               className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl flex items-center justify-center space-x-2"
+//             >
+//               <span>🔓</span>
+//               <span>Logout</span>
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </nav>
+//   );
+// }
+
+// export default Navbar;
+
+
+
+// import { useState, useEffect } from 'react';
+// import { Link, useLocation } from 'react-router-dom';
+
+// const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+// function Navbar() {
+//   const [activeDropdown, setActiveDropdown] = useState(null);
+//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+//   const [userRole, setUserRole] = useState(null);
+//   const [scrolled, setScrolled] = useState(false);
+//   const location = useLocation();
+
+//   useEffect(() => {
+//     const role = localStorage.getItem('userRole');
+//     setUserRole(role);
+
+//     const handleScroll = () => {
+//       setScrolled(window.scrollY > 10);
+//     };
+//     window.addEventListener('scroll', handleScroll);
+//     return () => window.removeEventListener('scroll', handleScroll);
+//   }, []);
+
+//   const handleLogout = () => {
+//     localStorage.clear();
+//     window.location.href = "/";
+//   };
+
+//   const roleAccess = {
+//     Owner: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Admin: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
+//     Dispatch: ['truck', 'truckfind'],
+//     Report: ['reports', 'truckshedule'],
+//     GateKeeper: ['gate'],
+//     UserMaster: ['usermaster'],
+//     UserRegister: ['userregister'],
+//     Loader: ['loader'],
+//   };
+
+//   const canAccess = (route) => {
+//     if (!userRole) return false;
+//     const roles = userRole.split(',').map(r => r.trim());
+//     return roles.some(role => roleAccess[role]?.includes(route));
+//   };
+
+//   const NavLink = ({ to, children, mobile = false, className = '' }) => (
+//     <Link 
+//       to={to} 
+//       className={`no-underline transition-all ${mobile ? 'w-full' : ''} ${className}`}
+//       onClick={() => setMobileMenuOpen(false)}
+//     >
+//       {children}
+//     </Link>
+//   );
+
+//   if (location.pathname === '/') return null;
+
+//   const toggleDropdown = (dropdown) => {
+//     setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
+//   };
+
+//   const menuItems = [
+//     {
+//       id: 'admin',
+//       label: 'Administration',
+//       icon: '🏛️',
+//       routes: [
+//         { to: '/plantmaster', label: 'Plant Master', icon: '🏭', access: 'plantmaster' },
+//         { to: '/usermaster', label: 'User Master', icon: '👥', access: 'usermaster' },
+//         { to: '/userregister', label: 'User Register', icon: '📝', access: 'userregister' }
+//       ]
+//     },
+//     {
+//       id: 'dispatch',
+//       label: 'Dispatch',
+//       icon: '🚚',
+//       routes: [
+//         { to: '/truck', label: 'Truck Transaction', icon: '📦', access: 'truck' },
+//         { to: '/truckfind', label: 'Truck Locator', icon: '📍', access: 'truckfind' }
+//       ]
+//     },
+//     {
+//       id: 'operations',
+//       label: 'Operations',
+//       icon: '🏗️',
+//       routes: [
+//         { to: '/gate', label: 'Gate Control', icon: '🚪', access: 'gate' },
+//         { to: '/loader', label: 'Loading Dock', icon: '🏗️', access: 'loader' }
+//       ]
+//     },
+//     {
+//       id: 'analytics',
+//       label: 'Analytics',
+//       icon: '📊',
+//       routes: [
+//         { to: '/reports', label: 'Operations Report', icon: '📈', access: 'reports' },
+//         { to: '/truckshedule', label: 'Schedule Board', icon: '🗓️', access: 'truckshedule' }
+//       ]
+//     }
+//   ];
+
+//   return (
+//     <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-xl' : 'bg-white/95 backdrop-blur-md'}`}>
+//       <div className="max-w-8xl mx-auto px-6">
+//         <div className="flex justify-between h-20 items-center border-b border-gray-100">
+//           {/* Logo */}
+//           <NavLink to="/dashboard" className="flex items-center space-x-3">
+//             <div className="flex items-center">
+//               <div className="bg-blue-600 p-2 rounded-lg shadow-md">
+//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+//                   <path d="M12 2L1 12h3v9h6v-6h4v6h6v-9h3L12 2zm0 2.8L18 10v9h-2v-6h-8v6H6v-9l6-5.2z" />
+//                 </svg>
+//               </div>
+//               <span className="ml-3 text-2xl font-bold text-gray-800">
+//                 <span className="text-blue-600">Lemon</span> Logistics
+//               </span>
+//             </div>
+//           </NavLink>
+
+//           {/* Desktop Menu */}
+//           <div className="hidden lg:flex items-center space-x-1">
+//             {menuItems.map((section) => (
+//               (section.routes.some(item => canAccess(item.access))) && (
+//                 <div key={section.id} className="relative">
+//                   <button
+//                     onClick={() => toggleDropdown(section.id)}
+//                     className={`flex items-center px-5 py-3 text-sm font-medium rounded-lg transition-all ${activeDropdown === section.id ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'}`}
+//                   >
+//                     <span className="mr-2 text-lg">{section.icon}</span>
+//                     {section.label}
+//                     <svg className={`ml-2 w-4 h-4 transition-transform ${activeDropdown === section.id ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+//                     </svg>
+//                   </button>
+
+//                   {activeDropdown === section.id && (
+//                     <div className="absolute left-0 mt-1 w-56 origin-top-right bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden z-50 animate-fadeIn">
+//                       <div className="py-1">
+//                         {section.routes.map((item) => (
+//                           canAccess(item.access) && (
+//                             <NavLink key={item.to} to={item.to}>
+//                               <div className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+//                                 <span className="mr-3 text-lg">{item.icon}</span>
+//                                 {item.label}
+//                               </div>
+//                             </NavLink>
+//                           )
+//                         ))}
+//                       </div>
+//                     </div>
+//                   )}
+//                 </div>
+//               )
+//             ))}
+
+//             {/* User Profile Dropdown */}
+//             <div className="ml-4 relative">
+//               <button
+//                 onClick={() => toggleDropdown('user')}
+//                 className="flex items-center space-x-2 focus:outline-none"
+//               >
+//                 <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+//                   {userRole?.charAt(0) || 'U'}
+//                 </div>
+//               </button>
+
+//               {activeDropdown === 'user' && (
+//                 <div className="absolute right-0 mt-2 w-48 origin-top-right bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden z-50 animate-fadeIn">
+//                   <div className="py-1">
+//                     <div className="px-4 py-3 border-b border-gray-100">
+//                       <p className="text-sm font-medium text-gray-900">Signed in as</p>
+//                       <p className="text-sm text-gray-500 truncate">{userRole || 'User'}</p>
+//                     </div>
+//                     <button
+//                       onClick={handleLogout}
+//                       className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 flex items-center transition-colors"
+//                     >
+//                       <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+//                       </svg>
+//                       Sign out
+//                     </button>
+//                   </div>
+//                 </div>
+//               )}
+//             </div>
+//           </div>
+
+//           {/* Mobile Menu Button */}
+//           <div className="lg:hidden flex items-center">
+//             <button
+//               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+//               className="text-gray-700 focus:outline-none"
+//               aria-label="Toggle menu"
+//             >
+//               <div className="w-8 space-y-2">
+//                 <span className={`block h-0.5 w-full bg-gray-700 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'transform rotate-45 translate-y-2.5' : ''}`}></span>
+//                 <span className={`block h-0.5 w-full bg-gray-700 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+//                 <span className={`block h-0.5 w-full bg-gray-700 rounded-full transition-all duration-300 ${mobileMenuOpen ? 'transform -rotate-45 -translate-y-2.5' : ''}`}></span>
+//               </div>
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Mobile Menu */}
+//       <div className={`lg:hidden overflow-hidden transition-all duration-500 ease-in-out ${mobileMenuOpen ? 'max-h-screen bg-white shadow-xl' : 'max-h-0'}`}>
+//         <div className="px-6 py-4">
+//           <div className="space-y-1">
+//             {menuItems.map((section) => (
+//               (section.routes.some(item => canAccess(item.access))) && (
+//                 <div key={section.id} className="pt-2">
+//                   <button
+//                     onClick={() => toggleDropdown(`${section.id}-mobile`)}
+//                     className="w-full flex items-center justify-between px-4 py-3 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-50 transition-colors"
+//                   >
+//                     <div className="flex items-center">
+//                       <span className="mr-3 text-xl">{section.icon}</span>
+//                       {section.label}
+//                     </div>
+//                     <svg className={`w-5 h-5 transition-transform ${activeDropdown === `${section.id}-mobile` ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+//                     </svg>
+//                   </button>
+
+//                   {activeDropdown === `${section.id}-mobile` && (
+//                     <div className="mt-1 space-y-1 pl-12 pr-4">
+//                       {section.routes.map((item) => (
+//                         canAccess(item.access) && (
+//                           <NavLink key={item.to} to={item.to} mobile>
+//                             <div className="flex items-center px-4 py-3 text-base text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+//                               <span className="mr-3 text-lg">{item.icon}</span>
+//                               {item.label}
+//                             </div>
+//                           </NavLink>
+//                         )
+//                       ))}
+//                     </div>
+//                   )}
+//                 </div>
+//               )
+//             ))}
+
+//             {/* Mobile User Menu */}
+//             <div className="pt-4 border-t border-gray-200 mt-4">
+//               <div className="flex items-center px-4 py-3">
+//                 <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold mr-3">
+//                   {userRole?.charAt(0) || 'U'}
+//                 </div>
+//                 <div>
+//                   <p className="text-sm font-medium text-gray-900">Logged in</p>
+//                   <p className="text-sm text-gray-500">{userRole || 'User'}</p>
+//                 </div>
+//               </div>
+//               <button
+//                 onClick={handleLogout}
+//                 className="w-full flex items-center px-4 py-3 text-base font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors mt-2"
+//               >
+//                 <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+//                 </svg>
+//                 Sign out
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </nav>
+//   );
+// }
+
+// export default Navbar;
+
+// import { useState, useEffect } from 'react';
+// import { Link, useLocation } from 'react-router-dom';
+// import { 
+//   FiHome, 
+//   FiTruck, 
+//   FiUser, 
+//   FiClipboard, 
+//   FiBarChart2, 
+//   FiLogOut,
+//   FiChevronDown,
+//   FiMenu,
+//   FiX
+// } from 'react-icons/fi';
+// import { 
+//   MdOutlineWarehouse,
+//   MdOutlineSchedule
+// } from 'react-icons/md';
+// import { 
+//   BsDoorOpen,
+//   BsBox
+// } from 'react-icons/bs';
+
+// const Navbar = () => {
+//   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+//   const [activeDropdown, setActiveDropdown] = useState(null);
+//   const [userRole, setUserRole] = useState(null);
+//   const location = useLocation();
+
+//   useEffect(() => {
+//     setUserRole(localStorage.getItem('userRole'));
+//   }, []);
+
+//   const handleLogout = () => {
+//     localStorage.clear();
+//     window.location.href = "/";
+//   };
+
+//   // Role-based access control
+//   const canAccess = (requiredRoles) => {
+//     if (!userRole) return false;
+//     const userRoles = userRole.split(',').map(r => r.trim());
+//     return requiredRoles.some(role => userRoles.includes(role));
+//   };
+
+//   // Menu configuration
+//   const menuItems = [
+//     {
+//       title: "Dashboard",
+//       path: "/dashboard",
+//       icon: <FiHome />,
+//       roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report"]
+//     },
+//     {
+//       title: "Admin",
+//       icon: <FiUser />,
+//       roles: ["Owner", "Admin"],
+//       subItems: [
+//         { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse /> },
+//         { title: "User Management", path: "/usermaster", icon: <FiUser /> },
+//         { title: "User Register", path: "/userregister", icon: <FiClipboard /> }
+//       ]
+//     },
+//     {
+//       title: "Dispatch",
+//       icon: <FiTruck />,
+//       roles: ["Owner", "Admin", "Dispatch"],
+//       subItems: [
+//         { title: "Truck Transaction", path: "/truck", icon: <FiTruck /> },
+//         { title: "Truck Locator", path: "/truckfind", icon: <FiTruck /> }
+//       ]
+//     },
+//     {
+//       title: "Gate Control",
+//       path: "/gate",
+//       icon: <BsDoorOpen />,
+//       roles: ["Owner", "Admin", "GateKeeper"]
+//     },
+//     {
+//       title: "Loading",
+//       path: "/loader",
+//       icon: <BsBox />,
+//       roles: ["Owner", "Admin", "Loader"]
+//     },
+//     {
+//       title: "Reports",
+//       icon: <FiBarChart2 />,
+//       roles: ["Owner", "Admin", "Report"],
+//       subItems: [
+//         { title: "Operations Report", path: "/reports", icon: <FiBarChart2 /> },
+//         { title: "Schedule Board", path: "/truckshedule", icon: <MdOutlineSchedule /> }
+//       ]
+//     }
+//   ];
+
+//   // Filter menu items based on user role
+//   const filteredMenuItems = menuItems.filter(item => 
+//     canAccess(item.roles)
+//   );
+
+//   if (location.pathname === '/') return null;
+
+//   return (
+//     <nav className="bg-white shadow-md sticky top-0 z-50">
+//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//         <div className="flex justify-between h-16 items-center">
+//           {/* Logo */}
+//           <Link to="/dashboard" className="flex items-center">
+//             <div className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center text-white mr-2">
+//               <FiTruck className="h-5 w-5" />
+//             </div>
+//             <span className="text-xl font-semibold text-gray-800">Lemon Logistics</span>
+//           </Link>
+
+//           {/* Desktop Menu */}
+//           <div className="hidden md:flex items-center space-x-4">
+//             {filteredMenuItems.map((item, index) => (
+//               <div key={index} className="relative">
+//                 {item.path ? (
+//                   <Link
+//                     to={item.path}
+//                     className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+//                       location.pathname === item.path 
+//                         ? 'bg-blue-50 text-blue-600' 
+//                         : 'text-gray-700 hover:bg-gray-100'
+//                     }`}
+//                   >
+//                     <span className="mr-2">{item.icon}</span>
+//                     {item.title}
+//                   </Link>
+//                 ) : (
+//                   <>
+//                     <button
+//                       onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+//                       className={`flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+//                         activeDropdown === index 
+//                           ? 'bg-blue-50 text-blue-600' 
+//                           : 'text-gray-700 hover:bg-gray-100'
+//                       }`}
+//                     >
+//                       <span className="mr-2">{item.icon}</span>
+//                       {item.title}
+//                       <FiChevronDown 
+//                         className={`ml-1 h-4 w-4 transition-transform ${
+//                           activeDropdown === index ? 'rotate-180' : ''
+//                         }`} 
+//                       />
+//                     </button>
+
+//                     {activeDropdown === index && (
+//                       <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-1 z-50">
+//                         {item.subItems.map((subItem, subIndex) => (
+//                           <Link
+//                             key={subIndex}
+//                             to={subItem.path}
+//                             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+//                           >
+//                             <span className="mr-3">{subItem.icon}</span>
+//                             {subItem.title}
+//                           </Link>
+//                         ))}
+//                       </div>
+//                     )}
+//                   </>
+//                 )}
+//               </div>
+//             ))}
+
+//             <button
+//               onClick={handleLogout}
+//               className="ml-4 flex items-center px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50"
+//             >
+//               <FiLogOut className="mr-2" />
+//               Logout
+//             </button>
+//           </div>
+
+//           {/* Mobile Menu Button */}
+//           <div className="md:hidden flex items-center">
+//             <button
+//               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+//               className="text-gray-500 hover:text-gray-900 focus:outline-none"
+//             >
+//               {mobileMenuOpen ? (
+//                 <FiX className="h-6 w-6" />
+//               ) : (
+//                 <FiMenu className="h-6 w-6" />
+//               )}
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Mobile Menu */}
+//       {mobileMenuOpen && (
+//         <div className="md:hidden bg-white shadow-xl">
+//           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+//             {filteredMenuItems.map((item, index) => (
+//               <div key={index}>
+//                 {item.path ? (
+//                   <Link
+//                     to={item.path}
+//                     onClick={() => setMobileMenuOpen(false)}
+//                     className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
+//                       location.pathname === item.path 
+//                         ? 'bg-blue-50 text-blue-600' 
+//                         : 'text-gray-700 hover:bg-gray-100'
+//                     }`}
+//                   >
+//                     <span className="mr-2">{item.icon}</span>
+//                     {item.title}
+//                   </Link>
+//                 ) : (
+//                   <>
+//                     <button
+//                       onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
+//                       className="flex items-center justify-between w-full px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
+//                     >
+//                       <div className="flex items-center">
+//                         <span className="mr-2">{item.icon}</span>
+//                         {item.title}
+//                       </div>
+//                       <FiChevronDown 
+//                         className={`h-4 w-4 transition-transform ${
+//                           activeDropdown === index ? 'rotate-180' : ''
+//                         }`} 
+//                       />
+//                     </button>
+
+//                     {activeDropdown === index && (
+//                       <div className="pl-8">
+//                         {item.subItems.map((subItem, subIndex) => (
+//                           <Link
+//                             key={subIndex}
+//                             to={subItem.path}
+//                             onClick={() => setMobileMenuOpen(false)}
+//                             className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50"
+//                           >
+//                             <span className="mr-3">{subItem.icon}</span>
+//                             {subItem.title}
+//                           </Link>
+//                         ))}
+//                       </div>
+//                     )}
+//                   </>
+//                 )}
+//               </div>
+//             ))}
+
+//             <button
+//               onClick={handleLogout}
+//               className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50 mt-2"
+//             >
+//               <FiLogOut className="mr-2" />
+//               Logout
+//             </button>
+//           </div>
+//         </div>
+//       )}
+//     </nav>
+//   );
+// };
+
+// export default Navbar;
+
+
+
+import { useState } from 'react';
+import { FiTruck, FiCheck, FiX, FiCalendar } from 'react-icons/fi';
+import { Bar, Pie } from 'react-chartjs-2';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
+
+const GateKeeper = () => {
+  const [selectedPlant, setSelectedPlant] = useState('');
+  const [formData, setFormData] = useState({
+    truckNo: '',
+    dispatchDate: new Date().toISOString().split('T')[0],
+    invoiceNo: '',
+    remarks: ''
+  });
+  const [quantityData, setQuantityData] = useState([]);
+
+  const plants = [
+    { id: '1', name: 'North Warehouse' },
+    { id: '2', name: 'South Distribution Center' },
+    { id: '3', name: 'East Manufacturing Plant' }
+  ];
+
+  const truckList = [
+    { id: 'TRK-1001', status: 'available' },
+    { id: 'TRK-1002', status: 'available' },
+    { id: 'TRK-1003', status: 'checked-in' },
+    { id: 'TRK-1004', status: 'checked-in' }
+  ];
+
+  const handleCheckInOut = (action) => {
+    console.log(`${action} truck:`, formData);
+    // API call would go here
   };
 
-  const roleAccess = {
-    Owner: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
-    Admin: ['plantmaster', 'usermaster', 'userregister', 'truck', 'gate', 'loader', 'reports', 'truckfind', 'truckshedule'],
-    Dispatch: ['truck', 'truckfind'],
-    Report: ['reports', 'truckshedule'],
-    GateKeeper: ['gate'],
-    UserMaster: ['usermaster'],
-    UserRegister: ['userregister'],
-    Loader: ['loader'],
+  // Chart data
+  const barChartData = {
+    labels: ['North', 'South', 'East', 'West'],
+    datasets: [
+      {
+        label: 'Truck Quantities',
+        data: [12, 19, 8, 15],
+        backgroundColor: [
+          'rgba(74, 222, 128, 0.8)',
+          'rgba(96, 165, 250, 0.8)',
+          'rgba(250, 204, 21, 0.8)',
+          'rgba(249, 115, 22, 0.8)'
+        ],
+        borderColor: [
+          'rgba(74, 222, 128, 1)',
+          'rgba(96, 165, 250, 1)',
+          'rgba(250, 204, 21, 1)',
+          'rgba(249, 115, 22, 1)'
+        ],
+        borderWidth: 1
+      }
+    ]
   };
 
-  const canAccess = (route) => {
-    if (!userRole) return false;
-    const roles = userRole.split(',').map(r => r.trim());
-    return roles.some(role => roleAccess[role]?.includes(route));
+  const pieChartData = {
+    labels: ['Available', 'In Transit', 'Loading', 'Maintenance'],
+    datasets: [
+      {
+        data: [45, 25, 20, 10],
+        backgroundColor: [
+          'rgba(74, 222, 128, 0.8)',
+          'rgba(96, 165, 250, 0.8)',
+          'rgba(250, 204, 21, 0.8)',
+          'rgba(249, 115, 22, 0.8)'
+        ],
+        borderColor: [
+          'rgba(74, 222, 128, 1)',
+          'rgba(96, 165, 250, 1)',
+          'rgba(250, 204, 21, 1)',
+          'rgba(249, 115, 22, 1)'
+        ],
+        borderWidth: 1
+      }
+    ]
   };
-
-  const NavLink = ({ to, children }) => (
-    <Link to={to} className="no-underline">
-      {children}
-    </Link>
-  );
-
-  if (location.pathname === '/') return null;
 
   return (
-    <nav className="bg-black shadow-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 items-center">
-          <div className="flex items-center space-x-3 text-white font-bold text-xl">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/4/48/Emoji_u1f34b.svg"
-              alt="Lemon Logo"
-              className="w-8 h-8"
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-64 bg-white shadow-md hidden md:block">
+        <div className="p-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-800">Plant Selection</h2>
+        </div>
+        <div className="p-4">
+          <select
+            value={selectedPlant}
+            onChange={(e) => setSelectedPlant(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          >
+            <option value="">Select a plant</option>
+            {plants.map(plant => (
+              <option key={plant.id} value={plant.id}>{plant.name}</option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="p-4 border-t border-gray-200">
+          <h3 className="text-md font-medium text-gray-700 mb-2">Truck Status</h3>
+          <div className="h-64">
+            <Pie 
+              data={pieChartData} 
+              options={{ 
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'bottom'
+                  }
+                }
+              }} 
             />
-            <span>Lemon ERP</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">Gate Keeper Dashboard</h1>
+          <p className="text-gray-600">Manage truck check-ins and check-outs</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Truck Visualization */}
+          <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Truck Quantities</h2>
+              <div className="text-sm text-gray-500">
+                <FiCalendar className="inline mr-1" />
+                {new Date().toLocaleDateString()}
+              </div>
+            </div>
+            
+            <div className="h-64 mb-6">
+              <Bar 
+                data={barChartData} 
+                options={{ 
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      beginAtZero: true
+                    }
+                  }
+                }} 
+              />
+            </div>
+
+            <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="absolute bottom-10 left-10 w-3/4 h-32 flex items-end gap-2">
+                {[12, 19, 8, 15].map((value, index) => (
+                  <div 
+                    key={index}
+                    className={`flex-1 flex flex-col items-center justify-end transition-all hover:scale-105 ${
+                      index === 0 ? 'bg-green-400' : 
+                      index === 1 ? 'bg-blue-400' : 
+                      index === 2 ? 'bg-yellow-400' : 'bg-orange-400'
+                    } rounded-t-lg`}
+                    style={{ height: `${(value / 25) * 100}%` }}
+                  >
+                    <span className="text-xs font-medium text-white">{value}</span>
+                  </div>
+                ))}
+              </div>
+              <img 
+                src="/truck-image.png" 
+                alt="Truck" 
+                className="absolute bottom-0 w-full h-auto object-contain"
+              />
+            </div>
           </div>
 
-          <div className="md:hidden">
-            {/* <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white hover:text-yellow-400 text-2xl transition-all duration-300 hover:scale-110"
-            >
-              ☰
-            </button> */}
-          </div>
-
-          {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-8 items-center font-medium text-white">
-            {(canAccess('plantmaster') || canAccess('usermaster') || canAccess('userregister')) && (
-              <div className="relative group">
-                <button
-                  onClick={() => {
-                    setAdminOpen(!adminOpen);
-                    setDispatcherOpen(false);
-                    setReportsOpen(false);
-                  }}
-                  className="hover:text-yellow-400 flex items-center"
+          {/* Check-In/Out Form */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Check-In/Out</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Truck Number</label>
+                <select
+                  value={formData.truckNo}
+                  onChange={(e) => setFormData({...formData, truckNo: e.target.value})}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 >
-                  Admin Master <span className="ml-1 text-sm">▼</span>
-                </button>
-                <div className={`absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50 ${adminOpen ? 'block' : 'hidden'}`}>
-                  {canAccess('plantmaster') && (
-                    <NavLink to="/plantmaster">
-                      <span className="block px-4 py-2 text-white hover:bg-blue-600">🏭 Plant Master</span>
-                    </NavLink>
-                  )}
-                  {canAccess('usermaster') && (
-                    <NavLink to="/usermaster">
-                      <span className="block px-4 py-2 text-white hover:bg-blue-600">👤 User Master</span>
-                    </NavLink>
-                  )}
-                  {canAccess('userregister') && (
-                    <NavLink to="/userregister">
-                      <span className="block px-4 py-2 text-white hover:bg-blue-600">📝 User Register</span>
-                    </NavLink>
-                  )}
-                </div>
+                  <option value="">Select truck</option>
+                  {truckList.filter(t => t.status === 'available').map(truck => (
+                    <option key={truck.id} value={truck.id}>{truck.id}</option>
+                  ))}
+                </select>
               </div>
-            )}
 
-            {(canAccess('truck') || canAccess('truckfind')) && (
-              <div className="relative group">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Dispatch Date</label>
+                <input
+                  type="date"
+                  value={formData.dispatchDate}
+                  onChange={(e) => setFormData({...formData, dispatchDate: e.target.value})}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Invoice Number</label>
+                <input
+                  type="text"
+                  value={formData.invoiceNo}
+                  onChange={(e) => setFormData({...formData, invoiceNo: e.target.value})}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="Enter invoice number"
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-2">
                 <button
-                  onClick={() => {
-                    setDispatcherOpen(!dispatcherOpen);
-                    setAdminOpen(false);
-                    setReportsOpen(false);
-                  }}
-                  className="hover:text-yellow-400 flex items-center"
+                  onClick={() => handleCheckInOut('Check-In')}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-md flex items-center justify-center space-x-2 transition-colors"
                 >
-                  Dispatcher <span className="ml-1 text-sm">▼</span>
+                  <FiCheck /> <span>Check In</span>
                 </button>
-                <div className={`absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50 ${dispatcherOpen ? 'block' : 'hidden'}`}>
-                  {canAccess('truck') && (
-                    <NavLink to="/truck">
-                      <span className="block px-4 py-2 text-white hover:bg-blue-600">🚛 Truck Transaction</span>
-                    </NavLink>
-                  )}
-                  {canAccess('truckfind') && (
-                    <NavLink to="/truckfind">
-                      <span className="block px-4 py-2 text-white hover:bg-blue-600">🔍 Truck Find</span>
-                    </NavLink>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {canAccess('gate') && (
-              <NavLink to="/gate">
-                <span className="text-white hover:text-yellow-400 flex items-center">🚪 Gate Keeper</span>
-              </NavLink>
-            )}
-
-            {canAccess('loader') && (
-              <NavLink to="/loader">
-                <span className="text-white hover:text-yellow-400 flex items-center">📦 Loader</span>
-              </NavLink>
-            )}
-
-            {(canAccess('reports') || canAccess('truckshedule')) && (
-              <div className="relative group">
                 <button
-                  onClick={() => {
-                    setReportsOpen(!reportsOpen);
-                    setAdminOpen(false);
-                    setDispatcherOpen(false);
-                  }}
-                  className="hover:text-yellow-400 flex items-center"
+                  onClick={() => handleCheckInOut('Check-Out')}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-md flex items-center justify-center space-x-2 transition-colors"
                 >
-                  📊 Reports <span className="ml-1 text-sm">▼</span>
+                  <FiX /> <span>Check Out</span>
                 </button>
-                <div className={`absolute top-full left-0 mt-2 w-56 bg-black rounded shadow-lg z-50 ${reportsOpen ? 'block' : 'hidden'}`}>
-                  {canAccess('reports') && (
-                    <NavLink to="/reports">
-                      <span className="block px-4 py-2 text-white hover:bg-blue-600">📈 Reports</span>
-                    </NavLink>
-                  )}
-                  {canAccess('truckshedule') && (
-                    <NavLink to="/truckshedule">
-                      <span className="block px-4 py-2 text-white hover:bg-blue-600">🚛 Truck Schedule</span>
-                    </NavLink>
-                  )}
-                </div>
               </div>
-            )}
-
-            <button
-              onClick={handleLogout}
-              className="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-lg border border-red-700 transition duration-300 hover:scale-105"
-            >
-              🔓 Logout
-            </button>
+            </div>
           </div>
         </div>
 
-        {/* Mobile Menu Panel Style */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-4 grid grid-cols-2 gap-4 bg-gray-900 p-4 rounded-xl shadow-2xl text-white font-medium">
-
-            {canAccess('plantmaster') && (
-              <NavLink to="/plantmaster">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  🏭 <span className="mt-2">Plant Master</span>
+        {/* Truck Lists */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {/* Available Trucks */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Available Trucks</h2>
+            <div className="space-y-2">
+              {truckList.filter(t => t.status === 'available').map(truck => (
+                <div 
+                  key={truck.id} 
+                  className="p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
+                  onClick={() => setFormData({...formData, truckNo: truck.id})}
+                >
+                  <div className="flex items-center space-x-3">
+                    <FiTruck className="text-blue-500" />
+                    <span className="font-medium">{truck.id}</span>
+                  </div>
                 </div>
-              </NavLink>
-            )}
-            {canAccess('usermaster') && (
-              <NavLink to="/usermaster">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  👤 <span className="mt-2">User Master</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('userregister') && (
-              <NavLink to="/userregister">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  📝 <span className="mt-2">User Register</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('truck') && (
-              <NavLink to="/truck">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  🚛 <span className="mt-2">Truck Transaction</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('truckfind') && (
-              <NavLink to="/truckfind">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  🔍 <span className="mt-2">Truck Find</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('gate') && (
-              <NavLink to="/gate">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  🚪 <span className="mt-2">Gate Keeper</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('loader') && (
-              <NavLink to="/loader">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  📦 <span className="mt-2">Loader</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('reports') && (
-              <NavLink to="/reports">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  📈 <span className="mt-2">Reports</span>
-                </div>
-              </NavLink>
-            )}
-            {canAccess('truckshedule') && (
-              <NavLink to="/truckshedule">
-                <div className="bg-gray-800 hover:bg-blue-600 p-4 rounded-xl flex flex-col items-center justify-center shadow-lg">
-                  🚛 <span className="mt-2">Truck Schedule</span>
-                </div>
-              </NavLink>
-            )}
-
-            <button
-              onClick={handleLogout}
-              className="col-span-2 mt-2 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl shadow-lg"
-            >
-              🔓 Logout
-            </button>
+              ))}
+            </div>
           </div>
-        )}
+
+          {/* Checked-In Trucks */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Checked-In Trucks</h2>
+            <div className="space-y-2">
+              {truckList.filter(t => t.status === 'checked-in').map(truck => (
+                <div 
+                  key={truck.id} 
+                  className="p-3 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
+                  onClick={() => setFormData({...formData, truckNo: truck.id})}
+                >
+                  <div className="flex items-center space-x-3">
+                    <FiTruck className="text-green-500" />
+                    <span className="font-medium">{truck.id}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-    </nav>
+    </div>
   );
-}
+};
 
-export default Navbar;///////////////////fully working code with mobile panel and desktop menu
-
+export default GateKeeper;
