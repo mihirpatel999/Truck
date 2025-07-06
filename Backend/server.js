@@ -1004,33 +1004,33 @@ app.get('/api/fetch-remarks', async (req, res) => {
 // });
 
 
-// app.post('/api/users', async (req, res) => {
-//   const { username, password, contactNumber, moduleRights, allowedPlants } = req.body;
+app.post('/api/users', async (req, res) => {
+  const { username, password, contactNumber, moduleRights, allowedPlants } = req.body;
 
-//   if (!username || !password || !contactNumber) {
-//     return res.status(400).json({ message: 'Username, password, and contact number are required.' });
-//   }
+  if (!username || !password || !contactNumber) {
+    return res.status(400).json({ message: 'Username, password, and contact number are required.' });
+  }
 
-//   try {
-//     const roleString = moduleRights.join(',');
-//     const plantsString = allowedPlants.join(',');
+  try {
+    const roleString = moduleRights.join(',');
+    const plantsString = allowedPlants.join(',');
 
-//     console.log('👉 Incoming Data:', {
-//       username, password, contactNumber, roleString, plantsString
-//     });
+    console.log('👉 Incoming Data:', {
+      username, password, contactNumber, roleString, plantsString
+    });
 
-//     await pool.query(
-//       `INSERT INTO Users (Username, Password, ContactNumber, Role, AllowedPlants)
-//        VALUES ($1, $2, $3, $4, $5)`,
-//       [username, password, contactNumber, roleString, plantsString]
-//     );
+    await pool.query(
+      `INSERT INTO Users (Username, Password, ContactNumber, Role, AllowedPlants)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [username, password, contactNumber, roleString, plantsString]
+    );
 
-//     res.status(201).json({ message: 'User created successfully.' });
-//   } catch (err) {
-//     console.error('❌ Error creating user:', err); // ← important fix
-//     res.status(500).json({ message: 'Error creating user.' });
-//   }
-// });//////////////////workingggg
+    res.status(201).json({ message: 'User created successfully.' });
+  } catch (err) {
+    console.error('❌ Error creating user:', err); // ← important fix
+    res.status(500).json({ message: 'Error creating user.' });
+  }
+});//////////////////workingggg
 
 app.get('/api/truck-plant-quantities', async (req, res) => {
   const { truckNo } = req.query;
