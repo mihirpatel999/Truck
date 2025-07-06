@@ -1600,6 +1600,275 @@
 // }
 
 
+// import { useEffect, useState } from "react";
+// import { Link } from "react-router-dom";
+// import { 
+//   MdOutlineWarehouse,
+//   MdOutlineDashboard,
+//   MdOutlineSettings
+// } from "react-icons/md";
+// import { 
+//   FiUser, 
+//   FiClipboard, 
+//   FiTruck, 
+//   FiBarChart2,
+//   FiSearch
+// } from "react-icons/fi";
+// import { 
+//   AiOutlineSchedule,
+//   AiOutlineUserSwitch
+// } from "react-icons/ai";
+// import { 
+//   PiPackageLight 
+// } from "react-icons/pi";
+// import { 
+//   BsDoorOpen,
+//   BsMoonStars,
+//   BsSun,
+//   BsRocket
+// } from "react-icons/bs";
+
+// export default function Home() {
+//   const [isMobile, setIsMobile] = useState(false);
+//   const [darkMode, setDarkMode] = useState(false);
+//   const userRole = localStorage.getItem("userRole");
+//   const userName = localStorage.getItem("userName") || "User";
+
+//   useEffect(() => {
+//     const checkSize = () => {
+//       setIsMobile(window.innerWidth <= 768);
+//     };
+//     checkSize();
+//     window.addEventListener("resize", checkSize);
+//     return () => window.removeEventListener("resize", checkSize);
+//   }, []);
+
+//   const panelList = [
+//     { 
+//       name: "Plant Master", 
+//       path: "/plantmaster", 
+//       icon: <MdOutlineWarehouse className="text-2xl" />, 
+//       roles: ["Owner", "Admin"],
+//       color: "bg-blue-100/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+//     },
+//     { 
+//       name: "User Master", 
+//       path: "/usermaster", 
+//       icon: <FiUser className="text-2xl" />, 
+//       roles: ["Owner", "Admin"],
+//       color: "bg-green-100/80 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+//     },
+//     { 
+//       name: "User Register", 
+//       path: "/userregister", 
+//       icon: <AiOutlineUserSwitch className="text-2xl" />, 
+//       roles: ["Owner", "Admin"],
+//       color: "bg-teal-100/80 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400"
+//     },
+//     { 
+//       name: "Truck Transaction", 
+//       path: "/truck", 
+//       icon: <FiTruck className="text-2xl" />, 
+//       roles: ["Owner", "Admin", "Dispatch"],
+//       color: "bg-orange-100/80 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400"
+//     },
+//     { 
+//       name: "Truck Locator", 
+//       path: "/truckfind", 
+//       icon: <FiSearch className="text-2xl" />, 
+//       roles: ["Owner", "Admin", "Dispatch"],
+//       color: "bg-red-100/80 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+//     },
+//     { 
+//       name: "Gate Control", 
+//       path: "/gate", 
+//       icon: <BsDoorOpen className="text-2xl" />, 
+//       roles: ["Owner", "Admin", "GateKeeper"],
+//       color: "bg-indigo-100/80 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
+//     },
+//     { 
+//       name: "Loading Dock", 
+//       path: "/loader", 
+//       icon: <PiPackageLight className="text-2xl" />, 
+//       roles: ["Owner", "Admin", "Loader"],
+//       color: "bg-yellow-100/80 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400"
+//     },
+//     { 
+//       name: "Operations Report", 
+//       path: "/reports", 
+//       icon: <FiBarChart2 className="text-2xl" />, 
+//       roles: ["Owner", "Admin", "Report"],
+//       color: "bg-purple-100/80 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+//     },
+//     { 
+//       name: "Schedule Board", 
+//       path: "/truckshedule", 
+//       icon: <AiOutlineSchedule className="text-2xl" />, 
+//       roles: ["Owner", "Admin", "Report"],
+//       color: "bg-pink-100/80 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400"
+//     },
+//   ];
+
+//   const allowedPanels = panelList.filter((p) => {
+//     if (!userRole) return false;
+//     const roles = userRole.split(",").map((r) => r.trim());
+//     return roles.some((r) => p.roles.includes(r));
+//   });
+
+//   if (!isMobile) {
+//     // Desktop Landing Page
+//     return (
+//       <div className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"} transition-colors duration-300`}>
+//         <div className="max-w-4xl mx-auto px-6 py-20">
+//           <div className="text-center mb-12">
+//             <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${darkMode ? "bg-blue-900/20" : "bg-blue-100"} mb-6`}>
+//               <BsRocket className="text-3xl text-blue-600 dark:text-blue-400" />
+//             </div>
+//             <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white mb-4">
+//               Lemon Software
+//             </h1>
+//             <h2 className="text-xl md:text-2xl font-medium text-blue-600 dark:text-blue-400 mb-6">
+//               Smart ERP Solutions for Logistics
+//             </h2>
+//             <p className={`text-lg max-w-2xl mx-auto ${darkMode ? "text-gray-300" : "text-gray-600"} mb-8 leading-relaxed`}>
+//               We build modern, intuitive ERP systems that streamline logistics operations, 
+//               optimize supply chains, and drive business growth through intelligent automation 
+//               and real-time analytics.
+//             </p>
+//             <div className="flex justify-center gap-4">
+//               <Link 
+//                 to="/dashboard" 
+//                 className={`px-6 py-3 rounded-lg font-medium transition-all ${darkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"} shadow-md hover:shadow-lg`}
+//               >
+//                 Get Started
+//               </Link>
+//               <Link 
+//                 to="/login" 
+//                 className={`px-6 py-3 rounded-lg font-medium transition-all ${darkMode ? "bg-transparent hover:bg-gray-800 text-blue-400 border border-gray-700" : "bg-transparent hover:bg-gray-100 text-blue-600 border border-gray-300"}`}
+//               >
+//                 Login
+//               </Link>
+//             </div>
+//           </div>
+          
+//           <div className={`rounded-xl p-8 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-lg mb-12`}>
+//             <div className="grid md:grid-cols-3 gap-8">
+//               <div className="text-center">
+//                 <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl ${darkMode ? "bg-blue-900/20" : "bg-blue-100"} mb-4 mx-auto`}>
+//                   <FiTruck className="text-xl text-blue-600 dark:text-blue-400" />
+//                 </div>
+//                 <h3 className="font-semibold text-lg text-gray-800 dark:text-white mb-2">Logistics Focused</h3>
+//                 <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+//                   Specialized features for transportation and warehouse management
+//                 </p>
+//               </div>
+//               <div className="text-center">
+//                 <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl ${darkMode ? "bg-green-900/20" : "bg-green-100"} mb-4 mx-auto`}>
+//                   <MdOutlineSettings className="text-xl text-green-600 dark:text-green-400" />
+//                 </div>
+//                 <h3 className="font-semibold text-lg text-gray-800 dark:text-white mb-2">Modern Technology</h3>
+//                 <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+//                   Cloud-native platform with real-time data processing
+//                 </p>
+//               </div>
+//               <div className="text-center">
+//                 <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl ${darkMode ? "bg-purple-900/20" : "bg-purple-100"} mb-4 mx-auto`}>
+//                   <FiUser className="text-xl text-purple-600 dark:text-purple-400" />
+//                 </div>
+//                 <h3 className="font-semibold text-lg text-gray-800 dark:text-white mb-2">User Friendly</h3>
+//                 <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+//                   Intuitive interface designed for all user levels
+//                 </p>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   // Mobile Dashboard
+//   return (
+//     <div className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"} pb-20 transition-colors duration-300`}>
+//       {/* Header */}
+//       <header className={`sticky top-0 z-10 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-sm p-4 flex justify-between items-center`}>
+//         <h1 className="font-semibold text-lg text-gray-800 dark:text-white">
+//           Lemon ERP
+//         </h1>
+//         <button
+//           onClick={() => setDarkMode(!darkMode)}
+//           className={`p-2 rounded-full ${darkMode ? "bg-gray-700 text-yellow-300" : "bg-gray-100 text-gray-700"} transition-colors`}
+//         >
+//           {darkMode ? <BsSun size={18} /> : <BsMoonStars size={18} />}
+//         </button>
+//       </header>
+
+//       {/* Main Content */}
+//       <main className="p-5">
+//         <div className="mb-6">
+//           <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
+//             Welcome, {userName}
+//           </h2>
+//           <p className="text-sm text-gray-500 dark:text-gray-400">
+//             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+//           </p>
+//         </div>
+
+//         <div className="grid grid-cols-2 gap-4">
+//           {allowedPanels.map((panel, idx) => (
+//             <Link
+//               to={panel.path}
+//               key={idx}
+//               className={`rounded-2xl p-5 flex flex-col items-center transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] ${darkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50"} shadow-md`}
+//             >
+//               <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-3 ${panel.color}`}>
+//                 {panel.icon}
+//               </div>
+//               <span className="text-sm font-medium text-center text-gray-800 dark:text-white">
+//                 {panel.name}
+//               </span>
+//             </Link>
+//           ))}
+//         </div>
+//       </main>
+
+//       {/* Bottom Navigation */}
+//       <nav className={`fixed bottom-0 left-0 right-0 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-lg border-t ${darkMode ? "border-gray-700" : "border-gray-200"} flex justify-around items-center p-2`}>
+//         <Link 
+//           to="/dashboard" 
+//           className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-blue-400" : "text-blue-600"} transition-colors`}
+//         >
+//           <MdOutlineDashboard className="text-xl" />
+//           <span className="text-xs mt-1">Home</span>
+//         </Link>
+//         <Link 
+//           to="/truck" 
+//           className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-gray-400 hover:text-blue-400" : "text-gray-600 hover:text-blue-600"} transition-colors`}
+//         >
+//           <FiTruck className="text-xl" />
+//           <span className="text-xs mt-1">Trucks</span>
+//         </Link>
+//         <Link 
+//           to="/reports" 
+//           className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-gray-400 hover:text-blue-400" : "text-gray-600 hover:text-blue-600"} transition-colors`}
+//         >
+//           <FiBarChart2 className="text-xl" />
+//           <span className="text-xs mt-1">Reports</span>
+//         </Link>
+//         <Link 
+//           to="/settings" 
+//           className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-gray-400 hover:text-blue-400" : "text-gray-600 hover:text-blue-600"} transition-colors`}
+//         >
+//           <MdOutlineSettings className="text-xl" />
+//           <span className="text-xs mt-1">Settings</span>
+//         </Link>
+//       </nav>
+//     </div>
+//   );
+// }
+
+
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -1609,7 +1878,6 @@ import {
 } from "react-icons/md";
 import { 
   FiUser, 
-  FiClipboard, 
   FiTruck, 
   FiBarChart2,
   FiSearch
@@ -1622,15 +1890,11 @@ import {
   PiPackageLight 
 } from "react-icons/pi";
 import { 
-  BsDoorOpen,
-  BsMoonStars,
-  BsSun,
-  BsRocket
+  BsDoorOpen
 } from "react-icons/bs";
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const userRole = localStorage.getItem("userRole");
   const userName = localStorage.getItem("userName") || "User";
 
@@ -1647,65 +1911,74 @@ export default function Home() {
     { 
       name: "Plant Master", 
       path: "/plantmaster", 
-      icon: <MdOutlineWarehouse className="text-2xl" />, 
+      icon: <MdOutlineWarehouse />, 
       roles: ["Owner", "Admin"],
-      color: "bg-blue-100/80 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+      color: "bg-blue-100 text-blue-600",
+      navIcon: <MdOutlineWarehouse className="text-xl" />
     },
     { 
       name: "User Master", 
       path: "/usermaster", 
-      icon: <FiUser className="text-2xl" />, 
+      icon: <FiUser />, 
       roles: ["Owner", "Admin"],
-      color: "bg-green-100/80 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+      color: "bg-green-100 text-green-600",
+      navIcon: <FiUser className="text-xl" />
     },
     { 
       name: "User Register", 
       path: "/userregister", 
-      icon: <AiOutlineUserSwitch className="text-2xl" />, 
+      icon: <AiOutlineUserSwitch />, 
       roles: ["Owner", "Admin"],
-      color: "bg-teal-100/80 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400"
+      color: "bg-teal-100 text-teal-600",
+      navIcon: <AiOutlineUserSwitch className="text-xl" />
     },
     { 
       name: "Truck Transaction", 
       path: "/truck", 
-      icon: <FiTruck className="text-2xl" />, 
+      icon: <FiTruck />, 
       roles: ["Owner", "Admin", "Dispatch"],
-      color: "bg-orange-100/80 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400"
+      color: "bg-orange-100 text-orange-600",
+      navIcon: <FiTruck className="text-xl" />
     },
     { 
       name: "Truck Locator", 
       path: "/truckfind", 
-      icon: <FiSearch className="text-2xl" />, 
+      icon: <FiSearch />, 
       roles: ["Owner", "Admin", "Dispatch"],
-      color: "bg-red-100/80 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+      color: "bg-red-100 text-red-600",
+      navIcon: <FiSearch className="text-xl" />
     },
     { 
       name: "Gate Control", 
       path: "/gate", 
-      icon: <BsDoorOpen className="text-2xl" />, 
+      icon: <BsDoorOpen />, 
       roles: ["Owner", "Admin", "GateKeeper"],
-      color: "bg-indigo-100/80 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
+      color: "bg-indigo-100 text-indigo-600",
+      navIcon: <BsDoorOpen className="text-xl" />
     },
     { 
       name: "Loading Dock", 
       path: "/loader", 
-      icon: <PiPackageLight className="text-2xl" />, 
+      icon: <PiPackageLight />, 
       roles: ["Owner", "Admin", "Loader"],
-      color: "bg-yellow-100/80 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400"
+      color: "bg-yellow-100 text-yellow-600",
+      navIcon: <PiPackageLight className="text-xl" />
     },
     { 
       name: "Operations Report", 
       path: "/reports", 
-      icon: <FiBarChart2 className="text-2xl" />, 
+      icon: <FiBarChart2 />, 
       roles: ["Owner", "Admin", "Report"],
-      color: "bg-purple-100/80 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+      color: "bg-purple-100 text-purple-600",
+      navIcon: <FiBarChart2 className="text-xl" />
     },
     { 
       name: "Schedule Board", 
       path: "/truckshedule", 
-      icon: <AiOutlineSchedule className="text-2xl" />, 
+      icon: <AiOutlineSchedule />, 
       roles: ["Owner", "Admin", "Report"],
-      color: "bg-pink-100/80 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400"
+      color: "bg-pink-100 text-pink-600",
+      navIcon: <AiOutlineSchedule className="text-xl" />
     },
   ];
 
@@ -1715,72 +1988,41 @@ export default function Home() {
     return roles.some((r) => p.roles.includes(r));
   });
 
+  const allowedNavItems = panelList.filter((p) => {
+    if (!userRole) return false;
+    const roles = userRole.split(",").map((r) => r.trim());
+    return roles.some((r) => p.roles.includes(r)) && 
+           ["/dashboard", "/truck", "/reports", "/gate", "/loader"].includes(p.path);
+  });
+
   if (!isMobile) {
-    // Desktop Landing Page
+    // Desktop Dashboard
     return (
-      <div className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"} transition-colors duration-300`}>
-        <div className="max-w-4xl mx-auto px-6 py-20">
-          <div className="text-center mb-12">
-            <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${darkMode ? "bg-blue-900/20" : "bg-blue-100"} mb-6`}>
-              <BsRocket className="text-3xl text-blue-600 dark:text-blue-400" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white mb-4">
-              Lemon Software
-            </h1>
-            <h2 className="text-xl md:text-2xl font-medium text-blue-600 dark:text-blue-400 mb-6">
-              Smart ERP Solutions for Logistics
-            </h2>
-            <p className={`text-lg max-w-2xl mx-auto ${darkMode ? "text-gray-300" : "text-gray-600"} mb-8 leading-relaxed`}>
-              We build modern, intuitive ERP systems that streamline logistics operations, 
-              optimize supply chains, and drive business growth through intelligent automation 
-              and real-time analytics.
-            </p>
-            <div className="flex justify-center gap-4">
-              <Link 
-                to="/dashboard" 
-                className={`px-6 py-3 rounded-lg font-medium transition-all ${darkMode ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"} shadow-md hover:shadow-lg`}
-              >
-                Get Started
-              </Link>
-              <Link 
-                to="/login" 
-                className={`px-6 py-3 rounded-lg font-medium transition-all ${darkMode ? "bg-transparent hover:bg-gray-800 text-blue-400 border border-gray-700" : "bg-transparent hover:bg-gray-100 text-blue-600 border border-gray-300"}`}
-              >
-                Login
-              </Link>
-            </div>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto p-8">
+          <div className="mb-10">
+            <h1 className="text-3xl font-semibold text-gray-800">Dashboard</h1>
+            <p className="text-gray-500">Welcome back, {userName}</p>
           </div>
-          
-          <div className={`rounded-xl p-8 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-lg mb-12`}>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl ${darkMode ? "bg-blue-900/20" : "bg-blue-100"} mb-4 mx-auto`}>
-                  <FiTruck className="text-xl text-blue-600 dark:text-blue-400" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {allowedPanels.map((panel, index) => (
+              <Link
+                to={panel.path}
+                key={index}
+                className="group rounded-xl bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+              >
+                <div className={`w-12 h-12 rounded-lg ${panel.color} flex items-center justify-center mb-4 transition-transform group-hover:scale-110`}>
+                  {panel.icon}
                 </div>
-                <h3 className="font-semibold text-lg text-gray-800 dark:text-white mb-2">Logistics Focused</h3>
-                <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                  Specialized features for transportation and warehouse management
+                <h3 className="text-lg font-medium text-gray-800 mb-1">
+                  {panel.name}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Access module
                 </p>
-              </div>
-              <div className="text-center">
-                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl ${darkMode ? "bg-green-900/20" : "bg-green-100"} mb-4 mx-auto`}>
-                  <MdOutlineSettings className="text-xl text-green-600 dark:text-green-400" />
-                </div>
-                <h3 className="font-semibold text-lg text-gray-800 dark:text-white mb-2">Modern Technology</h3>
-                <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                  Cloud-native platform with real-time data processing
-                </p>
-              </div>
-              <div className="text-center">
-                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl ${darkMode ? "bg-purple-900/20" : "bg-purple-100"} mb-4 mx-auto`}>
-                  <FiUser className="text-xl text-purple-600 dark:text-purple-400" />
-                </div>
-                <h3 className="font-semibold text-lg text-gray-800 dark:text-white mb-2">User Friendly</h3>
-                <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                  Intuitive interface designed for all user levels
-                </p>
-              </div>
-            </div>
+              </Link>
+            ))}
           </div>
         </div>
       </div>
@@ -1789,42 +2031,29 @@ export default function Home() {
 
   // Mobile Dashboard
   return (
-    <div className={`min-h-screen ${darkMode ? "bg-gray-900" : "bg-gray-50"} pb-20 transition-colors duration-300`}>
-      {/* Header */}
-      <header className={`sticky top-0 z-10 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-sm p-4 flex justify-between items-center`}>
-        <h1 className="font-semibold text-lg text-gray-800 dark:text-white">
-          Lemon ERP
-        </h1>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className={`p-2 rounded-full ${darkMode ? "bg-gray-700 text-yellow-300" : "bg-gray-100 text-gray-700"} transition-colors`}
-        >
-          {darkMode ? <BsSun size={18} /> : <BsMoonStars size={18} />}
-        </button>
-      </header>
-
+    <div className="min-h-screen bg-gray-50 pb-16">
       {/* Main Content */}
       <main className="p-5">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
+          <h2 className="text-xl font-semibold text-gray-800 mb-1">
             Welcome, {userName}
           </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-gray-500">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           {allowedPanels.map((panel, idx) => (
             <Link
               to={panel.path}
               key={idx}
-              className={`rounded-2xl p-5 flex flex-col items-center transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] ${darkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-50"} shadow-md`}
+              className="rounded-xl bg-white p-4 flex flex-col items-center shadow-xs transition-transform active:scale-95"
             >
-              <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-3 ${panel.color}`}>
+              <div className={`w-12 h-12 rounded-lg ${panel.color} flex items-center justify-center mb-2`}>
                 {panel.icon}
               </div>
-              <span className="text-sm font-medium text-center text-gray-800 dark:text-white">
+              <span className="text-xs font-medium text-gray-800 text-center">
                 {panel.name}
               </span>
             </Link>
@@ -1832,36 +2061,18 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Bottom Navigation */}
-      <nav className={`fixed bottom-0 left-0 right-0 ${darkMode ? "bg-gray-800" : "bg-white"} shadow-lg border-t ${darkMode ? "border-gray-700" : "border-gray-200"} flex justify-around items-center p-2`}>
-        <Link 
-          to="/dashboard" 
-          className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-blue-400" : "text-blue-600"} transition-colors`}
-        >
-          <MdOutlineDashboard className="text-xl" />
-          <span className="text-xs mt-1">Home</span>
-        </Link>
-        <Link 
-          to="/truck" 
-          className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-gray-400 hover:text-blue-400" : "text-gray-600 hover:text-blue-600"} transition-colors`}
-        >
-          <FiTruck className="text-xl" />
-          <span className="text-xs mt-1">Trucks</span>
-        </Link>
-        <Link 
-          to="/reports" 
-          className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-gray-400 hover:text-blue-400" : "text-gray-600 hover:text-blue-600"} transition-colors`}
-        >
-          <FiBarChart2 className="text-xl" />
-          <span className="text-xs mt-1">Reports</span>
-        </Link>
-        <Link 
-          to="/settings" 
-          className={`flex flex-col items-center p-2 rounded-lg ${darkMode ? "text-gray-400 hover:text-blue-400" : "text-gray-600 hover:text-blue-600"} transition-colors`}
-        >
-          <MdOutlineSettings className="text-xl" />
-          <span className="text-xs mt-1">Settings</span>
-        </Link>
+      {/* Bottom Navigation - Role-based */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center p-2">
+        {allowedNavItems.map((item, index) => (
+          <Link 
+            to={item.path} 
+            key={index}
+            className="flex flex-col items-center p-2 rounded-lg text-gray-600"
+          >
+            {item.navIcon}
+            <span className="text-[10px] mt-1">{item.name.split(' ')[0]}</span>
+          </Link>
+        ))}
       </nav>
     </div>
   );
