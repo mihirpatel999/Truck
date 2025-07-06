@@ -431,8 +431,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import truckIllustration from './assets/truck-illustration.png'; // Replace with your actual truck image
-
+import truckImg from './assets/Truck.png.png';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Report() {
