@@ -4004,8 +4004,27 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+<<<<<<< HEAD
+import MobileSidebar from './MobileSidebar';
+
+import {
+  FiHome,
+  FiTruck,
+  FiUsers,
+  FiPieChart,
+  FiLogOut,
+  FiChevronDown,
+  FiMenu,
+  FiX,
+  FiSettings,
+  FiClock,
+} from 'react-icons/fi';
+import { MdOutlineWarehouse, MdOutlineSchedule } from 'react-icons/md';
+import { BsShieldLock, BsBoxSeam } from 'react-icons/bs';
+=======
 import { FiTruck, FiX, FiMenu, FiLogOut } from 'react-icons/fi';
 import MobileSidebar from './MobileSidebar';
+>>>>>>> de1a4bc392544732aa0efefc05d1b17ba2c630fd
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
