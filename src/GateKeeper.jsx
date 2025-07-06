@@ -1495,21 +1495,17 @@
 // export default GateKeeper;/////fully woking codeeeee
 
 
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {
-  Box, Button, Card, CardContent, Grid, MenuItem, Select, TextField, Typography, Paper, List, ListItem, ListItemText, Divider, Tooltip
-} from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import truckImage from './assets/Truck.png.png';
+import truckImage from './assets/Truck.png.png'; // Ensure this path is correct
 import { useNavigate } from 'react-router-dom';
 import CancelButton from './CancelButton';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function GateKeeper() {
+function GateKeeper() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     truckNo: '',
@@ -1550,7 +1546,6 @@ export default function GateKeeper() {
 
   useEffect(() => {
     if (!selectedPlant) return;
-
     setFormData(prev => ({
       ...prev,
       truckNo: '',
@@ -1581,7 +1576,6 @@ export default function GateKeeper() {
 
   const handleTruckSelect = async (truckNo) => {
     setFormData(prev => ({ ...prev, truckNo }));
-
     try {
       const remarksRes = await axios.get(`${API_URL}/api/fetch-remarks`, {
         params: { plantName: selectedPlant, truckNo }
@@ -1589,12 +1583,10 @@ export default function GateKeeper() {
       const quantityRes = await axios.get(`${API_URL}/api/truck-plant-quantities?truckNo=${truckNo}`);
       const sorted = [...quantityRes.data].sort((a, b) => a.priority - b.priority);
       setQuantityPanels(sorted);
-
       setFormData(prev => ({
         ...prev,
         remarks: remarksRes.data.remarks || 'No remarks available.',
       }));
-
       const currentIndex = sorted.findIndex(p => p.plantname === selectedPlant);
       setFromPlant(currentIndex > 0 ? sorted[currentIndex - 1]?.plantname : '—');
       setNextPlant(currentIndex >= 0 && currentIndex < sorted.length - 1 ? sorted[currentIndex + 1]?.plantname : '—');
@@ -1610,14 +1602,13 @@ export default function GateKeeper() {
     if (checkedInTruck) {
       setFormData(prev => ({
         ...prev,
-        invoiceNo: checkedInTruck.invoiceNo || '',
+        invoiceNo: checkedInTruck.invoiceNo || '',  // Set invoice number
       }));
     }
   };
 
   const handleSubmit = async (type) => {
     const { truckNo, dispatchDate, invoiceNo } = formData;
-
     if (!selectedPlant) return toast.warn('Please select a plant first.');
     if (!truckNo) return toast.warn('🚛 Please select a truck number.');
     if (type === 'Check Out' && !invoiceNo) return toast.warn('🚨 Please enter an invoice number before checking out.');
@@ -1627,7 +1618,6 @@ export default function GateKeeper() {
         params: { truckNo, plantName: selectedPlant }
       });
       const { hasPending, canProceed, nextPriority, nextPlant } = priorityRes.data;
-
       if (hasPending && !canProceed) {
         return toast.error(`🚫 Priority ${nextPriority} at ${nextPlant} must be completed first.`);
       }
@@ -1675,159 +1665,129 @@ export default function GateKeeper() {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', p: 4 }}>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 p-6">
       <CancelButton />
-      <Grid container spacing={3} maxWidth="lg" mx="auto">
-        
+      <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Left Panel */}
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>Select Plant</Typography>
-              <Select
-                fullWidth
-                value={selectedPlant}
-                onChange={handlePlantChange}
-                displayEmpty
-              >
-                <MenuItem value=""><em>Select Plant</em></MenuItem>
-                {plantList.map((plant, i) => (
-                  <MenuItem key={i} value={getPlantName(plant)}>{getPlantName(plant)}</MenuItem>
-                ))}
-              </Select>
+        <div className="space-y-4">
+          <select value={selectedPlant} onChange={handlePlantChange} className="w-full border rounded px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="">Select Plant</option>
+            {plantList.map((plant, i) => (
+              <option key={i} value={getPlantName(plant)}>{getPlantName(plant)}</option>
+            ))}
+          </select>
 
-              <Box mt={3}>
-                <Typography variant="subtitle1" color="primary">Truck List</Typography>
-                <Paper variant="outlined" sx={{ maxHeight: 300, overflow: 'auto', mt: 1 }}>
-                  <List>
-                    {truckNumbers.length === 0 && (
-                      <ListItem>
-                        <ListItemText primary="No trucks available" />
-                      </ListItem>
-                    )}
-                    {truckNumbers.map((t, i) => (
-                      <ListItem button key={i} onClick={() => handleTruckSelect(getTruckNo(t))}>
-                        <ListItemText primary={`🚛 ${getTruckNo(t)}`} />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Paper>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+          <div className="bg-blue-50 rounded-lg p-4 h-64 overflow-y-auto border border-blue-100">
+            <h3 className="font-bold text-blue-700 mb-2">🚚 Truck List</h3>
+            {truckNumbers.length === 0 && <p className="text-gray-400 italic">No trucks available</p>}
+            <ul className="space-y-2">
+              {truckNumbers.map((t, i) => {
+                const truckNo = getTruckNo(t);
+                return (
+                  <li key={i}>
+                    <button
+                      onClick={() => handleTruckSelect(truckNo)}
+                      className={`w-full text-left p-3 rounded-md border transition-all ${
+                        formData.truckNo === truckNo
+                          ? 'bg-blue-100 border-blue-400 ring-2 ring-blue-200'
+                          : 'hover:bg-gray-100 border-gray-200'
+                      }`}
+                    >
+                      <span className="flex items-center gap-2 font-medium">
+                        🚛 {truckNo}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
 
         {/* Center Panel */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Box position="relative" textAlign="center">
-                <img src={truckImage} alt="Truck" style={{ width: '100%', height: 150, objectFit: 'contain' }} />
-                <Box display="flex" justifyContent="center" alignItems="flex-end" position="absolute" bottom={15} left={20} right={20} gap={1}>
-                  {quantityPanels.map((panel, index) => {
-                    const height = Math.max(...quantityPanels.map(p => p.quantity || 0), 0) ? (panel.quantity / Math.max(...quantityPanels.map(p => p.quantity || 0))) * 100 : 0;
-                    const colors = ['success.main', 'primary.main', 'warning.main', 'error.main'];
-                    return (
-                      <Tooltip title={`${panel.plantname}: ${panel.quantity}`} key={index}>
-                        <Box
-                          sx={{
-                            bgcolor: colors[index % colors.length],
-                            width: `${100 / quantityPanels.length}%`,
-                            height: `${height}%`,
-                            borderRadius: 1,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'flex-end',
-                            alignItems: 'center',
-                            color: '#fff',
-                            cursor: 'pointer',
-                            transition: 'transform 0.2s',
-                            '&:hover': { transform: 'scale(1.05)' }
-                          }}
-                        >
-                          <Typography variant="caption">📦 {panel.quantity}</Typography>
-                          <Typography variant="caption" noWrap>{panel.plantname}</Typography>
-                        </Box>
-                      </Tooltip>
-                    );
-                  })}
-                </Box>
-              </Box>
+        <div className="space-y-4">
+          <div className="relative h-56 w-full bg-blue-100 rounded-lg overflow-hidden shadow-md">
+            <div className="absolute bottom-[51px] left-[50px] h-[75px] w-[calc(100%-170px)] max-w-[370px] flex items-end gap-[2px] z-10">
+              {quantityPanels.map((panel, index) => {
+                const maxHeight = Math.max(...quantityPanels.map(p => p.quantity || 0), 1);
+                const heightPercent = (panel.quantity / maxHeight) * 100;
+                const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-red-500'];
+                return (
+                  <div
+                    key={index}
+                    className={`flex flex-col items-center justify-end text-white text-xs ${bgColors[index % bgColors.length]} rounded-t-md transition-transform transform hover:scale-110 hover:shadow-lg cursor-pointer`}
+                    style={{ height: `${heightPercent}%`, width: `${100 / quantityPanels.length}%` }}
+                    title={`${panel.plantname}: ${panel.quantity}`}
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>📦</span>
+                      <span>{panel.quantity}</span>
+                    </div>
+                    <div className="whitespace-nowrap text-[9px]">{panel.plantname}</div>
+                  </div>
+                );
+              })}
+            </div>
+            <img src={truckImage} alt="Truck" className="absolute bottom-0 left-0 w-full h-auto object-contain z-0" style={{ height: '65%' }} />
+          </div>
 
-              <Divider sx={{ my: 2 }} />
-              <Typography>From: <b>{fromPlant}</b> &nbsp; Next: <b>{nextPlant}</b></Typography>
+          <div className="col-span-3 flex justify-center gap-6 font-semibold text-sm">
+            <div>From: <span className="text-blue-800">{fromPlant}</span></div>
+            <div>Next: <span className="text-green-800">{nextPlant}</span></div>
+          </div>
 
-              <Box mt={2} display="flex" flexDirection="column" gap={2}>
-                <TextField
-                  label="Truck No"
-                  name="truckNo"
-                  value={formData.truckNo}
-                  onChange={handleChange}
-                  fullWidth
-                />
-                <TextField
-                  label="Dispatch Date"
-                  type="date"
-                  name="dispatchDate"
-                  value={formData.dispatchDate}
-                  onChange={handleChange}
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                />
-                {checkedInTrucks.some(t => getTruckNo(t) === formData.truckNo) && (
-                  <TextField
-                    label="Invoice No"
-                    name="invoiceNo"
-                    value={formData.invoiceNo}
-                    onChange={handleChange}
-                    fullWidth
-                  />
-                )}
-                <TextField
-                  label="Remarks"
-                  name="remarks"
-                  value={formData.remarks}
-                  fullWidth
-                  multiline
-                  rows={3}
-                  InputProps={{ readOnly: true }}
-                />
-                <Box display="flex" gap={2}>
-                  <Button variant="contained" color="success" fullWidth onClick={() => handleSubmit('Check In')}>Check In</Button>
-                  <Button variant="contained" color="error" fullWidth onClick={() => handleSubmit('Check Out')}>Check Out</Button>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+          <input name="truckNo" value={formData.truckNo} onChange={handleChange} placeholder="Truck No" className="w-full border px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400" readOnly />
+
+          <input name="dispatchDate" type="date" value={formData.dispatchDate} onChange={handleChange} className="w-full border px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+
+          {checkedInTrucks.some(t => getTruckNo(t) === formData.truckNo) && (
+            <input 
+              name="invoiceNo" 
+              value={formData.invoiceNo} 
+              onChange={handleChange} 
+              placeholder="Invoice No" 
+              className="w-full border px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          )}
+
+          <textarea name="remarks" readOnly value={formData.remarks} className="w-full border px-4 py-2 bg-gray-100 rounded-md" rows="3" />
+
+          <div className="flex gap-4">
+            <button onClick={() => handleSubmit('Check In')} className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-2 rounded-md shadow hover:shadow-md hover:from-green-600 hover:to-green-700 transition">Check In</button>
+            <button onClick={() => handleSubmit('Check Out')} className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-2 rounded-md shadow hover:shadow-md hover:from-red-600 hover:to-red-700 transition">Check Out</button>
+          </div>
+        </div>
 
         {/* Right Panel */}
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="success.main" gutterBottom>Checked In Trucks</Typography>
-              <Paper variant="outlined" sx={{ maxHeight: 400, overflow: 'auto' }}>
-                <List>
-                  {checkedInTrucks.length === 0 && (
-                    <ListItem>
-                      <ListItemText primary="No checked-in trucks" />
-                    </ListItem>
-                  )}
-                  {checkedInTrucks.map((t, i) => (
-                    <ListItem button key={i} onClick={() => handleCheckedInClick(getTruckNo(t))}>
-                      <ListItemText primary={`✓ ${getTruckNo(t)}`} />
-                    </ListItem>
-                  ))}
-                </List>
-              </Paper>
-            </CardContent>
-          </Card>
-        </Grid>
-
-      </Grid>
+        <div className="bg-green-50 rounded-lg p-4 h-full overflow-y-auto border border-green-100">
+          <h3 className="font-bold text-green-700 mb-2">✅ Checked In Trucks</h3>
+          {checkedInTrucks.length === 0 && <p className="text-gray-400 italic">No checked-in trucks</p>}
+          <ul className="space-y-2">
+            {checkedInTrucks.map((t, i) => {
+              const truckNo = getTruckNo(t);
+              return (
+                <li key={i}>
+                  <button
+                    onClick={() => handleCheckedInClick(truckNo)}
+                    className={`w-full text-left p-3 rounded-md border transition-all ${
+                      formData.truckNo === truckNo
+                        ? 'bg-green-100 border-green-400 ring-2 ring-green-200'
+                        : 'hover:bg-gray-100 border-gray-200'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2 font-medium">
+                      ✓ {truckNo}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
-    </Box>
+    </div>
   );
 }
 
-
+export default GateKeeper;
