@@ -2843,7 +2843,7 @@ const Navbar = () => {
     {
       title: "Admin",
       icon: <FiSettings className="flex-shrink-0" size={18} />,
-      roles: ["Owner", "Admin"],
+      roles: ["Owner", "Admin",   "UserMaster", "UserRegister"],
       subItems: [
         { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse size={16} /> },
         { title: "User Management", path: "/usermaster", icon: <FiUsers size={16} /> },
