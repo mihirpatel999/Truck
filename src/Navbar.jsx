@@ -3330,7 +3330,6 @@
 // };
 
 // export default Navbar;
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -3369,7 +3368,7 @@ const Navbar = () => {
     window.location.href = "/";
   };
 
-  // Close dropdowns when clicking elsewhere or navigating
+  // Close dropdowns when clicking elsewhere
   useEffect(() => {
     const handleClickOutside = () => {
       setActiveDropdown(null);
@@ -3377,12 +3376,6 @@ const Navbar = () => {
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
-
-  // Close mobile menu when navigating
-  const handleMobileNavClick = () => {
-    setMobileMenuOpen(false);
-    setActiveDropdown(null);
-  };
 
   // Role-based access control
   const hasAccess = (requiredRoles) => {
@@ -3450,94 +3443,97 @@ const Navbar = () => {
     <>
       {/* Desktop Navigation */}
       <nav className="hidden md:block bg-white shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex justify-between h-16 items-center">
-            {/* Logo */}
-            <Link to="/dashboard" className="flex items-center space-x-3">
-              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-md">
+            {/* Logo - Left aligned */}
+            <Link to="/dashboard" className="flex items-center min-w-max">
+              <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow-sm">
                 <FiTruck className="h-5 w-5" />
               </div>
-              <span className="text-xl font-semibold text-gray-800 tracking-tight">Lemon Logistics</span>
+              <span className="ml-3 text-xl font-semibold text-gray-800">Lemon Logistics</span>
             </Link>
 
-            {/* Desktop Menu */}
-            <div className="flex items-center space-x-1">
-              {filteredMenuItems.map((item, index) => (
-                <div key={index} className="relative h-full">
-                  {item.path ? (
-                    <Link
-                      to={item.path}
-                      className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        location.pathname === item.path 
-                          ? 'text-blue-700 bg-blue-50 font-semibold' 
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }`}
-                      style={{ textDecoration: 'none' }}
-                    >
-                      <span className="mr-2">{item.icon}</span>
-                      {item.title}
-                    </Link>
-                  ) : (
-                    <div className="h-full">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveDropdown(activeDropdown === index ? null : index);
-                        }}
+            {/* Right-aligned section with menu items and logout */}
+            <div className="flex items-center space-x-4">
+              {/* Menu items - aligned right before logout */}
+              <div className="flex space-x-1">
+                {filteredMenuItems.map((item, index) => (
+                  <div key={index} className="relative h-full">
+                    {item.path ? (
+                      <Link
+                        to={item.path}
                         className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                          activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
-                            ? 'text-blue-700 bg-blue-50 font-semibold' 
+                          location.pathname === item.path 
+                            ? 'text-blue-700 bg-blue-50 font-medium' 
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         }`}
                         style={{ textDecoration: 'none' }}
                       >
                         <span className="mr-2">{item.icon}</span>
                         {item.title}
-                        <FiChevronDown 
-                          className={`ml-1 h-4 w-4 transition-transform duration-200 ${
-                            activeDropdown === index ? 'rotate-180' : ''
-                          }`} 
-                        />
-                      </button>
-
-                      {activeDropdown === index && (
-                        <div 
-                          className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50"
-                          onClick={(e) => e.stopPropagation()}
+                      </Link>
+                    ) : (
+                      <div className="h-full">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDropdown(activeDropdown === index ? null : index);
+                          }}
+                          className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                            activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
+                              ? 'text-blue-700 bg-blue-50 font-medium' 
+                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                          }`}
+                          style={{ textDecoration: 'none' }}
                         >
-                          {item.subItems.map((subItem, subIndex) => (
-                            <Link
-                              key={subIndex}
-                              to={subItem.path}
-                              onClick={() => setActiveDropdown(null)}
-                              className={`flex items-center px-4 py-2.5 text-sm transition-colors ${
-                                location.pathname === subItem.path
-                                  ? 'bg-blue-50 text-blue-700 font-medium'
-                                  : 'text-gray-700 hover:bg-gray-50'
-                              }`}
-                              style={{ textDecoration: 'none' }}
-                            >
-                              <span className="mr-3 text-gray-500">{subItem.icon}</span>
-                              {subItem.title}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                          <span className="mr-2">{item.icon}</span>
+                          {item.title}
+                          <FiChevronDown 
+                            className={`ml-1 h-4 w-4 transition-transform duration-200 ${
+                              activeDropdown === index ? 'rotate-180' : ''
+                            }`} 
+                          />
+                        </button>
 
-            {/* Logout */}
-            <button
-              onClick={handleLogout}
-              className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-              style={{ textDecoration: 'none' }}
-            >
-              <FiLogOut className="mr-2" />
-              Logout
-            </button>
+                        {activeDropdown === index && (
+                          <div 
+                            className="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-lg ring-1 ring-gray-200 py-1 z-50"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {item.subItems.map((subItem, subIndex) => (
+                              <Link
+                                key={subIndex}
+                                to={subItem.path}
+                                onClick={() => setActiveDropdown(null)}
+                                className={`flex items-center px-4 py-2.5 text-sm transition-colors ${
+                                  location.pathname === subItem.path
+                                    ? 'bg-blue-50 text-blue-700 font-medium'
+                                    : 'text-gray-700 hover:bg-gray-50'
+                                }`}
+                                style={{ textDecoration: 'none' }}
+                              >
+                                <span className="mr-3 text-gray-500">{subItem.icon}</span>
+                                {subItem.title}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Logout - Far right */}
+              <button
+                onClick={handleLogout}
+                className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors min-w-max"
+                style={{ textDecoration: 'none' }}
+              >
+                <FiLogOut className="mr-2" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </nav>
