@@ -2307,9 +2307,10 @@
 // }
 
 
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import './Home.css';
+
 import { 
   MdOutlineWarehouse,
   MdOutlineDashboard,
@@ -2456,7 +2457,7 @@ export default function Home() {
             <p className="text-gray-500">Streamline your operations with our comprehensive ERP solution</p>
           </div>
 
-          {/* Dashboard Cards */}
+          {/* Dashboard Cards - Updated Styling */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {allowedPanels.map((panel, index) => (
               <Link
@@ -2486,7 +2487,7 @@ export default function Home() {
     );
   }
 
-  // Mobile Dashboard
+  // Mobile Dashboard - Updated Styling
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 pb-20">
       {/* Main Content */}
