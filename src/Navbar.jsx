@@ -3909,21 +3909,33 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Sidebar */}
-        <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50" 
+       
+        <div className={`fixed inset-0 z-40 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>      
+           <div 
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300" 
             onClick={() => setMobileMenuOpen(false)}
           ></div>
           <div className="relative flex flex-col w-80 max-w-sm h-full bg-white shadow-xl">
+            {/* Sidebar Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+              <div className="text-xl font-semibold text-gray-800">Menu</div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
+              >
+                <FiX className="h-6 w-6" />
+              </button>
+            </div>
+
             {/* Sidebar Content */}
-            <div className="flex-1 overflow-y-auto py-4">
+            <div className="flex-1 overflow-y-auto py-2">
               {filteredMenuItems.map((item, index) => (
                 <div key={index} className="px-2">
                   {item.path ? (
                     <Link
                       to={item.path}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium ${
+                      className={`flex items-center px-4 py-3.5 rounded-lg mx-2 text-base font-medium transition-colors ${
                         location.pathname === item.path 
                           ? 'bg-blue-50 text-blue-700' 
                           : 'text-gray-700 hover:bg-gray-100'
@@ -3937,19 +3949,18 @@ const Navbar = () => {
                     <>
                       <button
                         onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-                        className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium ${
-                          activeDropdown === index 
+                        className={`flex items-center justify-between w-full px-4 py-3.5 rounded-lg mx-2 text-base font-medium transition-colors ${
+                          activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
                             ? 'bg-blue-50 text-blue-700' 
                             : 'text-gray-700 hover:bg-gray-100'
                         }`}
-                        style={{ textDecoration: 'none' }}
                       >
                         <div className="flex items-center">
                           <span className="mr-3">{item.icon}</span>
                           {item.title}
                         </div>
                         <FiChevronDown 
-                          className={`h-5 w-5 transition-transform ${
+                          className={`h-5 w-5 transition-transform duration-200 ${
                             activeDropdown === index ? 'rotate-180' : ''
                           }`} 
                         />
@@ -3962,9 +3973,9 @@ const Navbar = () => {
                               key={subIndex}
                               to={subItem.path}
                               onClick={() => setMobileMenuOpen(false)}
-                              className={`flex items-center px-4 py-2 rounded-lg text-base ${
+                              className={`flex items-center px-4 py-3 rounded-lg text-base transition-colors ${
                                 location.pathname === subItem.path 
-                                  ? 'bg-blue-100 text-blue-700' 
+                                  ? 'bg-blue-100 text-blue-700 font-medium' 
                                   : 'text-gray-600 hover:bg-gray-50'
                               }`}
                               style={{ textDecoration: 'none' }}
