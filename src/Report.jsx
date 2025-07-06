@@ -433,8 +433,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// import truckImg from './assets/Truck.png.png';
-import truckIllustration from './assets/truck-icon.png';
+import truckImg from './assets/Truck.png.png';
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Report() {
@@ -545,7 +545,8 @@ export default function Report() {
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 md:p-8 flex flex-col md:flex-row items-center">
             <div className="flex-1 text-center md:text-left">
               <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center justify-center md:justify-start">
-                <img src={truckIllustration} alt="Truck" className="h-8 mr-3" />
+               <img src={truckImg} alt="Truck" className="h-8 mr-3" />
+
                 Truck Movement Report
               </h1>
               <p className="text-blue-100">Track and analyze fleet movements</p>
