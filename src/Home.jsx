@@ -2289,92 +2289,238 @@
 //   );
 // }
 
+// import { useEffect, useState } from "react";
+// import { Link } from "react-router-dom";
+// import {
+//   MdOutlineDashboard,
+//   MdOutlineWarehouse,
+//   MdOutlineAnalytics,
+// } from "react-icons/md";
+// import {
+//   RiTruckLine,
+//   RiUserSettingsLine,
+// } from "react-icons/ri";
+// import {
+//   FiSearch,
+// } from "react-icons/fi";
+// import {
+//   BsDoorOpen,
+//   BsCalendarCheck,
+// } from "react-icons/bs";
+// import {
+//   PiPackageLight,
+// } from "react-icons/pi";
+
+// export default function MobileDashboard() {
+//   const [currentTime, setCurrentTime] = useState(new Date());
+//   const userName = localStorage.getItem("userName") || "User";
+
+//   useEffect(() => {
+//     const timer = setInterval(() => {
+//       setCurrentTime(new Date());
+//     }, 60000);
+//     return () => clearInterval(timer);
+//   }, []);
+
+//   const panelList = [
+//     { 
+//       name: "Dashboard", 
+//       path: "/dashboard", 
+//       icon: <MdOutlineDashboard size={22} />, 
+//       color: "bg-blue-100",
+//       iconColor: "text-blue-600",
+//       navIcon: <MdOutlineDashboard size={20} />
+//     },
+//     { 
+//       name: "Truck Transaction", 
+//       path: "/truck", 
+//       icon: <RiTruckLine size={22} />, 
+//       color: "bg-orange-100",
+//       iconColor: "text-orange-600",
+//       navIcon: <RiTruckLine size={20} />
+//     },
+//     { 
+//       name: "Truck Locator", 
+//       path: "/truckfind", 
+//       icon: <FiSearch size={22} />, 
+//       color: "bg-red-100",
+//       iconColor: "text-red-600",
+//       navIcon: <FiSearch size={20} />
+//     },
+//     { 
+//       name: "Gate Control", 
+//       path: "/gate", 
+//       icon: <BsDoorOpen size={22} />, 
+//       color: "bg-purple-100",
+//       iconColor: "text-purple-600",
+//       navIcon: <BsDoorOpen size={20} />
+//     },
+//     { 
+//       name: "Loading Dock", 
+//       path: "/loader", 
+//       icon: <PiPackageLight size={22} />, 
+//       color: "bg-amber-100",
+//       iconColor: "text-amber-600",
+//       navIcon: <PiPackageLight size={20} />
+//     },
+//     { 
+//       name: "Operations Report", 
+//       path: "/reports", 
+//       icon: <MdOutlineAnalytics size={22} />, 
+//       color: "bg-green-100",
+//       iconColor: "text-green-600",
+//       navIcon: <MdOutlineAnalytics size={20} />
+//     },
+//     { 
+//       name: "Plant Master", 
+//       path: "/plantmaster", 
+//       icon: <MdOutlineWarehouse size={22} />, 
+//       color: "bg-indigo-100",
+//       iconColor: "text-indigo-600",
+//       navIcon: <MdOutlineWarehouse size={20} />
+//     },
+//     { 
+//       name: "User Management", 
+//       path: "/usermaster", 
+//       icon: <RiUserSettingsLine size={22} />, 
+//       color: "bg-teal-100",
+//       iconColor: "text-teal-600",
+//       navIcon: <RiUserSettingsLine size={20} />
+//     },
+//     { 
+//       name: "Schedule Board", 
+//       path: "/truckshedule", 
+//       icon: <BsCalendarCheck size={22} />, 
+//       color: "bg-pink-100",
+//       iconColor: "text-pink-600",
+//       navIcon: <BsCalendarCheck size={20} />
+//     },
+//   ];
+
+//   const formatTime = (date) => {
+//     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-gray-50 pb-20 font-sans">
+//       {/* Header */}
+//       <div className="p-5">
+//         <div className="flex justify-between items-center mb-6">
+//           <div>
+//             <h1 className="text-xl font-semibold text-gray-800">Hello, {userName}</h1>
+//             <p className="text-xs text-gray-500 mt-1">
+//               {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+//             </p>
+//           </div>
+//           <div className="text-sm font-medium text-gray-700 bg-white rounded-full px-3 py-1 shadow-sm">
+//             {formatTime(currentTime)}
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Dashboard Cards */}
+//       <div className="px-4">
+//         <div className="grid grid-cols-2 gap-3">
+//           {panelList.map((panel, idx) => (
+//             <Link
+//               to={panel.path}
+//               key={idx}
+//               className="no-underline active:scale-95 transition-transform"
+//             >
+//               <div className="bg-white rounded-xl p-4 shadow-sm h-full flex flex-col items-center">
+//                 <div className={`w-16 h-16 rounded-2xl ${panel.color} flex items-center justify-center mb-3`}>
+//                   <div className={`${panel.iconColor}`}>
+//                     {panel.icon}
+//                   </div>
+//                 </div>
+//                 <span className="text-sm font-medium text-gray-700 text-center">
+//                   {panel.name}
+//                 </span>
+//               </div>
+//             </Link>
+//           ))}
+//         </div>
+//       </div>
+
+//       {/* Bottom Navigation */}
+//       <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-100 flex justify-around items-center p-2">
+//         {panelList.slice(0, 5).map((item, index) => (
+//           <Link 
+//             to={item.path} 
+//             key={index}
+//             className="p-2 rounded-full text-gray-500 active:text-gray-700 transition-colors"
+//           >
+//             <div className={`p-2 ${item.iconColor}`}>
+//               {item.navIcon}
+//             </div>
+//           </Link>
+//         ))}
+//       </nav>
+//     </div>
+//   );
+// }
+
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  MdOutlineDashboard,
+import { 
   MdOutlineWarehouse,
-  MdOutlineAnalytics,
+  MdOutlineDashboard,
+  MdOutlineAnalytics
 } from "react-icons/md";
-import {
-  RiTruckLine,
-  RiUserSettingsLine,
-} from "react-icons/ri";
-import {
-  FiSearch,
+import { 
+  FiSearch
 } from "react-icons/fi";
-import {
+import { 
   BsDoorOpen,
-  BsCalendarCheck,
+  BsCalendarCheck
 } from "react-icons/bs";
-import {
-  PiPackageLight,
+import { 
+  PiPackageLight 
 } from "react-icons/pi";
+import { 
+  RiTruckLine,
+  RiUserSettingsLine
+} from "react-icons/ri";
 
-export default function MobileDashboard() {
-  const [currentTime, setCurrentTime] = useState(new Date());
+export default function Home() {
+  const [isMobile, setIsMobile] = useState(false);
+  const userRole = localStorage.getItem("userRole");
   const userName = localStorage.getItem("userName") || "User";
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
+    const checkSize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkSize();
+    window.addEventListener("resize", checkSize);
+
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
-    return () => clearInterval(timer);
+
+    return () => {
+      window.removeEventListener("resize", checkSize);
+      clearInterval(timer);
+    };
   }, []);
 
   const panelList = [
     { 
       name: "Dashboard", 
       path: "/dashboard", 
-      icon: <MdOutlineDashboard size={22} />, 
+      icon: <MdOutlineDashboard size={24} />, 
+      roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report"],
       color: "bg-blue-100",
       iconColor: "text-blue-600",
       navIcon: <MdOutlineDashboard size={20} />
     },
     { 
-      name: "Truck Transaction", 
-      path: "/truck", 
-      icon: <RiTruckLine size={22} />, 
-      color: "bg-orange-100",
-      iconColor: "text-orange-600",
-      navIcon: <RiTruckLine size={20} />
-    },
-    { 
-      name: "Truck Locator", 
-      path: "/truckfind", 
-      icon: <FiSearch size={22} />, 
-      color: "bg-red-100",
-      iconColor: "text-red-600",
-      navIcon: <FiSearch size={20} />
-    },
-    { 
-      name: "Gate Control", 
-      path: "/gate", 
-      icon: <BsDoorOpen size={22} />, 
-      color: "bg-purple-100",
-      iconColor: "text-purple-600",
-      navIcon: <BsDoorOpen size={20} />
-    },
-    { 
-      name: "Loading Dock", 
-      path: "/loader", 
-      icon: <PiPackageLight size={22} />, 
-      color: "bg-amber-100",
-      iconColor: "text-amber-600",
-      navIcon: <PiPackageLight size={20} />
-    },
-    { 
-      name: "Operations Report", 
-      path: "/reports", 
-      icon: <MdOutlineAnalytics size={22} />, 
-      color: "bg-green-100",
-      iconColor: "text-green-600",
-      navIcon: <MdOutlineAnalytics size={20} />
-    },
-    { 
       name: "Plant Master", 
       path: "/plantmaster", 
-      icon: <MdOutlineWarehouse size={22} />, 
+      icon: <MdOutlineWarehouse size={24} />, 
+      roles: ["Owner", "Admin"],
       color: "bg-indigo-100",
       iconColor: "text-indigo-600",
       navIcon: <MdOutlineWarehouse size={20} />
@@ -2382,29 +2528,157 @@ export default function MobileDashboard() {
     { 
       name: "User Management", 
       path: "/usermaster", 
-      icon: <RiUserSettingsLine size={22} />, 
+      icon: <RiUserSettingsLine size={24} />, 
+      roles: ["Owner", "Admin"],
       color: "bg-teal-100",
       iconColor: "text-teal-600",
       navIcon: <RiUserSettingsLine size={20} />
     },
     { 
+      name: "Truck Transaction", 
+      path: "/truck", 
+      icon: <RiTruckLine size={24} />, 
+      roles: ["Owner", "Admin", "Dispatch"],
+      color: "bg-orange-100",
+      iconColor: "text-orange-600",
+      navIcon: <RiTruckLine size={20} />
+    },
+    { 
+      name: "Truck Locator", 
+      path: "/truckfind", 
+      icon: <FiSearch size={24} />, 
+      roles: ["Owner", "Admin", "Dispatch"],
+      color: "bg-red-100",
+      iconColor: "text-red-600",
+      navIcon: <FiSearch size={20} />
+    },
+    { 
+      name: "Gate Control", 
+      path: "/gate", 
+      icon: <BsDoorOpen size={24} />, 
+      roles: ["Owner", "Admin", "GateKeeper"],
+      color: "bg-purple-100",
+      iconColor: "text-purple-600",
+      navIcon: <BsDoorOpen size={20} />
+    },
+    { 
+      name: "Loading Dock", 
+      path: "/loader", 
+      icon: <PiPackageLight size={24} />, 
+      roles: ["Owner", "Admin", "Loader"],
+      color: "bg-amber-100",
+      iconColor: "text-amber-600",
+      navIcon: <PiPackageLight size={20} />
+    },
+    { 
+      name: "Operations Report", 
+      path: "/reports", 
+      icon: <MdOutlineAnalytics size={24} />, 
+      roles: ["Owner", "Admin", "Report"],
+      color: "bg-green-100",
+      iconColor: "text-green-600",
+      navIcon: <MdOutlineAnalytics size={20} />
+    },
+    { 
       name: "Schedule Board", 
       path: "/truckshedule", 
-      icon: <BsCalendarCheck size={22} />, 
+      icon: <BsCalendarCheck size={24} />, 
+      roles: ["Owner", "Admin", "Report"],
       color: "bg-pink-100",
       iconColor: "text-pink-600",
       navIcon: <BsCalendarCheck size={20} />
     },
   ];
 
+  const allowedPanels = panelList.filter((p) => {
+    if (!userRole) return false;
+    const roles = userRole.split(",").map((r) => r.trim());
+    return roles.some((r) => p.roles.includes(r));
+  });
+
+  const allowedNavItems = panelList.filter((p) => {
+    if (!userRole) return false;
+    const roles = userRole.split(",").map((r) => r.trim());
+    return roles.some((r) => p.roles.includes(r)) && 
+           ["/dashboard", "/truck", "/reports", "/gate", "/loader"].includes(p.path);
+  });
+
   const formatTime = (date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  if (!isMobile) {
+    // Desktop Dashboard - Modern Web View
+    return (
+      <div className="min-h-screen bg-gray-50 font-sans">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-12">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-1">
+                Welcome back, {userName}
+              </h1>
+              <p className="text-gray-500">Streamline your logistics operations</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-2xl font-medium text-gray-700">{formatTime(currentTime)}</div>
+                <div className="text-sm text-gray-500">
+                  {currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                </div>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <span className="text-blue-600 font-medium">
+                  {userName.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Dashboard Cards - Modern Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {allowedPanels.map((panel, index) => (
+              <Link
+                to={panel.path}
+                key={index}
+                className="group relative no-underline"
+              >
+                <div className="h-full rounded-xl p-5 bg-white shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 hover:border-transparent">
+                  <div className={`w-12 h-12 rounded-lg mb-4 flex items-center justify-center ${panel.color} transition-transform duration-300 group-hover:scale-110`}>
+                    <div className={panel.iconColor}>
+                      {panel.icon}
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                    {panel.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Access module
+                  </p>
+                  <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-gray-400">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Footer */}
+          <div className="mt-16 pt-8 border-t border-gray-200 text-center text-sm text-gray-400">
+            <p>Lemon Logistics ERP • v2.5 • {new Date().getFullYear()}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile Dashboard - Modern Mobile View
   return (
     <div className="min-h-screen bg-gray-50 pb-20 font-sans">
-      {/* Header */}
-      <div className="p-5">
+      {/* Main Content */}
+      <main className="p-4">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-xl font-semibold text-gray-800">Hello, {userName}</h1>
@@ -2416,20 +2690,18 @@ export default function MobileDashboard() {
             {formatTime(currentTime)}
           </div>
         </div>
-      </div>
 
-      {/* Dashboard Cards */}
-      <div className="px-4">
+        {/* Dashboard Cards - Mobile Grid */}
         <div className="grid grid-cols-2 gap-3">
-          {panelList.map((panel, idx) => (
+          {allowedPanels.map((panel, idx) => (
             <Link
               to={panel.path}
               key={idx}
               className="no-underline active:scale-95 transition-transform"
             >
               <div className="bg-white rounded-xl p-4 shadow-sm h-full flex flex-col items-center">
-                <div className={`w-16 h-16 rounded-2xl ${panel.color} flex items-center justify-center mb-3`}>
-                  <div className={`${panel.iconColor}`}>
+                <div className={`w-14 h-14 rounded-xl ${panel.color} flex items-center justify-center mb-3`}>
+                  <div className={panel.iconColor}>
                     {panel.icon}
                   </div>
                 </div>
@@ -2440,11 +2712,11 @@ export default function MobileDashboard() {
             </Link>
           ))}
         </div>
-      </div>
+      </main>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation - Glassmorphism Style */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-100 flex justify-around items-center p-2">
-        {panelList.slice(0, 5).map((item, index) => (
+        {allowedNavItems.map((item, index) => (
           <Link 
             to={item.path} 
             key={index}
