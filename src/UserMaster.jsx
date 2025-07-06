@@ -805,7 +805,7 @@ export default function UserMaster({ onClose }) {
     moduleRights: [],
     allowedPlants: [],
   });
-  window.location.reload();
+
 
   const [plantList, setPlantList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
