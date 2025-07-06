@@ -2540,6 +2540,8 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+
+
 import { 
   MdOutlineWarehouse,
   MdOutlineDashboard,
@@ -2686,13 +2688,13 @@ export default function Home() {
             <p className="text-gray-500">Streamline your operations with our comprehensive ERP solution</p>
           </div>
 
-          {/* Dashboard Cards */}
+          {/* Dashboard Cards - Updated Styling */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {allowedPanels.map((panel, index) => (
               <Link
                 to={panel.path}
                 key={index}
-                className="group block rounded-2xl bg-white p-6 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-gray-50 no-underline"
+                className="no-underline group block rounded-2xl bg-white p-6 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:bg-gray-50"
               >
                 <div className={`w-14 h-14 rounded-xl mb-4 flex items-center justify-center bg-gradient-to-br ${panel.color} transition-transform duration-300 group-hover:scale-110`}>
                   <span className={`text-2xl ${panel.iconColor}`}>{panel.icon}</span>
@@ -2716,7 +2718,7 @@ export default function Home() {
     );
   }
 
-  // Mobile Dashboard
+  // Mobile Dashboard - Updated Styling
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 pb-20">
       {/* Main Content */}
@@ -2735,7 +2737,7 @@ export default function Home() {
             <Link
               to={panel.path}
               key={idx}
-              className="block rounded-xl bg-white p-4 shadow-sm transition-transform active:scale-[0.98] no-underline"
+              className="no-underline block rounded-xl bg-white p-4 shadow-sm transition-transform active:scale-[0.98]"
             >
               <div className={`w-12 h-12 rounded-lg mb-2 mx-auto flex items-center justify-center bg-gradient-to-br ${panel.color}`}>
                 <span className={`text-xl ${panel.iconColor}`}>{panel.icon}</span>
@@ -2754,7 +2756,7 @@ export default function Home() {
           <Link 
             to={item.path} 
             key={index}
-            className="flex flex-col items-center p-2 rounded-lg text-gray-600 transition-colors hover:text-gray-900 no-underline"
+            className="no-underline flex flex-col items-center p-2 rounded-lg text-gray-600 transition-colors hover:text-gray-900"
           >
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${item.iconColor} bg-opacity-20`}>
               {item.navIcon}
