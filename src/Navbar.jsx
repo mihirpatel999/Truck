@@ -4395,7 +4395,7 @@ const Navbar = () => {
   const filterSubItems = (subItems) => {
     return subItems.filter(subItem => {
       if (subItem.path === '/plantmaster') {
-        return hasAccess(['Owner', 'Admin', 'UserMaster']);
+        return hasAccess(['Owner', 'Admin', 'UserMaster', 'PlantMaster']);
       }
       if (subItem.path === '/usermaster') {
         return hasAccess(['Owner', 'Admin', 'UserMaster']);
