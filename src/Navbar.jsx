@@ -3915,11 +3915,22 @@ const Navbar = () => {
     window.location.href = "/";
   };
 
+  // const hasAccess = (requiredRoles) => {
+  //   if (!userRole) return false;
+  //   const userRoles = userRole.split(',').map(r => r.trim());
+  //   return requiredRoles.some(role => userRoles.includes(role));
+  // };
+
   const hasAccess = (requiredRoles) => {
-    if (!userRole) return false;
-    const userRoles = userRole.split(',').map(r => r.trim());
-    return requiredRoles.some(role => userRoles.includes(role));
-  };
+  if (!userRole) return false;
+
+  const userRoles = userRole.split(',').map(r => r.trim());
+  const moduleRights = localStorage.getItem('moduleRights')?.split(',').map(r => r.trim()) || [];
+
+  // Either role ya moduleRights me se koi match kare to access milega
+  return requiredRoles.some(role => userRoles.includes(role) || moduleRights.includes(role));
+};
+
 
   const filterSubItems = (subItems) => {
     return subItems.filter(subItem => {
@@ -4341,4 +4352,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Navbar;///////////////////// final code underline promblee
