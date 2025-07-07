@@ -3920,8 +3920,7 @@ useEffect(() => {
   //   const userRoles = userRole.split(',').map(r => r.trim());
   //   return requiredRoles.some(role => userRoles.includes(role));
   // };
-
-  const hasAccess = (requiredRoles) => {
+const hasAccess = (requiredRoles) => {
   if (!userRole) return false;
 
   const userRoles = userRole.split(',').map(r => r.trim());
