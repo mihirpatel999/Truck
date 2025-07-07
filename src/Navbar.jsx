@@ -3875,96 +3875,51 @@
 
 
 
-
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  FiHome, 
-  FiTruck, 
-  FiUsers, 
-  FiPieChart,
-  FiLogOut,
-  FiChevronDown,
-  FiMenu,
-  FiX,
-  FiSettings,
-  FiClock
+  FiHome, FiTruck, FiUsers, FiPieChart, FiLogOut, FiChevronDown, 
+  FiMenu, FiX, FiSettings, FiClock 
 } from 'react-icons/fi';
-import { 
-  MdOutlineWarehouse,
-  MdOutlineSchedule
-} from 'react-icons/md';
-import { 
-  BsShieldLock,
-  BsBoxSeam
-} from 'react-icons/bs';
+import { MdOutlineWarehouse, MdOutlineSchedule } from 'react-icons/md';
+import { BsShieldLock, BsBoxSeam } from 'react-icons/bs';
 
-const [userRole, setUserRole] = useState(null);
-const [moduleRights, setModuleRights] = useState([]);
+const Navbar = () => {
+  
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [moduleRights, setModuleRights] = useState([]);
+  const location = useLocation();
 
-useEffect(() => {
-  setUserRole(localStorage.getItem('userRole'));
-  const rights = localStorage.getItem('moduleRights');
-  setModuleRights(rights ? rights.split(',').map(r => r.trim()) : []);
-}, []);
-
+  useEffect(() => {
+    setUserRole(localStorage.getItem('userRole'));
+    const rights = localStorage.getItem('moduleRights');
+    setModuleRights(rights ? rights.split(',').map(r => r.trim()) : []);
+  }, []);
 
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = "/";
   };
 
-  // const hasAccess = (requiredRoles) => {
-  //   if (!userRole) return false;
-  //   const userRoles = userRole.split(',').map(r => r.trim());
-  //   return requiredRoles.some(role => userRoles.includes(role));
-  // };
-const hasAccess = (requiredRoles) => {
-  if (!userRole) return false;
-
-  const userRoles = userRole.split(',').map(r => r.trim());
-
-  return requiredRoles.some(role => userRoles.includes(role) || moduleRights.includes(role));
-};
-
-  const userRoles = userRole.split(',').map(r => r.trim());
-  const moduleRights = localStorage.getItem('moduleRights')?.split(',').map(r => r.trim()) || [];
-
-  // Either role ya moduleRights me se koi match kare to access milega
-  return requiredRoles.some(role => userRoles.includes(role) || moduleRights.includes(role));
-};
-
+  const hasAccess = (requiredRoles) => {
+    if (!userRole) return false;
+    const userRoles = userRole.split(',').map(r => r.trim());
+    return requiredRoles.some(role => userRoles.includes(role) || moduleRights.includes(role));
+  };
 
   const filterSubItems = (subItems) => {
     return subItems.filter(subItem => {
-      if (subItem.path === '/plantmaster') {
-        return hasAccess(['Owner', 'Admin', 'UserMaster']);
-      }
-      if (subItem.path === '/usermaster') {
-        return hasAccess(['Owner', 'Admin', 'UserMaster']);
-      }
-      if (subItem.path === '/userregister') {
-        return hasAccess(['Owner', 'Admin', 'UserRegister']);
-      }
-      if (subItem.path === '/truck') {
-        return hasAccess(['Owner', 'Admin', 'Dispatch']);
-      }
-      if (subItem.path === '/truckfind') {
-        return hasAccess(['Owner', 'Admin', 'Dispatch']);
-      }
-      if (subItem.path === '/gate') {
-        return hasAccess(['Owner', 'Admin', 'GateKeeper']);
-      }
-      if (subItem.path === '/loader') {
-        return hasAccess(['Owner', 'Admin', 'Loader']);
-      }
-      if (subItem.path === '/reports') {
-        return hasAccess(['Owner', 'Admin', 'Report']);
-      }
-      if (subItem.path === '/truckshedule') {
-        return hasAccess(['Owner', 'Admin', 'Report']);
-      }
+      if (subItem.path === '/plantmaster') return hasAccess(['Owner', 'Admin', 'UserMaster']);
+      if (subItem.path === '/usermaster') return hasAccess(['Owner', 'Admin', 'UserMaster']);
+      if (subItem.path === '/userregister') return hasAccess(['Owner', 'Admin', 'UserRegister']);
+      if (subItem.path === '/truck') return hasAccess(['Owner', 'Admin', 'Dispatch']);
+      if (subItem.path === '/truckfind') return hasAccess(['Owner', 'Admin', 'Dispatch']);
+      if (subItem.path === '/gate') return hasAccess(['Owner', 'Admin', 'GateKeeper']);
+      if (subItem.path === '/loader') return hasAccess(['Owner', 'Admin', 'Loader']);
+      if (subItem.path === '/reports') return hasAccess(['Owner', 'Admin', 'Report']);
+      if (subItem.path === '/truckshedule') return hasAccess(['Owner', 'Admin', 'Report']);
       return true;
     });
   };
@@ -3973,12 +3928,12 @@ const hasAccess = (requiredRoles) => {
     {
       title: "Dashboard",
       path: "/dashboard",
-      icon: <FiHome className="flex-shrink-0" size={18} />,
+      icon: <FiHome size={18} />,
       roles: ["Owner", "Admin", "Dispatch", "GateKeeper", "Loader", "Report", "UserMaster", "UserRegister"]
     },
     {
       title: "Admin",
-      icon: <FiSettings className="flex-shrink-0" size={18} />,
+      icon: <FiSettings size={18} />,
       roles: ["Owner", "Admin", "UserMaster", "UserRegister"],
       subItems: [
         { title: "Plant Master", path: "/plantmaster", icon: <MdOutlineWarehouse size={16} /> },
@@ -3988,7 +3943,7 @@ const hasAccess = (requiredRoles) => {
     },
     {
       title: "Dispatch",
-      icon: <FiTruck className="flex-shrink-0" size={18} />,
+      icon: <FiTruck size={18} />,
       roles: ["Owner", "Admin", "Dispatch"],
       subItems: [
         { title: "Truck Transaction", path: "/truck", icon: <FiTruck size={16} /> },
@@ -3998,18 +3953,18 @@ const hasAccess = (requiredRoles) => {
     {
       title: "Gate Control",
       path: "/gate",
-      icon: <MdOutlineWarehouse className="flex-shrink-0" size={18} />,
+      icon: <MdOutlineWarehouse size={18} />,
       roles: ["Owner", "Admin", "GateKeeper"]
     },
     {
       title: "Loading",
       path: "/loader",
-      icon: <BsBoxSeam className="flex-shrink-0" size={18} />,
+      icon: <BsBoxSeam size={18} />,
       roles: ["Owner", "Admin", "Loader"]
     },
     {
       title: "Reports",
-      icon: <FiPieChart className="flex-shrink-0" size={18} />,
+      icon: <FiPieChart size={18} />,
       roles: ["Owner", "Admin", "Report"],
       subItems: [
         { title: "Operations Report", path: "/reports", icon: <FiPieChart size={16} /> },
@@ -4035,7 +3990,6 @@ const hasAccess = (requiredRoles) => {
     setActiveDropdown(null);
     setMobileMenuOpen(false);
   };
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
