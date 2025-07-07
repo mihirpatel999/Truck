@@ -3951,6 +3951,12 @@ const Navbar = () => {
     });
   };
 
+  // Helper function to check if a menu item should have active styling
+  const shouldHighlight = (item) => {
+    const noHighlightItems = ['Admin', 'Reports', 'Gate Control', 'Loading'];
+    return !noHighlightItems.includes(item.title);
+  };
+
   const menuItems = [
     {
       title: "Dashboard",
@@ -4062,7 +4068,7 @@ const Navbar = () => {
                           to={item.path}
                           onClick={closeAllDropdowns}
                           className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            location.pathname === item.path
+                            shouldHighlight(item) && location.pathname === item.path
                               ? 'bg-blue-50 text-blue-700 font-medium'
                               : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                           }`}
@@ -4078,7 +4084,7 @@ const Navbar = () => {
                               setActiveDropdown(activeDropdown === index ? null : index);
                             }}
                             className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                              activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
+                              shouldHighlight(item) && (activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path))
                                 ? 'bg-blue-50 text-blue-700 font-medium'
                                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                             }`}
@@ -4133,7 +4139,7 @@ const Navbar = () => {
                           to={item.path}
                           onClick={closeAllDropdowns}
                           className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            location.pathname === item.path
+                            shouldHighlight(item) && location.pathname === item.path
                               ? 'bg-blue-50 text-blue-700 font-medium'
                               : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                           }`}
@@ -4149,7 +4155,7 @@ const Navbar = () => {
                               setActiveDropdown(activeDropdown === index ? null : index);
                             }}
                             className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                              activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
+                              shouldHighlight(item) && (activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path))
                                 ? 'bg-blue-50 text-blue-700 font-medium'
                                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                             }`}
@@ -4263,7 +4269,7 @@ const Navbar = () => {
                       to={item.path}
                       onClick={closeAllDropdowns}
                       className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium ${
-                        location.pathname === item.path
+                        shouldHighlight(item) && location.pathname === item.path
                           ? 'bg-blue-50 text-blue-700'
                           : 'text-gray-700 hover:bg-gray-100'
                       }`}
@@ -4279,7 +4285,7 @@ const Navbar = () => {
                           setActiveDropdown(activeDropdown === index ? null : index);
                         }}
                         className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium ${
-                          activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path)
+                          shouldHighlight(item) && (activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path))
                             ? 'bg-blue-50 text-blue-700'
                             : 'text-gray-700 hover:bg-gray-100'
                         }`}
@@ -4339,6 +4345,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-
-
