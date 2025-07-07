@@ -3874,6 +3874,9 @@
 // export default Navbar;
 
 
+
+
+
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -4049,7 +4052,7 @@ const Navbar = () => {
             <div className="flex items-center">
               <Link 
                 to="/dashboard" 
-                className="flex-shrink-0 flex items-center"
+                className="flex-shrink-0 flex items-center no-underline"
                 onClick={closeAllDropdowns}
               >
                 <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow">
@@ -4067,7 +4070,7 @@ const Navbar = () => {
                         <Link
                           to={item.path}
                           onClick={closeAllDropdowns}
-                          className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors no-underline ${
                             shouldHighlight(item) && location.pathname === item.path
                               ? 'bg-blue-50 text-blue-700 font-medium'
                               : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
@@ -4083,7 +4086,7 @@ const Navbar = () => {
                               e.stopPropagation();
                               setActiveDropdown(activeDropdown === index ? null : index);
                             }}
-                            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors no-underline ${
                               shouldHighlight(item) && (activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path))
                                 ? 'bg-blue-50 text-blue-700 font-medium'
                                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
@@ -4108,7 +4111,7 @@ const Navbar = () => {
                                   key={subIndex}
                                   to={subItem.path}
                                   onClick={closeAllDropdowns}
-                                  className={`flex items-center px-4 py-2.5 text-sm transition-colors ${
+                                  className={`flex items-center px-4 py-2.5 text-sm transition-colors no-underline ${
                                     location.pathname === subItem.path
                                       ? 'bg-blue-50 text-blue-700 font-medium'
                                       : 'text-gray-700 hover:bg-gray-50'
@@ -4138,7 +4141,7 @@ const Navbar = () => {
                         <Link
                           to={item.path}
                           onClick={closeAllDropdowns}
-                          className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors no-underline ${
                             shouldHighlight(item) && location.pathname === item.path
                               ? 'bg-blue-50 text-blue-700 font-medium'
                               : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
@@ -4154,7 +4157,7 @@ const Navbar = () => {
                               e.stopPropagation();
                               setActiveDropdown(activeDropdown === index ? null : index);
                             }}
-                            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors no-underline ${
                               shouldHighlight(item) && (activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path))
                                 ? 'bg-blue-50 text-blue-700 font-medium'
                                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
@@ -4179,7 +4182,7 @@ const Navbar = () => {
                                   key={subIndex}
                                   to={subItem.path}
                                   onClick={closeAllDropdowns}
-                                  className={`flex items-center px-4 py-2.5 text-sm transition-colors ${
+                                  className={`flex items-center px-4 py-2.5 text-sm transition-colors no-underline ${
                                     location.pathname === subItem.path
                                       ? 'bg-blue-50 text-blue-700 font-medium'
                                       : 'text-gray-700 hover:bg-gray-50'
@@ -4200,7 +4203,7 @@ const Navbar = () => {
 
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors"
+                className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors no-underline"
               >
                 <FiLogOut className="mr-2" />
                 Logout
@@ -4216,7 +4219,7 @@ const Navbar = () => {
           <div className="flex justify-between h-16 items-center">
             <Link 
               to="/dashboard" 
-              className="flex items-center"
+              className="flex items-center no-underline"
               onClick={closeAllDropdowns}
             >
               <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white shadow">
@@ -4230,7 +4233,7 @@ const Navbar = () => {
                 e.stopPropagation();
                 setMobileMenuOpen(!mobileMenuOpen);
               }}
-              className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors"
+              className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors no-underline"
             >
               {mobileMenuOpen ? (
                 <FiX className="h-6 w-6" />
@@ -4255,7 +4258,7 @@ const Navbar = () => {
               <div className="text-xl font-semibold text-gray-800">Menu</div>
               <button
                 onClick={closeAllDropdowns}
-                className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100"
+                className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 no-underline"
               >
                 <FiX className="h-6 w-6" />
               </button>
@@ -4268,7 +4271,7 @@ const Navbar = () => {
                     <Link
                       to={item.path}
                       onClick={closeAllDropdowns}
-                      className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium ${
+                      className={`flex items-center px-4 py-3 rounded-lg mx-2 text-base font-medium no-underline ${
                         shouldHighlight(item) && location.pathname === item.path
                           ? 'bg-blue-50 text-blue-700'
                           : 'text-gray-700 hover:bg-gray-100'
@@ -4284,7 +4287,7 @@ const Navbar = () => {
                           e.stopPropagation();
                           setActiveDropdown(activeDropdown === index ? null : index);
                         }}
-                        className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium ${
+                        className={`flex items-center justify-between w-full px-4 py-3 rounded-lg mx-2 text-base font-medium no-underline ${
                           shouldHighlight(item) && (activeDropdown === index || item.subItems?.some(subItem => location.pathname === subItem.path))
                             ? 'bg-blue-50 text-blue-700'
                             : 'text-gray-700 hover:bg-gray-100'
@@ -4311,7 +4314,7 @@ const Navbar = () => {
                             key={subIndex}
                             to={subItem.path}
                             onClick={closeAllDropdowns}
-                            className={`flex items-center pl-12 pr-4 py-2.5 text-base ${
+                            className={`flex items-center pl-12 pr-4 py-2.5 text-base no-underline ${
                               location.pathname === subItem.path
                                 ? 'bg-blue-100 text-blue-700 font-medium'
                                 : 'text-gray-600 hover:bg-gray-50'
@@ -4331,7 +4334,7 @@ const Navbar = () => {
             <div className="px-4 py-4 border-t border-gray-200">
               <button
                 onClick={handleLogout}
-                className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium"
+                className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-gray-50 text-red-600 hover:bg-red-50 font-medium no-underline"
               >
                 <FiLogOut className="mr-3" />
                 Logout
