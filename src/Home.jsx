@@ -2458,7 +2458,7 @@
 //       </nav>
 //     </div>
 //   );
-// }
+// }////////// final 
 
 
 import { useEffect, useState } from "react";
@@ -2489,23 +2489,26 @@ export default function Home() {
   const userName = localStorage.getItem("userName") || "User";
   const [currentTime, setCurrentTime] = useState(new Date());
 
+  // Check screen size and update time
   useEffect(() => {
-    const checkSize = () => {
+    const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    checkSize();
-    window.addEventListener("resize", checkSize);
+    
+    handleResize();
+    window.addEventListener("resize", handleResize);
 
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
 
     return () => {
-      window.removeEventListener("resize", checkSize);
+      window.removeEventListener("resize", handleResize);
       clearInterval(timer);
     };
   }, []);
 
+  // Panel configuration
   const panelList = [
     { 
       name: "Dashboard", 
@@ -2590,60 +2593,69 @@ export default function Home() {
     },
   ];
 
-  const allowedPanels = panelList.filter((p) => {
+  // Filter panels based on user role
+  const allowedPanels = panelList.filter((panel) => {
     if (!userRole) return false;
-    const roles = userRole.split(",").map((r) => r.trim());
-    return roles.some((r) => p.roles.includes(r));
+    const userRoles = userRole.split(",").map((r) => r.trim());
+    return userRoles.some((role) => panel.roles.includes(role));
   });
 
-  const allowedNavItems = panelList.filter((p) => {
+  // Filter navigation items for mobile bottom bar
+  const allowedNavItems = panelList.filter((panel) => {
     if (!userRole) return false;
-    const roles = userRole.split(",").map((r) => r.trim());
-    return roles.some((r) => p.roles.includes(r)) && 
-           ["/dashboard", "/truck", "/reports", "/gate", "/loader"].includes(p.path);
+    const userRoles = userRole.split(",").map((r) => r.trim());
+    return userRoles.some((role) => panel.roles.includes(role)) && 
+           ["/dashboard", "/truck", "/reports", "/gate", "/loader"].includes(panel.path);
   });
 
+  // Format time display
   const formatTime = (date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  // Desktop View
   if (!isMobile) {
-    // Desktop Dashboard - Modern Web View
     return (
-      <div className="min-h-screen bg-gray-50 font-sans">
-        <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
-          <div className="flex justify-between items-center mb-12">
+          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-1">
-                Welcome back, {userName}
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1">
+                Welcome back, <span className="text-blue-600">{userName}</span>
               </h1>
-              <p className="text-gray-500">Streamline your logistics operations</p>
+              <p className="text-gray-500">Manage your logistics operations efficiently</p>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <div className="text-2xl font-medium text-gray-700">{formatTime(currentTime)}</div>
+                <div className="text-xl sm:text-2xl font-medium text-gray-700">
+                  {formatTime(currentTime)}
+                </div>
                 <div className="text-sm text-gray-500">
-                  {currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+                  {currentTime.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
                 </div>
               </div>
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center border border-gray-200">
                 <span className="text-blue-600 font-medium">
                   {userName.charAt(0).toUpperCase()}
                 </span>
               </div>
             </div>
-          </div>
+          </header>
 
-          {/* Dashboard Cards - Modern Grid */}
+          {/* Dashboard Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {allowedPanels.map((panel, index) => (
               <Link
                 to={panel.path}
                 key={index}
-                className="group relative no-underline"
+                className="group relative no-underline focus:outline-none"
               >
-                <div className="h-full rounded-xl p-5 bg-white shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 hover:border-transparent">
+                <div className="h-full rounded-xl p-5 bg-white shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 hover:border-transparent flex flex-col">
                   <div className={`w-12 h-12 rounded-lg mb-4 flex items-center justify-center ${panel.color} transition-transform duration-300 group-hover:scale-110`}>
                     <div className={panel.iconColor}>
                       {panel.icon}
@@ -2652,10 +2664,10 @@ export default function Home() {
                   <h3 className="text-lg font-semibold text-gray-800 mb-1">
                     {panel.name}
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 mb-2">
                     Access module
                   </p>
-                  <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-gray-400">
+                  <div className="mt-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-gray-400 self-end">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -2666,15 +2678,15 @@ export default function Home() {
           </div>
 
           {/* Footer */}
-          <div className="mt-16 pt-8 border-t border-gray-200 text-center text-sm text-gray-400">
+          <footer className="mt-16 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
             <p>Lemon Logistics ERP • v2.5 • {new Date().getFullYear()}</p>
-          </div>
+          </footer>
         </div>
       </div>
     );
   }
 
-  // Mobile Dashboard - Modern Mobile View
+  // Mobile View
   return (
     <div className="min-h-screen bg-gray-50 pb-20 font-sans">
       {/* Main Content */}
@@ -2683,23 +2695,27 @@ export default function Home() {
           <div>
             <h1 className="text-xl font-semibold text-gray-800">Hello, {userName}</h1>
             <p className="text-xs text-gray-500 mt-1">
-              {currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+              {currentTime.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+              })}
             </p>
           </div>
-          <div className="text-sm font-medium text-gray-700 bg-white rounded-full px-3 py-1 shadow-sm">
+          <div className="text-sm font-medium text-gray-700 bg-white rounded-full px-3 py-1 shadow-sm border border-gray-200">
             {formatTime(currentTime)}
           </div>
         </div>
 
-        {/* Dashboard Cards - Mobile Grid */}
+        {/* Mobile Grid */}
         <div className="grid grid-cols-2 gap-3">
           {allowedPanels.map((panel, idx) => (
             <Link
               to={panel.path}
               key={idx}
-              className="no-underline active:scale-95 transition-transform"
+              className="no-underline active:scale-95 transition-transform focus:outline-none"
             >
-              <div className="bg-white rounded-xl p-4 shadow-sm h-full flex flex-col items-center">
+              <div className="bg-white rounded-xl p-4 shadow-sm h-full flex flex-col items-center border border-gray-100">
                 <div className={`w-14 h-14 rounded-xl ${panel.color} flex items-center justify-center mb-3`}>
                   <div className={panel.iconColor}>
                     {panel.icon}
@@ -2714,13 +2730,14 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Bottom Navigation - Glassmorphism Style */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-gray-100 flex justify-around items-center p-2">
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-gray-200 flex justify-around items-center p-2 shadow-lg">
         {allowedNavItems.map((item, index) => (
           <Link 
             to={item.path} 
             key={index}
-            className="p-2 rounded-full text-gray-500 active:text-gray-700 transition-colors"
+            className="p-2 rounded-full text-gray-500 active:text-gray-700 transition-colors focus:outline-none"
+            aria-label={item.name}
           >
             <div className={`p-2 ${item.iconColor}`}>
               {item.navIcon}
