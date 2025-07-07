@@ -3900,15 +3900,15 @@ import {
   BsBoxSeam
 } from 'react-icons/bs';
 
-const Navbar = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const [userRole, setUserRole] = useState(null);
-  const location = useLocation();
+const [userRole, setUserRole] = useState(null);
+const [moduleRights, setModuleRights] = useState([]);
 
-  useEffect(() => {
-    setUserRole(localStorage.getItem('userRole'));
-  }, []);
+useEffect(() => {
+  setUserRole(localStorage.getItem('userRole'));
+  const rights = localStorage.getItem('moduleRights');
+  setModuleRights(rights ? rights.split(',').map(r => r.trim()) : []);
+}, []);
+
 
   const handleLogout = () => {
     localStorage.clear();
@@ -3923,6 +3923,11 @@ const Navbar = () => {
 
   const hasAccess = (requiredRoles) => {
   if (!userRole) return false;
+
+  const userRoles = userRole.split(',').map(r => r.trim());
+
+  return requiredRoles.some(role => userRoles.includes(role) || moduleRights.includes(role));
+};
 
   const userRoles = userRole.split(',').map(r => r.trim());
   const moduleRights = localStorage.getItem('moduleRights')?.split(',').map(r => r.trim()) || [];
